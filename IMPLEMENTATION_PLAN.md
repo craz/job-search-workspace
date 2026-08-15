@@ -226,6 +226,12 @@ User Story:
 
 ## 7. OSINT
 
+`job-search-osint` получил provenance-safe scaffold: capability contract явно
+фиксирует providers и Core write как `not-configured`, хранение raw evidence —
+как локальную ответственность OSINT, а provenance и подтверждение — как
+обязательные условия. Unit/contract/pytest-bdd и quality gates пройдены offline;
+внешние провайдеры, Docker build и сетевые загрузки не запускались.
+
 Реализовать:
 
 1. Определение сайта компании.
