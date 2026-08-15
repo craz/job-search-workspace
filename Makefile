@@ -1,4 +1,4 @@
-.PHONY: bootstrap doctor doctor-offline test unit bdd
+.PHONY: bootstrap doctor doctor-offline inventory-check test unit bdd
 
 PYTHON ?= python3
 
@@ -11,8 +11,11 @@ doctor:
 doctor-offline:
 	$(PYTHON) scripts/workspace.py doctor --offline
 
+inventory-check:
+	$(PYTHON) scripts/check_inventory.py
+
 unit:
-	$(PYTHON) -m unittest -v tests.test_workspace
+	$(PYTHON) -m unittest -v tests.test_workspace tests.test_inventory
 
 bdd:
 	$(PYTHON) -m unittest -v tests.test_workspace_bdd
