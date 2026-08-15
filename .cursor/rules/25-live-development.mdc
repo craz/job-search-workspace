@@ -1,0 +1,34 @@
+---
+description: Автоматический venv, live browser, hot reload и restart после изменений
+alwaysApply: false
+globs:
+  - "**/*.py"
+  - "**/*.html"
+  - "**/*.css"
+  - "**/*.js"
+  - "**/*.ts"
+  - "**/*.tsx"
+  - "**/Dockerfile"
+  - "**/compose*.yml"
+  - "**/compose*.yaml"
+  - "**/pyproject.toml"
+  - "**/Makefile"
+---
+
+# Live development
+
+- Для интерактивного host shell используй безопасный `.envrc`: `direnv`
+  автоматически активирует `.venv` после однократного `direnv allow`.
+- Для Make, CI и агентских команд используй `scripts/ensure-venv.sh`: команды не
+  должны зависеть от активированного shell и ручной `source` не требуется.
+- `.envrc` не содержит секреты; локальные значения загружает через
+  `dotenv_if_exists .env.local`.
+- Основной dev entrypoint workspace — `make dev`.
+- Core/Web запускай с hot reload; после кода проверяй, что сервис успешно
+  перезагрузился и readiness снова green.
+- После Dockerfile, dependency lock, Compose, env или migration изменений выполняй
+  rebuild/restart затронутого сервиса, не удаляя named volumes.
+- Для UI используй live browser и проверяй loading, success, empty и error states.
+- HH Chromium открывай через локальный noVNC; не запускай второй Chromium с тем же profile.
+- Не оставляй foreground-процесс, который блокирует агентскую сессию: используй
+  штатные dev/status/logs команды и сообщай URL/состояние.

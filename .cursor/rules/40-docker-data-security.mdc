@@ -1,0 +1,23 @@
+---
+description: Docker, volumes, секреты, HH Chromium и host Ollama
+alwaysApply: false
+globs:
+  - "**/Dockerfile"
+  - "**/*.dockerfile"
+  - "**/compose*.yml"
+  - "**/compose*.yaml"
+  - "**/.env.example"
+---
+
+# Docker, data and security
+
+- Использовать pinned minimal images, multi-stage build и non-root user.
+- Секреты не помещать в image, Compose-файл, Git, логи или fixtures.
+- PostgreSQL и state хранятся в named volumes; обычный `down` их не удаляет.
+- Удаление volume и restore считаются destructive и требуют явного подтверждения.
+- PostgreSQL, noVNC и служебные endpoints не публиковать наружу по умолчанию.
+- HH Chromium profile доступен только HH-контейнеру и защищён single-process lock.
+- Scoring вызывает host Ollama через `host.docker.internal`; GPU контейнеру не нужен.
+- Добавлять healthcheck/readiness, graceful shutdown и ограничения ресурсов.
+- Backup/restore должны быть документированы и проверяемы.
+

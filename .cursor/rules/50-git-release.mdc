@@ -1,0 +1,24 @@
+---
+description: Git, PR, версия и безопасный multirepo release
+alwaysApply: false
+globs:
+  - "**/CHANGELOG.md"
+  - "**/.github/**"
+  - "**/repos.yaml"
+  - "**/*lock*"
+---
+
+# Git and release
+
+- Ветки: `type/short-kebab-scope`; коммиты: Conventional Commits.
+- Автоматически коммитить завершённый зелёный шаг Conventional Commit сообщением.
+- Перед commit проверить status/diff и stage только файлы текущей задачи.
+- Не включать пользовательские или посторонние изменения; при неразделимом diff
+  пропустить автокоммит и сообщить причину.
+- Push/PR/merge выполнять только по явному запросу пользователя.
+- PR требует зелёных checks, review и заполненного checklist.
+- Версии продуктовых репозиториев следуют SemVer и Keep a Changelog.
+- Provider выпускается обратно совместимо раньше consumer.
+- Workspace lock обновляется только после успешного compose integration smoke.
+- Release содержит rollout, rollback и migration notes.
+- Не использовать автоматический patch bump на каждый merge без анализа SemVer.

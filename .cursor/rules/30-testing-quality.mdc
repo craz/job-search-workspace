@@ -1,0 +1,22 @@
+---
+description: Тестовые уровни и обязательные quality gates
+alwaysApply: false
+globs:
+  - "**/tests/**"
+  - "**/test_*.py"
+  - "**/pyproject.toml"
+  - "**/Makefile"
+  - "**/.github/workflows/**"
+---
+
+# Testing and quality
+
+- Unit: чистая логика, happy path и негативные случаи.
+- Integration: реальный PostgreSQL/HTTP внутри изолированного тестового окружения.
+- Contract: совместимость OpenAPI и JSON CLI schemas между provider/consumer.
+- Smoke: один критический сценарий; реальные HH/Telegram отправки запрещены по умолчанию.
+- UI/noVNC: manual checklist из feature spec.
+- Fixtures не используют рабочие volumes, токены, cookies или персональные данные.
+- Warnings в CI являются ошибками; не скрывать их фильтрами.
+- После изменения сообщить точные команды, pass/fail/skip и причину каждого skip.
+

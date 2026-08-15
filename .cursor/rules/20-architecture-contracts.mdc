@@ -1,0 +1,24 @@
+---
+description: Архитектура сервисов, PostgreSQL и публичные контракты
+alwaysApply: false
+globs:
+  - "**/*.py"
+  - "**/*.sql"
+  - "**/alembic/**"
+  - "**/openapi*.yml"
+  - "**/openapi*.yaml"
+  - "**/*schema*.json"
+---
+
+# Architecture and contracts
+
+- Данные принадлежат одному сервису; только Core работает с PostgreSQL.
+- Domain не зависит от FastAPI, SQLAlchemy, CLI и внешних SDK.
+- SQLAlchemy-модели не являются доменными сущностями.
+- Schema changes оформляются Alembic migration и проверяются upgrade tests.
+- Внешние сущности уникальны по `(source, external_id)`; записи интеграций идемпотентны.
+- HTTP источник правды — OpenAPI; CLI источник правды — JSON Schema.
+- Несовместимое изменение создаёт новую major-версию и migration plan.
+- Межсервисные вызовы имеют timeout, предсказуемые ошибки и `trace_id`.
+- Архитектурный выбор с существенными альтернативами оформляется ADR.
+
