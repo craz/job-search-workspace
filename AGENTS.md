@@ -32,3 +32,8 @@
 16. Follow `docs/AI_HISTORY.md`: keep original platform session exports under
     `.local/sessions/`, derived views under `.local/derived/`, summaries in
     `.local/AI_HISTORY.md`, and never commit local history.
+17. Treat code documentation as a reviewed engineering artifact, not a coverage
+    checkbox. A reader without chat context must understand each module's role,
+    boundaries and main flow; each non-trivial API's contract, side effects,
+    failures and invariants; and the reason for safety-sensitive branches. Verify
+    comments against behavior and reject vague, decorative or stale docstrings.
