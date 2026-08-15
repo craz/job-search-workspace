@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-15",
+  "repositories": {
+    "job-search-content": {
+      "commit": "05e9d7c637dfc37c4f848e1faa396a50b38f6b9e"
+    },
+    "job-search-core": {
+      "commit": "05e9d7c637dfc37c4f848e1faa396a50b38f6b9e"
+    },
+    "job-search-hh": {
+      "commit": "05e9d7c637dfc37c4f848e1faa396a50b38f6b9e"
+    },
+    "job-search-osint": {
+      "commit": "05e9d7c637dfc37c4f848e1faa396a50b38f6b9e"
+    },
+    "job-search-scoring": {
+      "commit": "05e9d7c637dfc37c4f848e1faa396a50b38f6b9e"
+    },
+    "job-search-web": {
+      "commit": "05e9d7c637dfc37c4f848e1faa396a50b38f6b9e"
+    }
+  }
+}

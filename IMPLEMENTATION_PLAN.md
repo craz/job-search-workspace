@@ -17,6 +17,10 @@
 
 ### 0A. Базовый workspace — выполнить первым
 
+**Статус:** реализован; manifest, lock, bootstrap, doctor, ADR и локальные
+исполняемые проверки добавлены. Gate подтверждается командами `make test`,
+`make bootstrap` и `make doctor`.
+
 Добавить сейчас:
 
 - `repos.yaml` со списком remote URL и совместимых версий;

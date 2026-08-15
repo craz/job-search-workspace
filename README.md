@@ -46,6 +46,11 @@ make logs       # посмотреть состояние сервисов
 make test       # запустить общий набор проверок
 ```
 
+На этапе workspace 0A уже доступны `make bootstrap`, `make doctor`,
+`make doctor-offline`, `make unit`, `make bdd` и `make test`. Команды `dev`,
+`logs`, `backup` и `restore` будут добавляться в 0B вместе с реальными сервисами,
+PostgreSQL и volumes.
+
 Для host Python tooling каждый репозиторий будет содержать `.envrc`: после
 однократного `direnv allow` окружение `.venv` активируется автоматически при
 входе в каталог. `scripts/ensure-venv.sh` остаётся fallback для Make, CI и

@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "repositories": [
+    {
+      "name": "job-search-core",
+      "path": "job-search-core",
+      "url": "git@github.com:craz/job-search-core.git",
+      "branch": "main",
+      "visibility": "public",
+      "role": "Core domain, HTTP API and PostgreSQL ownership"
+    },
+    {
+      "name": "job-search-hh",
+      "path": "job-search-hh",
+      "url": "git@github.com:craz/job-search-hh.git",
+      "branch": "main",
+      "visibility": "public",
+      "role": "HeadHunter API and browser automation"
+    },
+    {
+      "name": "job-search-scoring",
+      "path": "job-search-scoring",
+      "url": "git@github.com:craz/job-search-scoring.git",
+      "branch": "main",
+      "visibility": "public",
+      "role": "Vacancy scoring through host Ollama"
+    },
+    {
+      "name": "job-search-osint",
+      "path": "job-search-osint",
+      "url": "git@github.com:craz/job-search-osint.git",
+      "branch": "main",
+      "visibility": "public",
+      "role": "Company and people research with provenance"
+    },
+    {
+      "name": "job-search-content",
+      "path": "job-search-content",
+      "url": "git@github.com:craz/job-search-content.git",
+      "branch": "main",
+      "visibility": "public",
+      "role": "Draft generation and Telegram publishing"
+    },
+    {
+      "name": "job-search-web",
+      "path": "job-search-web",
+      "url": "git@github.com:craz/job-search-web.git",
+      "branch": "main",
+      "visibility": "public",
+      "role": "Browser dashboard backed by Core API"
+    }
+  ]
+}
