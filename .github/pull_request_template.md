@@ -7,6 +7,14 @@
 - In scope:
 - Non-scope:
 
+## User Story
+
+```text
+Как ...,
+Я хочу ...,
+Чтобы ....
+```
+
 ## Контракты и данные
 
 - [ ] Публичные API/CLI не менялись
@@ -19,6 +27,7 @@
 - [ ] Format/lint/typecheck
 - [ ] Unit tests
 - [ ] Integration tests
+- [ ] BDD/Gherkin (`make bdd`)
 - [ ] Contract tests
 - [ ] Docker build
 - [ ] Smoke/manual QA или указана причина пропуска
@@ -33,4 +42,3 @@
 ## Rollout / rollback
 
 <!-- Порядок развёртывания, наблюдение и способ отката. -->
-

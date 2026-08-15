@@ -1,0 +1,41 @@
+---
+description: User Story и исполняемые Gherkin acceptance tests
+alwaysApply: false
+globs:
+  - "**/docs/specs/**"
+  - "**/tests/features/**"
+  - "**/*.feature"
+  - "**/tests/bdd/**"
+---
+
+# User Story and BDD
+
+Для каждой пользовательской возможности сначала запиши:
+
+```text
+Как [роль пользователя],
+Я хочу [выполнить действие],
+Чтобы [получить результат или ценность].
+```
+
+Затем опиши acceptance criteria через Gherkin:
+
+```gherkin
+Feature: <возможность>
+
+  @story-<id>
+  Scenario: <одно наблюдаемое поведение>
+    Given <исходное состояние>
+    When <действие>
+    Then <наблюдаемый результат>
+```
+
+- Роль — реальный пользователь или внешний потребитель системы.
+- «Чтобы» объясняет ценность, а не техническую операцию.
+- Один scenario проверяет одно поведение на языке домена.
+- Добавляй happy path, значимые ошибки, ограничения и идемпотентность.
+- Feature-файлы должны быть исполняемыми через `make bdd`.
+- Для Python step definitions находятся в `tests/bdd` и используют `pytest-bdd`.
+- Не использовать реальные HH/Telegram отправки в BDD; внешние эффекты заменять
+  fake transport или контролируемым test double.
+- Gherkin дополняет, но не заменяет unit, integration и contract tests.
