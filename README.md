@@ -22,6 +22,7 @@ Workspace для разделения исходного `/data/Projects/job_sea
 ## Документация
 
 - [Архитектурный план](ARCHITECTURE_PLAN.md)
+- [Пошаговый план реализации](IMPLEMENTATION_PLAN.md)
 - [Полный процесс разработки](DEVELOPMENT_PROCESS.md)
 - [Правила участия](CONTRIBUTING.md)
 - [Инструкции агентам](AGENTS.md)
