@@ -23,6 +23,8 @@ REQUIRED_TOOLS = ("git", "docker", "direnv", "python3", "make")
 
 @dataclass(frozen=True)
 class Repository:
+    """One product repository resolved from the manifest and version lock."""
+
     name: str
     path: str
     url: str
@@ -34,6 +36,8 @@ class Repository:
 
 @dataclass(frozen=True)
 class Check:
+    """A diagnostic result whose level controls the command exit status."""
+
     level: str
     subject: str
     message: str
@@ -86,6 +90,11 @@ def run(
     env: dict[str, str] | None = None,
     timeout: float | None = None,
 ) -> subprocess.CompletedProcess[str]:
+    """Run a bounded child process and capture output for stable diagnostics.
+
+    Callers choose whether a non-zero exit raises. A timeout always raises so a
+    network or credential prompt cannot silently freeze automation.
+    """
     return subprocess.run(
         list(args),
         cwd=cwd,
@@ -99,15 +108,22 @@ def run(
 
 
 def git(repo: Path, *args: str, check: bool = True) -> str:
+    """Run Git against an explicit checkout and return normalized stdout."""
     result = run(("git", "-C", str(repo), *args), check=check)
     return result.stdout.strip()
 
 
 def repository_path(projects_dir: Path, repository: Repository) -> Path:
+    """Resolve a manifest-relative checkout without relying on the shell CWD."""
     return projects_dir / repository.path
 
 
 def bootstrap(repositories: Sequence[Repository], projects_dir: Path) -> list[Check]:
+    """Clone missing repositories and safely validate existing checkouts.
+
+    Existing repositories are never fetched, reset, cleaned or checked out: the
+    worktree may contain user changes. Version drift is only reported.
+    """
     projects_dir.mkdir(parents=True, exist_ok=True)
     checks: list[Check] = []
     for repository in repositories:
@@ -152,6 +168,7 @@ def bootstrap(repositories: Sequence[Repository], projects_dir: Path) -> list[Ch
 
 
 def check_tools(*, skip_tools: bool) -> list[Check]:
+    """Check required host executables and verify that Docker is usable."""
     if skip_tools:
         return [Check("SKIP", "tools", "host tool checks disabled")]
     checks: list[Check] = []
@@ -178,6 +195,11 @@ def diagnose_repository(
     *,
     offline: bool,
 ) -> list[Check]:
+    """Validate identity, revision, cleanliness and remote reachability.
+
+    Remote access disables terminal prompts and uses bounded timeouts so doctor
+    remains safe for unattended development flows.
+    """
     target = repository_path(projects_dir, repository)
     if not (target / ".git").exists():
         return [Check("ERROR", repository.name, f"missing repository: {target}")]
@@ -250,6 +272,7 @@ def doctor(
     offline: bool,
     skip_tools: bool,
 ) -> list[Check]:
+    """Collect host and repository diagnostics without changing the workspace."""
     checks = check_tools(skip_tools=skip_tools)
     for repository in repositories:
         checks.extend(diagnose_repository(repository, projects_dir, offline=offline))
@@ -257,15 +280,18 @@ def doctor(
 
 
 def print_checks(checks: Sequence[Check]) -> None:
+    """Render checks consistently for humans and CI logs."""
     for item in checks:
         print(f"[{item.level:<5}] {item.subject}: {item.message}")
 
 
 def has_errors(checks: Sequence[Check]) -> bool:
+    """Return whether diagnostics require a failing process exit code."""
     return any(item.level == "ERROR" for item in checks)
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """Build the CLI contract for bootstrap and doctor operations."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--projects-dir",
@@ -282,6 +308,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    """Execute a command and translate expected operational failures to exit 1."""
     args = build_parser().parse_args(argv)
     try:
         repositories = load_repositories()

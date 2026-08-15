@@ -1,3 +1,5 @@
+"""Executable acceptance scenarios for the workspace foundation feature."""
+
 from __future__ import annotations
 
 import unittest
@@ -13,6 +15,7 @@ class WorkspaceFoundationScenarios(unittest.TestCase):
     """Executable bindings for tests/features/workspace_foundation.feature."""
 
     def test_existing_workspace_is_bootstrapped_without_overwrite(self) -> None:
+        """Bootstrap keeps every pre-existing locked checkout intact."""
         # Given all locked repositories already exist
         repositories = load_repositories()
         heads_before = {
@@ -28,6 +31,7 @@ class WorkspaceFoundationScenarios(unittest.TestCase):
         self.assertFalse(any(check.level == "ERROR" for check in checks))
 
     def test_offline_doctor_validates_locked_workspace(self) -> None:
+        """Offline doctor proves local consistency without requiring a network."""
         # Given repository versions match the workspace lock
         repositories = load_repositories()
 
