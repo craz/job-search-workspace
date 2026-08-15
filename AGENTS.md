@@ -1,7 +1,7 @@
 # Instructions for development agents
 
 1. Read `ARCHITECTURE_PLAN.md`, `DEVELOPMENT_PROCESS.md` and, when present,
-   `.project-context.local.md` before planning or changing the system. The local
+   `.local/PROJECT_CONTEXT.md` before planning or changing the system. The local
    context is private and must never be committed.
 2. Preserve repository boundaries: no cross-repository Python imports, shared
    databases, or access to another service's Docker volume.
