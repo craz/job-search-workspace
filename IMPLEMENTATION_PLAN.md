@@ -94,6 +94,11 @@ automation остаются `not-configured`; unit/contract/pytest-bdd и лок
 gates проверены. Dockerfile подготовлен, но image build сознательно не запускался
 без отдельного согласования загрузки base image.
 
+`job-search-scoring` получил безопасный host-Ollama scaffold: capability contract
+фиксирует Ollama, model и Core Assessment write как `not-configured`, а прямой GPU
+в container — как ненужный. Unit/contract/pytest-bdd и локальные quality gates
+проверены полностью offline; Docker build и model download не выполнялись.
+
 В Core, HH, Scoring, OSINT, Content и Web добавить:
 
 - README и CHANGELOG;
