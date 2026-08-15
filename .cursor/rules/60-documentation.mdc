@@ -1,6 +1,14 @@
 ---
 description: Документация как обязательная часть изменения
-alwaysApply: true
+alwaysApply: false
+globs:
+  - "**/*.py"
+  - "**/*.md"
+  - "**/*.mdc"
+  - "**/README*"
+  - "**/CHANGELOG*"
+  - "**/openapi*.yaml"
+  - "**/*schema*.json"
 ---
 
 # Documentation

@@ -1,6 +1,10 @@
 ---
 description: Локальная raw- и summary-история работы с AI-инструментами
-alwaysApply: true
+alwaysApply: false
+globs:
+  - "docs/AI_HISTORY.md"
+  - "docs/templates/AI_HISTORY.template.md"
+  - "scripts/init-ai-history.sh"
 ---
 
 # AI history

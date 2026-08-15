@@ -1,6 +1,6 @@
 ---
 description: Стандарты качества и приватности публичных репозиториев
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Public repository quality

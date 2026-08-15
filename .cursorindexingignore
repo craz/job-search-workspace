@@ -1,0 +1,34 @@
+# Environments, caches and build output
+.venv/
+venv/
+.direnv/
+.cache/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+build/
+dist/
+coverage/
+htmlcov/
+
+# Runtime, generated and third-party trees
+.local/
+tmp/
+temp/
+data/
+state/
+logs/
+generated/
+vendor/
+backups/
+
+# Large generated artifacts
+*.dump
+*.backup
+*.db
+*.sqlite*
+*.log
+*.jsonl
+*.coverage
+

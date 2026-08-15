@@ -15,7 +15,7 @@ inventory-check:
 	$(PYTHON) scripts/check_inventory.py
 
 unit:
-	$(PYTHON) -m unittest -v tests.test_workspace tests.test_inventory
+	$(PYTHON) -m unittest -v tests.test_workspace tests.test_inventory tests.test_agent_context
 
 bdd:
 	$(PYTHON) -m unittest -v tests.test_workspace_bdd

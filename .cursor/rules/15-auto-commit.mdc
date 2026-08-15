@@ -1,6 +1,12 @@
 ---
 description: Безопасный автокоммит каждого завершённого шага
-alwaysApply: true
+alwaysApply: false
+globs:
+  - "**/.git/**"
+  - "**/.github/**"
+  - "**/CHANGELOG.md"
+  - "**/repos*.yaml"
+  - "**/repos*.json"
 ---
 
 # Auto commit
@@ -17,4 +23,3 @@ alwaysApply: true
 Если каталог ещё не является Git-репозиторием, проверки падают или изменения
 невозможно безопасно отделить — не коммить и явно сообщи причину. Автокоммит не
 даёт разрешения на push, PR, merge, tag или release.
-

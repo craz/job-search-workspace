@@ -1,0 +1,22 @@
+# Private conversation/session material must not enter Cursor requests.
+.local/sessions/
+.local/derived/
+.local/AI_HISTORY.md
+.local/AI_CHAT_RAW.md
+
+# Runtime data and credentials are never useful AI context.
+.env
+.env.*
+!.env.example
+data/
+state/
+backups/
+logs/
+*.db
+*.sqlite*
+*.dump
+*.backup
+*.log
+*.token
+*.cookie
+

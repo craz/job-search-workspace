@@ -1,6 +1,6 @@
 ---
 description: Обязательный цикл разработки, scope и Definition of Done
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Development workflow

@@ -1,15 +1,14 @@
 ---
-description: Контекст и неизменяемые границы Job Search multirepo
+description: Минимальные глобальные границы Job Search multirepo
 alwaysApply: true
 ---
 
 # Project context
 
-- Источники правды: `ARCHITECTURE_PLAN.md` и `DEVELOPMENT_PROCESS.md`.
 - `/data/Projects/job_search` — read-only архив; новая работа идёт в multirepo workspace.
-- Каждый сервис владеет своими данными, секретами и Docker volumes.
 - Запрещены cross-repo Python imports, общая прикладная БД и чтение чужих volumes.
-- Межсервисные интерфейсы: `/api/v1` и версионированный JSON CLI.
-- Hermes на текущем этапе не переносится и не контейнеризируется.
+- Не публикуй секреты, PII, приватную историю или содержимое `.local/`.
 - Не выполнять реальные HH/Telegram отправки без явного разрешения пользователя.
-
+- Проверяй изменение применимыми gates; не скрывай warnings и не выдавай planned за ready.
+- Автокоммит допустим только для завершённого green шага и только своих файлов.
+- Push, PR, merge, tag и release требуют явного запроса пользователя.
