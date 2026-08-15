@@ -7,7 +7,11 @@ project_root="$(cd -- "$script_dir/.." && pwd)"
 local_dir="$project_root/.local"
 template_dir="$project_root/docs/templates"
 
-mkdir -p "$local_dir"
+mkdir -p \
+  "$local_dir/sessions/codex" \
+  "$local_dir/sessions/cursor" \
+  "$local_dir/sessions/other" \
+  "$local_dir/derived"
 
 initialize_file() {
   local target="$1"
@@ -22,9 +26,6 @@ initialize_file() {
   printf 'created: %s\n' "$target"
 }
 
-initialize_file \
-  "$local_dir/AI_CHAT_RAW.md" \
-  "$template_dir/AI_CHAT_RAW.template.md"
 initialize_file \
   "$local_dir/AI_HISTORY.md" \
   "$template_dir/AI_HISTORY.template.md"

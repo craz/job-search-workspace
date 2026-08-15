@@ -7,10 +7,12 @@ alwaysApply: true
 
 Следуй `docs/AI_HISTORY.md`.
 
-- Если `.local/AI_CHAT_RAW.md` и `.local/AI_HISTORY.md` отсутствуют, предложи или
+- Если `.local/sessions/` и `.local/AI_HISTORY.md` отсутствуют, предложи или
   выполни `scripts/init-ai-history.sh` в рамках начала содержательной работы.
-- Сохраняй в raw доступные environment context, User/Assistant messages,
-  commentary, tool calls, tool outputs, errors и approvals с timestamps.
+- Canonical raw — оригинальный session export платформы в
+  `.local/sessions/<tool>/`; не преобразуй его перед сохранением.
+- Если оригинал уже хранится платформой локально, подключай его ссылкой; копию
+  создавай только для переноса или backup по запросу пользователя.
 - После завершённого инженерного шага обновляй summary-журнал: запрос, решения,
   изменения, проверки, Git и следующий шаг.
 - Backfill выполняй только из фактического session transcript или пользовательского
@@ -18,6 +20,8 @@ alwaysApply: true
 - Не записывай скрытые reasoning-блоки и недоступные пользователю
   system/developer-инструкции.
 - Редактируй секреты, cookies, пароли, PII и приватную переписку.
+- Производные Markdown/HTML/index-файлы сохраняй только в `.local/derived/` и не
+  считай их canonical raw.
 - Никогда не добавляй `.local/` в Git.
 - При конфликте локальной истории с кодом, тестами, контрактами, ADR или Git
   доверяй tracked source of truth.
