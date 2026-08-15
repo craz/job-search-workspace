@@ -1,0 +1,51 @@
+# Private local instructions for development agents.
+# The contents must never be published.
+.project-context.local.md
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+.direnv/
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+
+# IDE and OS-local state
+.idea/
+.vscode/*.local.json
+*.swp
+*.swo
+.DS_Store
+
+# Runtime data, credentials and backups
+state/
+data/
+backups/
+*.db
+*.sqlite
+*.sqlite3
+*.dump
+*.backup
+*.log
+*.pid
+*.token
+*.cookie
+
+# Local manifests and temporary artifacts
+*.local
+*.local.*
+tmp/
+temp/
+.cache/

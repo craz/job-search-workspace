@@ -1,7 +1,8 @@
 # Instructions for development agents
 
-1. Read `ARCHITECTURE_PLAN.md` and `DEVELOPMENT_PROCESS.md` before planning or
-   changing the system.
+1. Read `ARCHITECTURE_PLAN.md`, `DEVELOPMENT_PROCESS.md` and, when present,
+   `.project-context.local.md` before planning or changing the system. The local
+   context is private and must never be committed.
 2. Preserve repository boundaries: no cross-repository Python imports, shared
    databases, or access to another service's Docker volume.
 3. Explore the current implementation and tests before asking discoverable
@@ -22,3 +23,6 @@
 12. For UI work, use the live development stack, verify in a browser when
     available, and preserve Docker volumes across reload/restart.
 13. Update README/spec/contracts/runbooks/CHANGELOG together with behavior.
+14. Keep every public repository honest, reproducible, understandable without
+    chat context, and free of secrets, personal data, private correspondence and
+    raw AI prose.
