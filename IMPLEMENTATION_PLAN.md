@@ -82,6 +82,12 @@
 
 ## 2. Стандартный каркас продуктовых репозиториев
 
+**Статус:** выполняется. `job-search-core` подготовлен как проверенный эталон:
+uv lock, автоматическая `.venv` через direnv/Make, FastAPI health contracts,
+versioned JSON CLI, Ruff, strict mypy, unit/integration/contract/pytest-bdd,
+GitHub Actions и Docker smoke. Остальные продуктовые репозитории ещё не
+адаптированы; `job-search-content` по текущему решению не изменяется.
+
 В Core, HH, Scoring, OSINT, Content и Web добавить:
 
 - README и CHANGELOG;
