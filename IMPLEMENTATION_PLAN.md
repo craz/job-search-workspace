@@ -88,6 +88,12 @@ versioned JSON CLI, Ruff, strict mypy, unit/integration/contract/pytest-bdd,
 GitHub Actions и Docker smoke. Остальные продуктовые репозитории ещё не
 адаптированы; `job-search-content` по текущему решению не изменяется.
 
+`job-search-hh` получил безопасный scaffold без внешних интеграций: versioned
+capabilities CLI явно фиксирует `external_writes_enabled=false`, HH API и browser
+automation остаются `not-configured`; unit/contract/pytest-bdd и локальные quality
+gates проверены. Dockerfile подготовлен, но image build сознательно не запускался
+без отдельного согласования загрузки base image.
+
 В Core, HH, Scoring, OSINT, Content и Web добавить:
 
 - README и CHANGELOG;
