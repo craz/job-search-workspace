@@ -29,3 +29,5 @@
 15. Keep every public repository honest, reproducible, understandable without
     chat context, and free of secrets, personal data, private correspondence and
     raw AI prose.
+16. Follow `docs/AI_HISTORY.md`: keep raw and summary AI histories under the
+    ignored `.local/` directory, redact sensitive data, and never commit them.

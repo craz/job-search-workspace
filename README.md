@@ -26,6 +26,7 @@ Workspace для разделения исходного `/data/Projects/job_sea
 - [Полный процесс разработки](DEVELOPMENT_PROCESS.md)
 - [Правила участия](CONTRIBUTING.md)
 - [Инструкции агентам](AGENTS.md)
+- [Локальная история работы с AI](docs/AI_HISTORY.md)
 - [Шаблон feature spec](docs/templates/FEATURE_SPEC.md)
 - [Шаблон ADR](docs/templates/ADR.md)
 
@@ -53,3 +54,15 @@ make test       # запустить общий набор проверок
 
 Рабочая PostgreSQL, browser profile HH, токены, кэши и drafts будут храниться в
 Docker named volumes. Обычный restart или `docker compose down` их не удаляет.
+
+## Локальная AI-история
+
+Пользователь может создать приватные raw- и summary-журналы работы с Codex,
+Cursor и другими AI-инструментами:
+
+```bash
+scripts/init-ai-history.sh
+```
+
+Шаблоны и правила находятся в Git, а заполненные журналы сохраняются только в
+игнорируемом каталоге `.local/`.
