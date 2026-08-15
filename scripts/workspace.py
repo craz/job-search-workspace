@@ -1,5 +1,30 @@
 #!/usr/bin/env python3
-"""Bootstrap and diagnose the Job Search multirepo workspace."""
+"""Управление Git-репозиториями Job Search multirepo workspace.
+
+Скрипт предоставляет две безопасные начальные операции:
+
+* ``bootstrap`` клонирует отсутствующие sibling-репозитории и проверяет уже
+  существующие, не выполняя над ними fetch, checkout, reset или clean;
+* ``doctor`` диагностирует инструменты хоста, Docker daemon, локальное состояние
+  репозиториев и, если разрешено, доступность веток в remote.
+
+Workspace определяется как каталог на уровень выше этого файла. Product repos
+по умолчанию располагаются рядом с ним в ``WORKSPACE_ROOT.parent``. Manifest
+``repos.yaml`` намеренно записан в JSON-синтаксисе (JSON является подмножеством
+YAML), чтобы bootstrap обходился стандартной библиотекой Python. Произвольный
+YAML-синтаксис этим скриптом не поддерживается.
+
+Lock-файл сейчас является проверяемой спецификацией совместимых HEAD, но не
+механизмом принудительного checkout. Даже новый clone получает текущий HEAD
+указанной ветки, после чего скрипт сравнивает его с lock. Это сохраняет
+недеструктивность, но означает, что bootstrap может завершиться с WARN при
+изменившейся remote-ветке.
+
+Уровни результатов: ERROR приводит к exit code 1; WARN и SKIP печатаются, но не
+делают команду неуспешной. Ошибка разбора CLI остаётся стандартным exit code 2
+от argparse. Скрипт пока не управляет Compose, сервисами, backup или restore —
+эти операции появятся в workspace 0B вместе с реальными компонентами.
+"""
 
 from __future__ import annotations
 
@@ -23,7 +48,13 @@ REQUIRED_TOOLS = ("git", "docker", "direnv", "python3", "make")
 
 @dataclass(frozen=True)
 class Repository:
-    """One product repository resolved from the manifest and version lock."""
+    """Полное описание одного product repository.
+
+    ``name``, ``path``, ``url``, ``branch``, ``visibility`` и ``role`` приходят
+    из manifest. ``commit`` присоединяется из lock-файла. ``frozen=True`` не даёт
+    случайно изменить проверяемую конфигурацию во время выполнения. Поля
+    ``visibility`` и ``role`` пока являются метаданными и логикой не используются.
+    """
 
     name: str
     path: str
@@ -36,7 +67,12 @@ class Repository:
 
 @dataclass(frozen=True)
 class Check:
-    """A diagnostic result whose level controls the command exit status."""
+    """Результат одной независимой проверки.
+
+    ``level`` принимает используемые CLI уровни OK, WARN, ERROR или SKIP;
+    ``subject`` называет инструмент либо репозиторий; ``message`` объясняет
+    результат. Только наличие ERROR меняет итоговый exit code на 1.
+    """
 
     level: str
     subject: str
@@ -47,7 +83,14 @@ def load_repositories(
     manifest_path: Path = MANIFEST_PATH,
     lock_path: Path = LOCK_PATH,
 ) -> list[Repository]:
-    """Load the JSON-compatible YAML manifest and machine lock file."""
+    """Загрузить manifest и объединить его с точными версиями из lock-файла.
+
+    Оба файла должны иметь ``schema_version == 1``. Имена в manifest обязаны
+    быть уникальными; каждому имени нужна lock-запись с commit; лишние имена в
+    lock запрещены. Нарушение контракта вызывает ``ValueError`` до любых Git
+    операций. Отсутствующие файлы и неверный JSON передаются вызывающему коду как
+    стандартные исключения чтения/декодирования.
+    """
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     lock = json.loads(lock_path.read_text(encoding="utf-8"))
 
@@ -90,10 +133,13 @@ def run(
     env: dict[str, str] | None = None,
     timeout: float | None = None,
 ) -> subprocess.CompletedProcess[str]:
-    """Run a bounded child process and capture output for stable diagnostics.
+    """Запустить процесс без shell и вернуть захваченные stdout/stderr.
 
-    Callers choose whether a non-zero exit raises. A timeout always raises so a
-    network or credential prompt cannot silently freeze automation.
+    Передача списка аргументов без shell исключает интерпретацию metacharacters.
+    ``check=True`` превращает ненулевой exit code в ``CalledProcessError``;
+    ``env`` позволяет задать изолированное окружение; ``timeout`` ограничивает
+    выполнение только когда вызывающий код передал значение. Сейчас явный
+    timeout используется для remote-check, но не для clone или ``docker info``.
     """
     return subprocess.run(
         list(args),
@@ -108,21 +154,31 @@ def run(
 
 
 def git(repo: Path, *args: str, check: bool = True) -> str:
-    """Run Git against an explicit checkout and return normalized stdout."""
+    """Выполнить ``git -C <repo> ...`` и вернуть stdout без крайних пробелов.
+
+    Явный ``-C`` делает результат независимым от текущего каталога процесса.
+    При ``check=False`` вызывающий код сам интерпретирует exit code и stderr.
+    """
     result = run(("git", "-C", str(repo), *args), check=check)
     return result.stdout.strip()
 
 
 def repository_path(projects_dir: Path, repository: Repository) -> Path:
-    """Resolve a manifest-relative checkout without relying on the shell CWD."""
+    """Получить путь checkout как ``projects_dir / manifest.path``."""
     return projects_dir / repository.path
 
 
 def bootstrap(repositories: Sequence[Repository], projects_dir: Path) -> list[Check]:
-    """Clone missing repositories and safely validate existing checkouts.
+    """Клонировать отсутствующие репозитории и проверить существующие.
 
-    Existing repositories are never fetched, reset, cleaned or checked out: the
-    worktree may contain user changes. Version drift is only reported.
+    Отсутствующий target клонируется с ``--branch`` и ``--single-branch``.
+    Существующий каталог без ``.git`` даёт ERROR и никогда не перезаписывается.
+    Для Git checkout проверяются origin и HEAD. Несовпадение origin — ERROR;
+    несовпадение HEAD с lock — WARN, поскольку функция принципиально не делает
+    fetch, checkout, reset или clean и сохраняет пользовательскую работу.
+
+    Важно: clone следует текущему HEAD remote-ветки и не checkout-ит lock commit.
+    Поэтому lock здесь обнаруживает drift, но не гарантирует его исправление.
     """
     projects_dir.mkdir(parents=True, exist_ok=True)
     checks: list[Check] = []
@@ -168,7 +224,13 @@ def bootstrap(repositories: Sequence[Repository], projects_dir: Path) -> list[Ch
 
 
 def check_tools(*, skip_tools: bool) -> list[Check]:
-    """Check required host executables and verify that Docker is usable."""
+    """Проверить host executables и доступность Docker daemon.
+
+    ``shutil.which`` ищет Git, Docker, direnv, Python и Make. Если Docker CLI
+    найден, ``docker info`` отличает установленный клиент от доступного daemon.
+    ``skip_tools`` используется для изолированных тестов репозиторной логики и
+    возвращает явный SKIP, а не притворный успешный результат.
+    """
     if skip_tools:
         return [Check("SKIP", "tools", "host tool checks disabled")]
     checks: list[Check] = []
@@ -195,10 +257,17 @@ def diagnose_repository(
     *,
     offline: bool,
 ) -> list[Check]:
-    """Validate identity, revision, cleanliness and remote reachability.
+    """Диагностировать один checkout, не изменяя его состояние.
 
-    Remote access disables terminal prompts and uses bounded timeouts so doctor
-    remains safe for unattended development flows.
+    Проверяются наличие ``.git``, точное совпадение origin, равенство HEAD lock,
+    чистота worktree и существование configured branch в remote. В doctor drift
+    HEAD является ERROR, а dirty worktree — WARN: изменения не мешают диагностике
+    и никогда автоматически не удаляются.
+
+    В offline-режиме сеть заменяется явным SKIP. Иначе ``git ls-remote`` получает
+    ``GIT_TERMINAL_PROMPT=0``, SSH BatchMode, SSH connect timeout 10 секунд и
+    общий process timeout 15 секунд. Проверка подтверждает доступность ветки, но
+    не сравнивает SHA remote-ветки с lock.
     """
     target = repository_path(projects_dir, repository)
     if not (target / ".git").exists():
@@ -272,7 +341,11 @@ def doctor(
     offline: bool,
     skip_tools: bool,
 ) -> list[Check]:
-    """Collect host and repository diagnostics without changing the workspace."""
+    """Собрать проверки хоста и всех manifest repositories в один список.
+
+    Функция сохраняет все результаты, чтобы пользователь увидел все проблемы за
+    один запуск, а не только первую ошибку. Никакие исправления не выполняются.
+    """
     checks = check_tools(skip_tools=skip_tools)
     for repository in repositories:
         checks.extend(diagnose_repository(repository, projects_dir, offline=offline))
@@ -280,18 +353,23 @@ def doctor(
 
 
 def print_checks(checks: Sequence[Check]) -> None:
-    """Render checks consistently for humans and CI logs."""
+    """Напечатать стабильный ``[LEVEL] subject: message`` для терминала и CI."""
     for item in checks:
         print(f"[{item.level:<5}] {item.subject}: {item.message}")
 
 
 def has_errors(checks: Sequence[Check]) -> bool:
-    """Return whether diagnostics require a failing process exit code."""
+    """Вернуть True, если хотя бы один Check имеет уровень ERROR."""
     return any(item.level == "ERROR" for item in checks)
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Build the CLI contract for bootstrap and doctor operations."""
+    """Описать CLI, help-тексты и допустимые комбинации аргументов.
+
+    ``--projects-dir`` является глобальным аргументом и поэтому указывается до
+    subcommand. ``--offline`` и ``--skip-tools`` принадлежат только doctor.
+    Обязательный subcommand обеспечивает стандартную argparse-ошибку с code 2.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--projects-dir",
@@ -308,7 +386,13 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    """Execute a command and translate expected operational failures to exit 1."""
+    """Выполнить выбранную операцию и вернуть процессный exit code.
+
+    Manifest загружается до выбора операции. Ожидаемые ошибки файлов, схемы и
+    subprocess переводятся в одно диагностическое сообщение и code 1. После
+    успешного выполнения печатаются все Check: ERROR даёт 1, а отсутствие ERROR
+    даёт 0 даже при WARN или SKIP. Ошибки argparse обрабатываются до этой функции.
+    """
     args = build_parser().parse_args(argv)
     try:
         repositories = load_repositories()
