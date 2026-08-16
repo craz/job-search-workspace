@@ -29,3 +29,5 @@ initialize_file() {
 initialize_file \
   "$local_dir/AI_HISTORY.md" \
   "$template_dir/AI_HISTORY.template.md"
+
+python3 "$script_dir/sync_ai_history.py" --project-root "$project_root"

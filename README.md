@@ -69,6 +69,9 @@ Docker named volumes. Обычный restart или `docker compose down` их �
 scripts/init-ai-history.sh
 ```
 
+Новые локальные Codex-сессии подключаются и derived-представление обновляется
+идемпотентной командой `make ai-history-sync`.
+
 Правила находятся в Git. Оригинальные platform exports сохраняются в
 `.local/sessions/`, производные представления — в `.local/derived/`, а всё
 пользовательское содержимое остаётся вне Git.
