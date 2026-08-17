@@ -17,3 +17,4 @@ Feature: Keep private Codex history available inside the project
     When either agent completes a response
     Then project history synchronization runs without blocking the response
     And a Cursor transcript supplied by the platform is linked without copying
+    And visible Codex and Cursor events appear in the common derived view

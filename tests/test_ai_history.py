@@ -31,6 +31,26 @@ def write_session(path: Path, cwd: Path, text: str) -> None:
     path.write_text("\n".join(json.dumps(row) for row in rows) + "\n{partial")
 
 
+def write_cursor_transcript(path: Path, text: str) -> None:
+    """Create a minimal synthetic Cursor transcript with visible and hidden roles."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    rows = [
+        {"role": "user", "message": {"content": [{"type": "text", "text": text}]}},
+        {
+            "role": "assistant",
+            "message": {
+                "content": [
+                    {"type": "text", "text": "cursor answer"},
+                    {"type": "tool_use", "name": "synthetic_tool", "input": {"value": "safe"}},
+                ]
+            },
+        },
+        {"role": "system", "message": {"content": [{"type": "text", "text": "hidden"}]}},
+        {"type": "turn_ended", "status": "success"},
+    ]
+    path.write_text("\n".join(json.dumps(row) for row in rows) + "\n{partial")
+
+
 class AiHistorySynchronizationTests(unittest.TestCase):
     """Protect project scope, canonical files, privacy and idempotency."""
 
@@ -46,9 +66,9 @@ class AiHistorySynchronizationTests(unittest.TestCase):
             write_session(matching, project, "token ghp_abcdefghijklmnopqrstuvwxyz123456")
             write_session(foreign, root / "other", "foreign private message")
 
-            sessions, events = synchronize(project, codex_home)
+            codex_sessions, cursor_sessions, events = synchronize(project, codex_home)
 
-            self.assertEqual((1, 1), (sessions, events))
+            self.assertEqual((1, 0, 1), (codex_sessions, cursor_sessions, events))
             link = project / ".local/sessions/codex/matching.jsonl"
             self.assertTrue(link.is_symlink())
             self.assertEqual(matching.resolve(), link.resolve())
@@ -109,6 +129,32 @@ class AiHistorySynchronizationTests(unittest.TestCase):
             assert destination is not None
             self.assertTrue(destination.is_symlink())
             self.assertTrue(os.path.samefile(destination, transcript))
+
+    def test_cursor_transcript_is_included_in_redacted_derived_view(self) -> None:
+        """Visible Cursor messages and tools join Codex history without hidden roles."""
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            project = root / "project"
+            project.mkdir()
+            codex_home = root / "codex"
+            transcript = root / "cursor-platform/transcript.jsonl"
+            write_cursor_transcript(transcript, "token ghp_abcdefghijklmnopqrstuvwxyz123456")
+            request = {
+                "hook_event_name": "stop",
+                "conversation_id": "conversation-one",
+                "transcript_path": str(transcript),
+            }
+
+            run_hook(request, project, codex_home)
+
+            self.assertEqual((0, 1, 3), synchronize(project, codex_home))
+            derived = (project / ".local/derived/AI_CHAT_RAW.md").read_text()
+            self.assertIn("Cursor — User", derived)
+            self.assertIn("cursor answer", derived)
+            self.assertIn("synthetic_tool", derived)
+            self.assertIn("[REDACTED: GitHub token]", derived)
+            self.assertNotIn("ghp_", derived)
+            self.assertNotIn("hidden", derived)
 
     def test_codex_stop_does_not_treat_its_path_as_cursor_history(self) -> None:
         """PascalCase Codex Stop input cannot create a Cursor transcript link."""

@@ -8,7 +8,7 @@ from pathlib import Path
 
 from scripts.ai_history_hook import run_hook
 from scripts.sync_ai_history import synchronize
-from tests.test_ai_history import write_session
+from tests.test_ai_history import write_cursor_transcript, write_session
 
 
 class AiHistoryScenarios(unittest.TestCase):
@@ -31,9 +31,9 @@ class AiHistoryScenarios(unittest.TestCase):
             write_session(unrelated_session, root / "unrelated", "unrelated")
             canonical_before = project_session.read_bytes()
 
-            sessions, events = synchronize(project, codex_home)
+            codex_sessions, cursor_sessions, events = synchronize(project, codex_home)
 
-            self.assertEqual((1, 1), (sessions, events))
+            self.assertEqual((1, 0, 1), (codex_sessions, cursor_sessions, events))
             self.assertTrue((project / ".local/sessions/codex/project.jsonl").is_symlink())
             self.assertFalse((project / ".local/sessions/codex/unrelated.jsonl").exists())
             derived = (project / ".local/derived/AI_CHAT_RAW.md").read_text()
@@ -53,7 +53,7 @@ class AiHistoryScenarios(unittest.TestCase):
             cursor_session = root / "cursor/transcript.jsonl"
             write_session(codex_session, project, "codex message")
             cursor_session.parent.mkdir()
-            cursor_session.write_text('{"role":"user","text":"cursor message"}\n')
+            write_cursor_transcript(cursor_session, "cursor message")
 
             run_hook(
                 {
@@ -69,6 +69,10 @@ class AiHistoryScenarios(unittest.TestCase):
             self.assertTrue(
                 (project / ".local/sessions/cursor/cursor-conversation-1.jsonl").is_symlink()
             )
+            derived = (project / ".local/derived/AI_CHAT_RAW.md").read_text()
+            self.assertIn("codex message", derived)
+            self.assertIn("cursor message", derived)
+            self.assertNotIn("hidden", derived)
 
 
 if __name__ == "__main__":

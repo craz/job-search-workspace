@@ -20,14 +20,15 @@ scripts/init-ai-history.sh
 - `.local/derived/` — необязательные представления, построенные из raw-сессий.
 
 Для последующей синхронизации Codex-сессий, относящихся к текущему repository
-working directory, используется:
+working directory, и пересборки общего представления Codex + Cursor используется:
 
 ```bash
 make ai-history-sync
 ```
 
 Команда находит platform exports по записанному в них `cwd`, создаёт ссылки в
-`.local/sessions/codex/` и атомарно пересобирает
+`.local/sessions/codex/`, читает уже подключённые Cursor transcripts из
+`.local/sessions/cursor/` и атомарно пересобирает общий
 `.local/derived/AI_CHAT_RAW.md`. Её безопасно повторять, в том числе во время
 активной сессии: неполная последняя JSONL-строка игнорируется. Сессии из других
 рабочих каталогов не подключаются.
@@ -44,7 +45,9 @@ Wrapper работает fail-open: ошибка локальной истори
 блокирует завершение ответа. В `stdout` всегда возвращается пустой JSON-объект,
 как требуют hook-протоколы. Codex-сессии синхронизируются обычным механизмом по
 `cwd`. Cursor transcript подключается ссылкой в `.local/sessions/cursor/`, когда
-Cursor передаёт непустой `transcript_path`; при отключённых transcripts hook не
+Cursor передаёт непустой `transcript_path`, после чего его видимые сообщения и
+tool calls включаются в общее derived-представление. System-роли, lifecycle rows
+и неизвестные content types пропускаются; при отключённых transcripts hook не
 реконструирует разговор по памяти.
 
 Codex требует один раз просмотреть и разрешить новый project hook через `/hooks`.

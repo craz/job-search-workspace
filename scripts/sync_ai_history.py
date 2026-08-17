@@ -1,11 +1,12 @@
-"""Synchronize project-local links and a safe view of Codex session history.
+"""Synchronize project-local links and a safe view of AI session history.
 
 Codex owns canonical JSONL files under its data home. This module finds sessions
 whose recorded working directory is this repository, creates non-destructive
-links in ``.local/sessions/codex``, and atomically rebuilds a derived Markdown
-view. It performs no network operations, never modifies platform exports, and
-excludes reasoning plus system/developer messages. Malformed or concurrently
-incomplete JSONL lines are ignored so an active session is safe to synchronize.
+links in ``.local/sessions/codex``, and combines them with Cursor transcripts
+already linked by the end-of-turn hook. It atomically rebuilds one derived
+Markdown view, performs no network operations, never modifies platform exports,
+and excludes reasoning plus system/developer messages. Malformed or concurrently
+incomplete JSONL lines are ignored so active sessions are safe to synchronize.
 """
 
 from __future__ import annotations
@@ -15,6 +16,7 @@ import json
 import os
 import re
 import tempfile
+from itertools import chain
 from pathlib import Path
 from typing import Iterator
 
@@ -102,8 +104,8 @@ def message_text(payload: dict) -> str:
     )
 
 
-def derived_blocks(source: Path) -> Iterator[tuple[str, str]]:
-    """Convert visible response items into timestamped Markdown blocks."""
+def codex_derived_blocks(source: Path) -> Iterator[tuple[str, str]]:
+    """Convert visible Codex response items into timestamped Markdown blocks."""
     for item in json_objects(source):
         if item.get("type") != "response_item":
             continue
@@ -134,10 +136,53 @@ def derived_blocks(source: Path) -> Iterator[tuple[str, str]]:
             )
 
 
-def rebuild_derived(sources: list[Path], target: Path) -> int:
-    """Atomically replace the derived view and return its event count."""
+def cursor_derived_blocks(source: Path) -> Iterator[tuple[str, str]]:
+    """Convert visible Cursor transcript messages and tool calls into Markdown.
+
+    Cursor transcripts currently contain ordered rows without timestamps. Their
+    source path and row number provide a deterministic sort key. Only explicit
+    user and assistant roles are accepted; other roles and lifecycle rows are
+    ignored. Unknown content item types are skipped instead of serialized.
+    """
+    source_key = str(source.resolve())
+    for row_number, item in enumerate(json_objects(source)):
+        role = item.get("role")
+        message = item.get("message")
+        if role not in {"user", "assistant"} or not isinstance(message, dict):
+            continue
+        label = "User" if role == "user" else "Assistant"
+        for content_number, content in enumerate(message.get("content") or []):
+            if not isinstance(content, dict):
+                continue
+            kind = content.get("type")
+            sort_key = f"cursor:{source_key}:{row_number:08d}:{content_number:08d}"
+            if kind == "text" and isinstance(content.get("text"), str):
+                text = content["text"]
+                if text:
+                    yield sort_key, f"## Cursor — {label}\n\n{redact(text)}\n"
+            elif kind == "tool_use" and isinstance(content.get("name"), str):
+                yield sort_key, (
+                    "## Cursor — Tool Call\n\n"
+                    f"- Tool: `{content['name']}`\n\n"
+                    f"```text\n{redact(content.get('input') or '')}\n```\n"
+                )
+
+
+def rebuild_derived(codex_sources: list[Path], cursor_sources: list[Path], target: Path) -> int:
+    """Atomically combine safe Codex and Cursor events and return their count."""
     events = sorted(
-        (event for source in sources for event in derived_blocks(source)),
+        chain(
+            (
+                event
+                for source in codex_sources
+                for event in codex_derived_blocks(source)
+            ),
+            (
+                event
+                for source in cursor_sources
+                for event in cursor_derived_blocks(source)
+            ),
+        ),
         key=lambda event: event[0],
     )
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -146,7 +191,8 @@ def rebuild_derived(sources: list[Path], target: Path) -> int:
         "Приватное производное представление доступных сообщений, tool calls и "
         "tool outputs. Скрытые reasoning-блоки и system/developer-инструкции "
         "исключены. Чувствительные значения редактируются.\n\n"
-        "Canonical sources: `.local/sessions/codex/*.jsonl`.\n\n"
+        "Canonical sources: `.local/sessions/codex/*.jsonl` and "
+        "`.local/sessions/cursor/*.jsonl`.\n\n"
     )
     descriptor, temporary_name = tempfile.mkstemp(
         dir=target.parent, prefix=f".{target.name}.", suffix=".tmp", text=True
@@ -162,13 +208,19 @@ def rebuild_derived(sources: list[Path], target: Path) -> int:
     return len(events)
 
 
-def synchronize(project_root: Path, codex_home: Path) -> tuple[int, int]:
-    """Synchronize canonical links and rebuild the project-local view."""
+def synchronize(project_root: Path, codex_home: Path) -> tuple[int, int, int]:
+    """Synchronize Codex links and rebuild the view from both supported agents."""
     local = project_root / ".local"
     sources = discover_sessions(codex_home, project_root)
     links = link_sessions(sources, local / "sessions" / "codex")
-    events = rebuild_derived(links, local / "derived" / "AI_CHAT_RAW.md")
-    return len(links), events
+    cursor_directory = local / "sessions" / "cursor"
+    cursor_sources = sorted(cursor_directory.glob("*.jsonl")) if cursor_directory.is_dir() else []
+    events = rebuild_derived(
+        links,
+        cursor_sources,
+        local / "derived" / "AI_CHAT_RAW.md",
+    )
+    return len(links), len(cursor_sources), events
 
 
 def parse_args() -> argparse.Namespace:
@@ -186,8 +238,13 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     """Run synchronization and print counts without session content."""
     args = parse_args()
-    sessions, events = synchronize(args.project_root.resolve(), args.codex_home.resolve())
-    print(f"Codex history synchronized: sessions={sessions} events={events}")
+    codex_sessions, cursor_sessions, events = synchronize(
+        args.project_root.resolve(), args.codex_home.resolve()
+    )
+    print(
+        "AI history synchronized: "
+        f"codex_sessions={codex_sessions} cursor_sessions={cursor_sessions} events={events}"
+    )
 
 
 if __name__ == "__main__":
