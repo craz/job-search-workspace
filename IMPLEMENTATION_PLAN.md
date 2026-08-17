@@ -17,17 +17,17 @@
 
 ### 0A. Базовый workspace — выполнить первым
 
-**Статус:** реализован; manifest, lock, bootstrap, doctor, ADR и локальные
-исполняемые проверки добавлены. Gate подтверждается командами `make test`,
-`make bootstrap` и `make doctor`.
+**Статус:** реализован и переведён на Git submodules; `.gitmodules`, gitlinks,
+безопасный bootstrap, doctor, ADR и локальные исполняемые проверки добавлены.
+Gate подтверждается командами `make test`, `make bootstrap` и `make doctor`.
 
 Добавить сейчас:
 
-- `repos.yaml` со списком remote URL и совместимых версий;
-- lock-файл с проверенными commit SHA;
+- `.gitmodules` со списком remote URL и веток сервисов;
+- gitlinks с проверенными commit SHA;
 - `bootstrap`, который клонирует или проверяет все репозитории;
 - базовый `doctor`, который проверяет Git, Docker, direnv, доступность remote и
-  соответствие локальных HEAD lock-файлу;
+  соответствие локальных HEAD gitlinks;
 - ADR по multirepo, PostgreSQL и межсервисной интеграции.
 
 **Gate 0A:** workspace можно клонировать отдельно, получить все продуктовые
@@ -332,9 +332,6 @@ OSINT и Content технически независимы, но базовый 
 
 ## Следующий шаг
 
-Следующая выполняемая задача — **этап 0A, базовый workspace**: создать
-`repos.yaml`, lock-файл, рабочий `bootstrap`, базовый `doctor` и три ADR.
-
-Сразу после прохождения Gate 0A выполняется полная инвентаризация
-`/data/Projects/job_search` и создаётся migration map. Реализация Core начинается
-только после назначения владельца каждому исходному модулю, сценарию и набору данных.
+Следующая выполняемая задача — **этап 3, Core/Vacancy MVP**: PostgreSQL 17,
+SQLAlchemy, Alembic, Company и Vacancy, versioned `/api/v1`, JSON CLI,
+идемпотентное создание и проверяемый вертикальный срез без SQLite.

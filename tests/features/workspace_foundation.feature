@@ -5,14 +5,20 @@ Feature: Reproduce the Job Search workspace
   So that I can start development from a known reproducible state
 
   @story-workspace-001
-  Scenario: Validate repositories that are already present
-    Given all repositories from the lock file exist locally
+  Scenario: Initialize a missing service submodule
+    Given a service gitlink is recorded but its checkout is absent
     When the developer runs workspace bootstrap
-    Then bootstrap preserves every existing repository
-    And reports no repository errors
+    Then bootstrap initializes the exact recorded service revision
+
+  @story-workspace-001
+  Scenario: Validate submodules that are already initialized
+    Given all submodules recorded by the workspace exist locally
+    When the developer runs workspace bootstrap
+    Then bootstrap preserves every existing submodule revision
+    And reports no submodule errors
 
   @story-workspace-001
   Scenario: Validate the workspace without network access
-    Given local repository commits match the lock file
+    Given local submodule commits match the workspace gitlinks
     When the developer runs doctor in offline mode
     Then all local repository checks pass

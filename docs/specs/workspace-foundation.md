@@ -10,7 +10,8 @@
 
 ## Scope
 
-**In scope:** manifest, commit lock, safe bootstrap, local/network doctor, ADR.
+**In scope:** submodule manifest, gitlink lock, safe bootstrap, local/network
+doctor, ADR.
 
 **Non-scope:** Compose services, application tests, PostgreSQL backup/restore and
 deployment. These capabilities enter workspace 0B with their owning components.
@@ -23,19 +24,19 @@ Executable scenarios are stored in
 
 ## Contracts
 
-- `repos.yaml` is JSON-compatible YAML with schema version 1.
-- `repos.lock.json` is the machine-readable compatible commit set.
-- `scripts/workspace.py bootstrap` clones only missing repositories and never
+- `.gitmodules` declares six canonical service remotes below `services/`.
+- Workspace gitlinks are the machine-readable compatible commit set.
+- `scripts/workspace.py bootstrap` initializes only missing submodules and never
   resets an existing checkout.
-- `scripts/workspace.py doctor` validates tools, origins, locked HEADs, worktree
-  state and remote branches.
+- `scripts/workspace.py doctor` validates tools, origins, gitlink HEADs,
+  worktree state and remote branches.
 - `doctor --offline` skips remote access but still validates local state.
 
 ## Failure behavior
 
-- Missing repository: error.
+- Uninitialized submodule: error in doctor, initialized by bootstrap.
 - Existing non-Git path: error, never overwrite.
 - Origin mismatch: error, never rewrite automatically.
-- Lock mismatch: warning in bootstrap, error in doctor.
+- Gitlink mismatch: warning in bootstrap, error in doctor.
 - Dirty worktree: warning, never clean automatically.
 - Missing tool or unreachable required remote: error.

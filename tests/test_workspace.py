@@ -1,81 +1,127 @@
-"""Unit tests for manifest validation and safe workspace operations."""
+"""Unit tests for submodule declarations and safe workspace operations."""
 
 from __future__ import annotations
 
 import ast
-import json
+import os
 import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from scripts.workspace import bootstrap, load_repositories, run
 
+ROOT = Path(__file__).resolve().parent.parent
 
-class ManifestTests(unittest.TestCase):
-    """Verify repository identity and locked versions remain consistent."""
 
-    def test_manifest_and_lock_have_the_same_repositories(self) -> None:
-        """Every declared repository must have exactly one full commit lock."""
+class SubmoduleDeclarationTests(unittest.TestCase):
+    """Verify repository identity comes from bounded Git submodules."""
+
+    def test_all_product_submodules_are_declared_below_services(self) -> None:
+        """Every product must have one explicit branch and canonical remote."""
         repositories = load_repositories()
 
         self.assertEqual(6, len(repositories))
         self.assertEqual(len(repositories), len({repo.name for repo in repositories}))
-        self.assertTrue(all(len(repo.commit) == 40 for repo in repositories))
+        self.assertTrue(all(repo.path.startswith("services/") for repo in repositories))
+        self.assertTrue(all(repo.branch == "main" for repo in repositories))
+        self.assertTrue(all(repo.url.startswith("git@github.com:craz/") for repo in repositories))
 
-    def test_missing_lock_entry_is_rejected(self) -> None:
-        """An incomplete lock must fail before any workspace operation starts."""
+    def test_parent_traversal_is_rejected(self) -> None:
+        """A submodule declaration cannot escape the workspace service tree."""
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            manifest = root / "repos.yaml"
-            lock = root / "repos.lock.json"
-            manifest.write_text(
-                json.dumps(
-                    {
-                        "schema_version": 1,
-                        "repositories": [
-                            {
-                                "name": "example",
-                                "path": "example",
-                                "url": "local",
-                                "branch": "main",
-                                "visibility": "public",
-                                "role": "test",
-                            }
-                        ],
-                    }
-                ),
-                encoding="utf-8",
-            )
-            lock.write_text(
-                json.dumps({"schema_version": 1, "repositories": {}}),
+            gitmodules = Path(directory) / ".gitmodules"
+            gitmodules.write_text(
+                '[submodule "escape"]\n'
+                "\tpath = services/../../escape\n"
+                "\turl = git@example.invalid:escape.git\n"
+                "\tbranch = main\n",
                 encoding="utf-8",
             )
 
-            with self.assertRaisesRegex(ValueError, "missing lock entry"):
-                load_repositories(manifest, lock)
+            with self.assertRaisesRegex(ValueError, "invalid submodule declaration"):
+                load_repositories(gitmodules)
 
 
 class BootstrapTests(unittest.TestCase):
-    """Protect existing product checkouts from bootstrap mutations."""
+    """Protect initialized product submodules from bootstrap mutations."""
+
+    def test_missing_submodule_is_initialized_at_recorded_gitlink(self) -> None:
+        """A fresh superproject clone receives the exact recorded service commit."""
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source"
+            superproject = root / "superproject"
+            checkout = root / "checkout"
+            source.mkdir()
+            superproject.mkdir()
+            subprocess.run(["git", "init", "-q", "-b", "main"], cwd=source, check=True)
+            subprocess.run(["git", "config", "user.name", "Test"], cwd=source, check=True)
+            subprocess.run(
+                ["git", "config", "user.email", "test@example.invalid"], cwd=source, check=True
+            )
+            (source / "README.md").write_text("synthetic service\n")
+            subprocess.run(["git", "add", "README.md"], cwd=source, check=True)
+            subprocess.run(["git", "commit", "-q", "-m", "init"], cwd=source, check=True)
+            expected = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=source, text=True).strip()
+
+            subprocess.run(["git", "init", "-q", "-b", "main"], cwd=superproject, check=True)
+            subprocess.run(["git", "config", "user.name", "Test"], cwd=superproject, check=True)
+            subprocess.run(
+                ["git", "config", "user.email", "test@example.invalid"],
+                cwd=superproject,
+                check=True,
+            )
+            subprocess.run(
+                [
+                    "git",
+                    "-c",
+                    "protocol.file.allow=always",
+                    "submodule",
+                    "add",
+                    "--name",
+                    "example",
+                    str(source),
+                    "services/example",
+                ],
+                cwd=superproject,
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            with (superproject / ".gitmodules").open("a") as stream:
+                stream.write("\tbranch = main\n")
+            subprocess.run(["git", "add", "."], cwd=superproject, check=True)
+            subprocess.run(["git", "commit", "-q", "-m", "workspace"], cwd=superproject, check=True)
+            subprocess.run(["git", "clone", "-q", str(superproject), str(checkout)], check=True)
+            repositories = load_repositories(checkout / ".gitmodules")
+            with patch.dict(os.environ, {"GIT_ALLOW_PROTOCOL": "file"}):
+                checks = bootstrap(repositories, checkout)
+
+            actual = subprocess.check_output(
+                ["git", "-C", str(checkout / "services/example"), "rev-parse", "HEAD"],
+                text=True,
+            ).strip()
+            self.assertEqual(expected, actual)
+            self.assertFalse(any(check.level == "ERROR" for check in checks))
 
     def test_existing_locked_repositories_are_not_changed(self) -> None:
-        """Bootstrap must preserve the revision of every existing checkout."""
+        """Bootstrap must preserve every initialized submodule revision."""
         repositories = load_repositories()
-        projects_dir = Path("/data/Projects")
         before = {
             repo.name: subprocess.check_output(
-                ["git", "-C", str(projects_dir / repo.path), "rev-parse", "HEAD"],
+                ["git", "-C", str(ROOT / repo.path), "rev-parse", "HEAD"],
                 text=True,
             ).strip()
             for repo in repositories
         }
 
-        checks = bootstrap(repositories, projects_dir)
+        checks = bootstrap(repositories, ROOT)
 
         after = {
             repo.name: subprocess.check_output(
-                ["git", "-C", str(projects_dir / repo.path), "rev-parse", "HEAD"],
+                ["git", "-C", str(ROOT / repo.path), "rev-parse", "HEAD"],
                 text=True,
             ).strip()
             for repo in repositories

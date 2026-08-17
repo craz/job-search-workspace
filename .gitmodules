@@ -1,0 +1,24 @@
+[submodule "core"]
+	path = services/core
+	url = git@github.com:craz/job-search-core.git
+	branch = main
+[submodule "hh"]
+	path = services/hh
+	url = git@github.com:craz/job-search-hh.git
+	branch = main
+[submodule "scoring"]
+	path = services/scoring
+	url = git@github.com:craz/job-search-scoring.git
+	branch = main
+[submodule "osint"]
+	path = services/osint
+	url = git@github.com:craz/job-search-osint.git
+	branch = main
+[submodule "content"]
+	path = services/content
+	url = git@github.com:craz/job-search-content.git
+	branch = main
+[submodule "web"]
+	path = services/web
+	url = git@github.com:craz/job-search-web.git
+	branch = main

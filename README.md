@@ -3,6 +3,9 @@
 Workspace для разделения исходного `/data/Projects/job_search` на независимые
 проекты с собственными Git-репозиториями, контрактами и жизненным циклом.
 
+Сервисы подключены как Git submodules под `services/`: workspace открывается в
+IDE одним деревом, а каждый сервис сохраняет собственный remote и release cycle.
+
 Публичные сервисы проектируются как самостоятельные, воспроизводимые и
 документированные проекты, понятные без доступа к приватному workspace.
 
@@ -39,7 +42,8 @@ Cursor Rules находятся в [`.cursor/rules`](.cursor/rules). Они за
 После создания каркасов основной цикл будет выглядеть так:
 
 ```bash
-make bootstrap  # клонировать совместимые продуктовые репозитории
+git clone --recurse-submodules <workspace-url>
+make bootstrap  # инициализировать отсутствующие submodules
 make doctor     # проверить Docker, конфигурацию и host Ollama
 make dev        # поднять dev stack с hot reload
 make logs       # посмотреть состояние сервисов
@@ -50,6 +54,10 @@ make test       # запустить общий набор проверок
 `make doctor-offline`, `make unit`, `make bdd` и `make test`. Команды `dev`,
 `logs`, `backup` и `restore` будут добавляться в 0B вместе с реальными сервисами,
 PostgreSQL и volumes.
+
+Зафиксированный workspace commit содержит точные gitlink SHA сервисов. Изменение
+сервиса сначала коммитится и публикуется в его собственном репозитории, затем
+обновлённый gitlink отдельно фиксируется в workspace.
 
 Для host Python tooling каждый репозиторий будет содержать `.envrc`: после
 однократного `direnv allow` окружение `.venv` активируется автоматически при

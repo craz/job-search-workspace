@@ -1,6 +1,6 @@
 # ADR-001: Manifest-managed multirepo workspace
 
-- Status: accepted
+- Status: superseded by ADR-002
 - Date: 2026-08-15
 
 ## Context
