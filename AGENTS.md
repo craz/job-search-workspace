@@ -20,5 +20,6 @@
    files. Never push, create/merge a PR, tag or release without explicit request.
 10. Follow the nearest nested `AGENTS.md` for scripts, tests or documentation;
     narrower instructions extend and override this global minimum.
-11. At the start and end of substantive work, run `make ai-history-sync`; after a
-    completed engineering step, update `.local/AI_HISTORY.md` without quoting it.
+11. Let the project hook synchronize raw history after each turn; use
+    `make ai-history-sync` as a fallback. After a completed engineering step,
+    update `.local/AI_HISTORY.md` without quoting it.

@@ -6,6 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from scripts.ai_history_hook import run_hook
 from scripts.sync_ai_history import synchronize
 from tests.test_ai_history import write_session
 
@@ -40,6 +41,34 @@ class AiHistoryScenarios(unittest.TestCase):
             self.assertNotIn("ghp_", derived)
             self.assertNotIn("private reasoning", derived)
             self.assertEqual(canonical_before, project_session.read_bytes())
+
+    def test_end_of_turn_hook_persists_available_platform_history(self) -> None:
+        """The shared hook links Cursor history and synchronizes Codex history."""
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            project = root / "project"
+            project.mkdir()
+            codex_home = root / "codex"
+            codex_session = codex_home / "sessions/codex.jsonl"
+            cursor_session = root / "cursor/transcript.jsonl"
+            write_session(codex_session, project, "codex message")
+            cursor_session.parent.mkdir()
+            cursor_session.write_text('{"role":"user","text":"cursor message"}\n')
+
+            run_hook(
+                {
+                    "hook_event_name": "stop",
+                    "conversation_id": "conversation-1",
+                    "transcript_path": str(cursor_session),
+                },
+                project,
+                codex_home,
+            )
+
+            self.assertTrue((project / ".local/sessions/codex/codex.jsonl").is_symlink())
+            self.assertTrue(
+                (project / ".local/sessions/cursor/cursor-conversation-1.jsonl").is_symlink()
+            )
 
 
 if __name__ == "__main__":

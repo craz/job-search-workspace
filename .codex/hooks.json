@@ -1,0 +1,17 @@
+{
+  "description": "Keep project-local AI history synchronized after every Codex turn.",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/scripts/ai_history_hook.py\"",
+            "timeout": 30,
+            "statusMessage": "Synchronizing project AI history"
+          }
+        ]
+      }
+    ]
+  }
+}

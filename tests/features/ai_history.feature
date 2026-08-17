@@ -10,3 +10,10 @@ Feature: Keep private Codex history available inside the project
     Then only the project session is linked inside the project
     And the derived view excludes reasoning and redacts credentials
     And the canonical Codex export remains unchanged
+
+  @story-ai-history-002
+  Scenario: Persist history when an agent response ends
+    Given Codex and Cursor use the shared end-of-turn hook
+    When either agent completes a response
+    Then project history synchronization runs without blocking the response
+    And a Cursor transcript supplied by the platform is linked without copying

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import json
 import unittest
 from pathlib import Path
 
@@ -47,6 +48,18 @@ class CursorContextTests(unittest.TestCase):
 
         for required in (".venv/", ".local/", "data/", "generated/", "vendor/"):
             self.assertIn(required, patterns)
+
+    def test_end_of_turn_hooks_share_the_safe_history_wrapper(self) -> None:
+        """Codex and Cursor must synchronize through the same reviewed script."""
+        cursor = json.loads((ROOT / ".cursor/hooks.json").read_text())
+        codex = json.loads((ROOT / ".codex/hooks.json").read_text())
+
+        cursor_hook = cursor["hooks"]["stop"][0]
+        codex_hook = codex["hooks"]["Stop"][0]["hooks"][0]
+        self.assertIn("scripts/ai_history_hook.py", cursor_hook["command"])
+        self.assertIn("scripts/ai_history_hook.py", codex_hook["command"])
+        self.assertFalse(cursor_hook["failClosed"])
+        self.assertEqual("command", codex_hook["type"])
 
 
 if __name__ == "__main__":

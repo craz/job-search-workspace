@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
 
+from scripts.ai_history_hook import link_cursor_transcript, run_hook
 from scripts.sync_ai_history import synchronize
 
 
@@ -85,6 +87,59 @@ class AiHistorySynchronizationTests(unittest.TestCase):
 
             with self.assertRaisesRegex(RuntimeError, "refusing to replace"):
                 synchronize(project, codex_home)
+
+    def test_cursor_stop_links_platform_transcript(self) -> None:
+        """Cursor's supplied canonical transcript becomes project-local by link."""
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            project = root / "project"
+            project.mkdir()
+            transcript = root / "cursor-platform/transcript.jsonl"
+            transcript.parent.mkdir()
+            transcript.write_text('{"role":"user","text":"synthetic"}\n')
+            request = {
+                "hook_event_name": "stop",
+                "conversation_id": "conversation/one",
+                "transcript_path": str(transcript),
+            }
+
+            destination = link_cursor_transcript(request, project)
+
+            self.assertIsNotNone(destination)
+            assert destination is not None
+            self.assertTrue(destination.is_symlink())
+            self.assertTrue(os.path.samefile(destination, transcript))
+
+    def test_codex_stop_does_not_treat_its_path_as_cursor_history(self) -> None:
+        """PascalCase Codex Stop input cannot create a Cursor transcript link."""
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            project = root / "project"
+            project.mkdir()
+            transcript = root / "codex.jsonl"
+            transcript.write_text("{}\n")
+
+            destination = link_cursor_transcript(
+                {"hook_event_name": "Stop", "transcript_path": str(transcript)},
+                project,
+            )
+
+            self.assertIsNone(destination)
+            self.assertFalse((project / ".local/sessions/cursor").exists())
+
+    def test_shared_hook_runs_with_missing_cursor_transcript(self) -> None:
+        """Disabled Cursor transcripts do not prevent Codex synchronization."""
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            project = root / "project"
+            project.mkdir()
+            codex_home = root / "codex"
+            source = codex_home / "sessions/session.jsonl"
+            write_session(source, project, "hello")
+
+            run_hook({"hook_event_name": "stop", "transcript_path": None}, project, codex_home)
+
+            self.assertTrue((project / ".local/sessions/codex/session.jsonl").is_symlink())
 
 
 if __name__ == "__main__":

@@ -72,6 +72,11 @@ scripts/init-ai-history.sh
 Новые локальные Codex-сессии подключаются и derived-представление обновляется
 идемпотентной командой `make ai-history-sync`.
 
+После доверия к workspace project hooks Codex и Cursor автоматически запускают
+безопасную fail-open синхронизацию в конце каждого agent turn. Ручная команда
+остаётся fallback; подробности и границы Cursor transcripts описаны в
+[`docs/AI_HISTORY.md`](docs/AI_HISTORY.md).
+
 Правила находятся в Git. Оригинальные platform exports сохраняются в
 `.local/sessions/`, производные представления — в `.local/derived/`, а всё
 пользовательское содержимое остаётся вне Git.
