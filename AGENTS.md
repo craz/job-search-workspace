@@ -23,3 +23,7 @@
 11. Let the project hook synchronize raw history after each turn; use
     `make ai-history-sync` as a fallback. After a completed engineering step,
     update `.local/AI_HISTORY.md` without quoting it.
+12. Before naming or creating a long-lived service instance or infrastructure
+    entity, read `NAMING_CONVENTION.md`, check its `USED` registry, use the
+    class-appropriate canonical slug, and register a name only after assignment.
+    Keep ordinary Compose services and ephemeral containers functionally named.

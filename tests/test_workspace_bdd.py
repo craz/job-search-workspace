@@ -58,6 +58,27 @@ class WorkspaceFoundationScenarios(unittest.TestCase):
         # Then all local repository checks pass
         self.assertFalse(any(check.level == "ERROR" for check in checks))
 
+    def test_service_instance_naming_uses_the_canonical_registry(self) -> None:
+        """Agent instructions distinguish identity names from Compose services."""
+        # Given the tracked convention defines both the registry and service rule
+        naming = (WORKSPACE_ROOT / "NAMING_CONVENTION.md").read_text(encoding="utf-8")
+        self.assertIn("15. USED registry", naming)
+        self.assertIn("Docker Compose service", naming)
+
+        # When either supported agent creates a long-lived service instance
+        instructions = (
+            (WORKSPACE_ROOT / "AGENTS.md").read_text(encoding="utf-8"),
+            (WORKSPACE_ROOT / ".cursor/rules/00-project-context.mdc").read_text(
+                encoding="utf-8"
+            ),
+        )
+
+        # Then both require the registry while retaining functional Compose names
+        for source in instructions:
+            self.assertIn("NAMING_CONVENTION.md", source)
+            self.assertIn("USED", source)
+            self.assertIn("Compose", source)
+
 
 if __name__ == "__main__":
     unittest.main()

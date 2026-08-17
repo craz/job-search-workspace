@@ -46,6 +46,11 @@ Developer experience стандартизирован на уровне workspac
 - интерактивный host shell автоматически активирует `.venv` через `direnv`, а
   Make/CI используют `scripts/ensure-venv.sh`; ручная активация не требуется.
 
+Имена долгоживущих deployment-инстансов и инфраструктурных сущностей выбираются
+по [`NAMING_CONVENTION.md`](NAMING_CONVENTION.md) с проверкой реестра `USED`.
+Имена обычных Compose services остаются функциональными и не занимают identity
+names из инфраструктурного namespace.
+
 ### 1. `job-search-core`
 
 Владеет основной предметной моделью и PostgreSQL:

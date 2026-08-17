@@ -22,3 +22,10 @@ Feature: Reproduce the Job Search workspace
     Given local submodule commits match the workspace gitlinks
     When the developer runs doctor in offline mode
     Then all local repository checks pass
+
+  @story-workspace-002
+  Scenario: Apply infrastructure naming when creating a service instance
+    Given the workspace contains the canonical naming convention and USED registry
+    When Codex or Cursor creates a long-lived service instance
+    Then its instructions require a free class-appropriate canonical slug
+    And ordinary Compose services remain functionally named

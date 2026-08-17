@@ -61,6 +61,19 @@ class CursorContextTests(unittest.TestCase):
         self.assertFalse(cursor_hook["failClosed"])
         self.assertEqual("command", codex_hook["type"])
 
+    def test_agents_consult_the_tracked_naming_source_for_service_instances(self) -> None:
+        """Both agents must apply the canonical registry before naming instances."""
+        naming = (ROOT / "NAMING_CONVENTION.md").read_text(encoding="utf-8")
+        agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+        cursor = (RULES / "00-project-context.mdc").read_text(encoding="utf-8")
+
+        self.assertIn("15. USED registry", naming)
+        self.assertIn("Docker Compose service", naming)
+        for instructions in (agents, cursor):
+            self.assertIn("NAMING_CONVENTION.md", instructions)
+            self.assertIn("USED", instructions)
+            self.assertIn("Compose", instructions)
+
 
 if __name__ == "__main__":
     unittest.main()
