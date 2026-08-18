@@ -6,8 +6,9 @@
 - Workspace и шесть продуктовых Git-репозиториев созданы.
 - Remote `origin` и ветки `main` настроены.
 - Архитектура и процесс разработки зафиксированы.
-- Продуктовые репозитории пока не содержат реализацию.
-- Системная инвентаризация исходного проекта ещё не выполнена.
+- Core/Vacancy MVP реализован и опубликован; HH, Scoring и OSINT имеют безопасные
+  capability scaffolds, а Web развивается как первый Core consumer.
+- Системная инвентаризация исходного проекта завершена и проверяется автоматически.
 
 ## 0. Управляющий workspace
 
@@ -132,6 +133,10 @@ make smoke
 
 ## 3. Core: первый вертикальный срез
 
+**Статус:** завершён. PostgreSQL/Alembic, Company/Vacancy, идемпотентное
+создание, чтение и смена статуса доступны через `/api/v1` и покрыты unit,
+integration, contract и BDD-проверками.
+
 Первая User Story:
 
 ```text
@@ -165,6 +170,10 @@ make smoke
 вакансию через API/CLI без SQLite.
 
 ## 4. Web: работа через Core API
+
+**Статус:** завершён. Независимый Web scaffold и HTTP-only Core gateway
+реализуют browser flow; совместный Compose подтверждает PostgreSQL → Core → Web,
+а headless Chrome и повторный запуск контейнеров проверяют UI и persistence.
 
 User Story:
 
@@ -332,6 +341,6 @@ OSINT и Content технически независимы, но базовый 
 
 ## Следующий шаг
 
-Следующая выполняемая задача — **этап 3, Core/Vacancy MVP**: PostgreSQL 17,
-SQLAlchemy, Alembic, Company и Vacancy, versioned `/api/v1`, JSON CLI,
-идемпотентное создание и проверяемый вертикальный срез без SQLite.
+Следующая выполняемая задача — **Core remaining entities**, начиная с
+Applications: отдельные миграция, доменный контракт, `/api/v1`, JSON CLI и
+исполняемый пользовательский сценарий без расширения доступа к PostgreSQL.

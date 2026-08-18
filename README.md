@@ -14,8 +14,8 @@ IDE одним деревом, а каждый сервис сохраняет �
 Публичные сервисы проектируются как самостоятельные, воспроизводимые и
 документированные проекты, понятные без доступа к приватному workspace.
 
-> Сейчас репозиторий находится на стадии проектирования и подготовки процесса.
-> Исполняемые сервисы и `compose.yaml` ещё не созданы.
+Первый исполняемый контур уже доступен: PostgreSQL 17, Core/Vacancy API и Web
+vacancy board запускаются совместно через корневой `compose.yaml`.
 
 ## Целевая система
 
@@ -42,9 +42,9 @@ Cursor Rules находятся в [`.cursor/rules`](.cursor/rules). Они за
 автокоммит, contract-first разработку, тестовые gates, Docker/data security,
 автоматический venv, live browser/hot reload и обновление документации.
 
-## Планируемый developer experience
+## Developer experience
 
-После создания каркасов основной цикл будет выглядеть так:
+Основной цикл для реализованного Core/Web-контура:
 
 ```bash
 git clone --recurse-submodules <workspace-url>
@@ -53,12 +53,14 @@ make doctor     # проверить Docker, конфигурацию и host Ol
 make dev        # поднять dev stack с hot reload
 make logs       # посмотреть состояние сервисов
 make test       # запустить общий набор проверок
+make dev        # собрать и поднять PostgreSQL, Core и Web
+make compose-smoke  # проверить create → status update → list через Web
+make down       # остановить контейнеры, сохранив PostgreSQL volume
 ```
 
-На этапе workspace 0A уже доступны `make bootstrap`, `make doctor`,
-`make doctor-offline`, `make unit`, `make bdd` и `make test`. Команды `dev`,
-`logs`, `backup` и `restore` будут добавляться в 0B вместе с реальными сервисами,
-PostgreSQL и volumes.
+Доступны `make bootstrap`, `make doctor`, `make doctor-offline`, `make unit`,
+`make bdd`, `make test`, `make build`, `make dev`, `make logs`, `make down` и
+`make compose-smoke`. Backup/restore будут добавлены отдельным инкрементом 0B.
 
 Зафиксированный workspace commit содержит точные gitlink SHA сервисов. Изменение
 сервиса сначала коммитится и публикуется в его собственном репозитории, затем
