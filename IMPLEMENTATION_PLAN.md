@@ -230,9 +230,8 @@ User Story:
 
 **Статус:** реализован базовый исполняемый pipeline: persistent queue,
 cancel/work-once, bounded Core/Ollama clients, private raw store и нормализованная
-Assessment write и самостоятельный CLI для безопасной сборки, inspection и
-валидации локальных Ollama models. Автоматический scheduler и production retry
-policy остаются следующими инкрементами.
+Assessment write, bounded retry/recovery scheduler и самостоятельный CLI для
+безопасной сборки, inspection и валидации локальных Ollama models.
 
 User Story:
 

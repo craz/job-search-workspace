@@ -67,7 +67,11 @@ services:
       SCORING_PROMPT_VERSION: embedded-summary-v1
       SCORING_STATE_DIR: /var/lib/job-search-scoring
       SCORING_TIMEOUT_SECONDS: "180"
-    command: ["/bin/sh", "-c", "while true; do python -m job_search_scoring.cli work-once; sleep 5; done"]
+      SCORING_MAX_ATTEMPTS: "3"
+      SCORING_RETRY_DELAY_SECONDS: "30"
+      SCORING_LEASE_SECONDS: "300"
+      SCORING_POLL_SECONDS: "5"
+    command: ["python", "-m", "job_search_scoring.cli", "run"]
     depends_on:
       core:
         condition: service_healthy
