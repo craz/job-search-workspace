@@ -258,8 +258,9 @@ User Story:
 
 `job-search-osint` реализует provider-neutral proposal/confirmation flow для
 официального сайта Company: provenance и неподтверждённые кандидаты остаются в
-OSINT, а Core принимает только подтверждённый normalized URL. Автоматические
-providers пока `not-configured` и требуют отдельного выбора.
+OSINT, а Core принимает только подтверждённый normalized URL. Opt-in Brave Web
+Search adapter формирует только неподтверждённые proposals с bounded
+timeout/retry/rate-limit; без API key provider остаётся `not-configured`.
 
 Реализовать:
 
