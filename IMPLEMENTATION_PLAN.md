@@ -266,8 +266,9 @@ discovery и people research уже отдают unconfirmed proposals; vacancy 
 
 1. Определение сайта компании — **сделано**.
 2. Поиск зеркала вакансии — **сделано** (OSINT-local proposals).
-3. Поиск публичных профессиональных профилей — **частично** (people research).
-4. Provenance и confidence — **частично**.
+3. Поиск публичных профессиональных профилей — **сделано** как people research
+   с LinkedIn/team-page extraction (OSINT-local proposals).
+4. Provenance и confidence — **частично** (confidence по источнику).
 5. Подтверждение результата — **сделано** для website.
 6. Передачу подтверждённых Company/Person в Core — **сделано** для website.
 
@@ -362,5 +363,5 @@ OSINT и Content технически независимы, но базовый 
 
 ## Следующий шаг
 
-Следующая выполняемая задача — углубить professional profiles / улучшение
-выдачи people research; vacancy mirrors уже доступны в OSINT и на Web-доске.
+Следующая выполняемая задача — на реальных компаниях проверить выдачу people/
+mirrors, затем подтверждение Person в Core либо HH read-only.
