@@ -168,7 +168,9 @@ integration, contract и BDD-проверками.
    идемпотентное создание, локальные статусы и Web dashboard без OSINT/messages.
 4. Hypotheses — **завершено**: измеримые replay-safe эксперименты, фильтрация,
    неизменяемый результат закрытия и полный Web dashboard.
-5. Assessments.
+5. Assessments — **завершено в Core/Web**: нормализованные replay-safe оценки
+   вакансий с объяснением, риском, действием и model/prompt metadata. Реальный
+   расчёт очередью Scoring остаётся отдельным этапом 6.
 
 **Gate:** чистая система поднимается в Docker, применяет миграции и проводит
 вакансию через API/CLI без SQLite.
@@ -200,6 +202,7 @@ User Story:
 - сводку, историю и форму частичного обновления Daily Metrics;
 - карточки подтверждённых людей, форму создания и локальную смену статуса;
 - создание, просмотр и закрытие измеримых Hypotheses с наблюдаемым результатом;
+- отображение и ручную contract-проверку нормализованных Assessments;
 - loading, empty, success и error states;
 - live browser и hot reload;
 - BDD и browser smoke;

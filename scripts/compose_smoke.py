@@ -128,6 +128,17 @@ def main() -> int:
         {"result": "Synthetic observed improvement"},
     )
     hypotheses_status, hypotheses = request("GET", "/api/v1/hypotheses")
+    assessment_payload = {
+        "vacancy_id": created.get("id", "missing"), "source": "workspace-smoke",
+        "external_id": f"workspace-assessment-{uuid.uuid4()}", "relevance_score": 82,
+        "verdict": "apply", "reason": "Strong synthetic Compose match",
+        "risk": "Synthetic fixture only", "action": "Prepare a tailored application",
+        "model": "workspace-fixture", "prompt_version": "smoke-v1",
+        "assessed_at": "2026-08-20T12:00:00Z",
+    }
+    assessment_status, assessment = request("POST", "/api/v1/assessments", assessment_payload,
+        idempotency_key=str(assessment_payload["external_id"]))
+    assessments_status, assessments = request("GET", "/api/v1/assessments")
     ok = (
         created_status == 201
         and updated_status == 200
@@ -156,6 +167,10 @@ def main() -> int:
         and hypothesis_closed.get("status") == "done"
         and hypotheses_status == 200
         and any(item.get("id") == hypothesis.get("id") for item in hypotheses.get("items", []))
+        and assessment_status == 201
+        and assessment.get("vacancy", {}).get("id") == created.get("id")
+        and assessments_status == 200
+        and any(item.get("id") == assessment.get("id") for item in assessments.get("items", []))
     )
     print(
         json.dumps(
@@ -174,10 +189,13 @@ def main() -> int:
                 "hypothesis_status": hypothesis_status,
                 "hypothesis_closed_status": hypothesis_closed_status,
                 "hypotheses_status": hypotheses_status,
+                "assessment_status": assessment_status,
+                "assessments_status": assessments_status,
                 "vacancy_id": created.get("id"),
                 "application_id": application.get("id"),
                 "person_id": person.get("id"),
                 "hypothesis_id": hypothesis.get("id"),
+                "assessment_id": assessment.get("id"),
             },
             sort_keys=True,
         )
