@@ -16,18 +16,22 @@ class ComposeSmokeTests(unittest.TestCase):
     """Validate success and failure decisions without network or Docker access."""
 
     @patch("scripts.compose_smoke.request")
-    def test_success_requires_vacancy_and_application_persistence(self, request_mock) -> None:
+    def test_success_requires_all_tracking_entities_to_persist(self, request_mock) -> None:
         """A complete public flow exits zero and emits one machine-readable result."""
         vacancy_id = "00000000-0000-0000-0000-000000000042"
         application_id = "00000000-0000-0000-0000-000000000044"
+        person_id = "00000000-0000-0000-0000-000000000045"
         request_mock.side_effect = [
-            (201, {"id": vacancy_id, "status": "new"}),
+            (201, {"id": vacancy_id, "status": "new", "company": {"id": "company-43"}}),
             (200, {"id": vacancy_id, "status": "reviewing"}),
             (200, {"items": [{"id": vacancy_id}], "total": 1}),
             (201, {"id": application_id, "vacancy": {"id": vacancy_id}}),
             (200, {"items": [{"id": application_id}], "total": 1}),
             (201, {"metric_date": "2026-08-20", "applications": 1}),
             (200, {"items": [{"metric_date": "2026-08-20"}], "total": 1}),
+            (201, {"id": person_id, "vacancy": {"id": vacancy_id}, "status": "new"}),
+            (200, {"id": person_id, "status": "researching"}),
+            (200, {"items": [{"id": person_id}], "total": 1}),
         ]
         output = io.StringIO()
 
@@ -36,7 +40,7 @@ class ComposeSmokeTests(unittest.TestCase):
 
         self.assertEqual(result, 0)
         self.assertTrue(json.loads(output.getvalue())["ok"])
-        self.assertEqual(request_mock.call_count, 7)
+        self.assertEqual(request_mock.call_count, 10)
 
     @patch("scripts.compose_smoke.request")
     def test_incomplete_flow_exits_nonzero(self, request_mock) -> None:
@@ -49,6 +53,9 @@ class ComposeSmokeTests(unittest.TestCase):
             (200, {"items": [{"id": "application"}], "total": 1}),
             (201, {"metric_date": "2026-08-20", "applications": 1}),
             (200, {"items": [{"metric_date": "2026-08-20"}], "total": 1}),
+            (201, {"id": "person", "vacancy": {"id": "fixture"}, "status": "new"}),
+            (200, {"id": "person", "status": "researching"}),
+            (200, {"items": [{"id": "person"}], "total": 1}),
         ]
 
         with redirect_stdout(io.StringIO()):

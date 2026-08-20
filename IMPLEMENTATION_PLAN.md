@@ -164,7 +164,8 @@ integration, contract и BDD-проверками.
    create/list и связь с Vacancy.
 2. Daily Metrics — **завершено**: датированные replay-safe HTTP/JSON CLI
    set/show/list, отдельная миграция и bounded history.
-3. People.
+3. People — **завершено**: подтверждённые контакты Company/Vacancy,
+   идемпотентное создание, локальные статусы и Web dashboard без OSINT/messages.
 4. Hypotheses.
 5. Assessments.
 
@@ -174,7 +175,8 @@ integration, contract и BDD-проверками.
 ## 4. Web: работа через Core API
 
 **Статус:** завершён. Независимый Web scaffold и HTTP-only Core gateway
-реализуют browser flow для вакансий, локального журнала откликов и Daily Metrics
+реализуют browser flow для вакансий, локального журнала откликов, Daily Metrics
+и People
 dashboard; совместный Compose подтверждает PostgreSQL → Core → Web, а headless
 Chrome и повторный запуск контейнеров проверяют UI и persistence. Web не
 отправляет реальные отклики во внешние системы и не вычисляет метрики в обход
@@ -195,6 +197,7 @@ User Story:
 - создание и список Applications, связанных с существующей вакансией;
 - явную границу между локальной записью факта и внешней отправкой отклика;
 - сводку, историю и форму частичного обновления Daily Metrics;
+- карточки подтверждённых людей, форму создания и локальную смену статуса;
 - loading, empty, success и error states;
 - live browser и hot reload;
 - BDD и browser smoke;

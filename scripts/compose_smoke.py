@@ -1,8 +1,8 @@
 """Exercise the public PostgreSQL-Core-Web flow through loopback HTTP.
 
-The script sends bounded Vacancy create/update/list and Application create/list
-sequences to the Web endpoint selected by ``WEB_PORT``. Web forwards Vacancy,
-Application and Daily Metric operations to Core; the script never receives
+The script sends bounded Vacancy, Application, Daily Metric and Person
+sequences to the Web endpoint selected by ``WEB_PORT``. Web forwards all
+operations to Core; the script never receives
 database credentials or addresses PostgreSQL. Every run generates synthetic
 external identities and prints exactly one JSON result. HTTP failures are
 decoded when possible and an unsatisfied flow exits non-zero without modifying
@@ -46,7 +46,7 @@ def request(
 
 
 def main() -> int:
-    """Persist one synthetic Vacancy and linked Application through Web and Core."""
+    """Persist one synthetic, linked workflow through Web and Core."""
     identity = f"workspace-smoke-{uuid.uuid4()}"
     payload = {
         "company_name": "Workspace Smoke Labs",
@@ -92,6 +92,25 @@ def main() -> int:
         idempotency_key=metric_key,
     )
     metrics_status, metrics = request("GET", "/api/v1/metrics")
+    person_payload = {
+        "company_id": created.get("company", {}).get("id", "missing"),
+        "vacancy_id": created.get("id", "missing"),
+        "source": "workspace-smoke",
+        "external_id": f"workspace-person-{uuid.uuid4()}",
+        "full_name": "Alex Smoke",
+        "role": "referral",
+        "title": "Synthetic Integration Contact",
+        "notes": "Disposable confirmed Compose smoke fixture.",
+    }
+    person_status, person = request(
+        "POST", "/api/v1/people", person_payload,
+        idempotency_key=str(person_payload["external_id"]),
+    )
+    person_updated_status, person_updated = request(
+        "PATCH", f"/api/v1/people/{person.get('id', 'missing')}",
+        {"status": "researching"},
+    )
+    people_status, people = request("GET", "/api/v1/people")
     ok = (
         created_status == 201
         and updated_status == 200
@@ -109,6 +128,12 @@ def main() -> int:
         and metric.get("applications") == 1
         and metrics_status == 200
         and any(item.get("metric_date") == metric_date for item in metrics.get("items", []))
+        and person_status == 201
+        and person.get("vacancy", {}).get("id") == created.get("id")
+        and person_updated_status == 200
+        and person_updated.get("status") == "researching"
+        and people_status == 200
+        and any(item.get("id") == person.get("id") for item in people.get("items", []))
     )
     print(
         json.dumps(
@@ -121,8 +146,12 @@ def main() -> int:
                 "applications_status": applications_status,
                 "metric_status": metric_status,
                 "metrics_status": metrics_status,
+                "person_status": person_status,
+                "person_updated_status": person_updated_status,
+                "people_status": people_status,
                 "vacancy_id": created.get("id"),
                 "application_id": application.get("id"),
+                "person_id": person.get("id"),
             },
             sort_keys=True,
         )
