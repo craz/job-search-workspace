@@ -1,10 +1,10 @@
 """Exercise the public PostgreSQL-Core-Web flow through loopback HTTP.
 
 The script sends bounded Vacancy create/update/list and Application create/list
-sequences to the Web endpoint selected by ``WEB_PORT`` plus a Daily Metric
-write/read through Core on ``CORE_PORT``. The script never receives database
-credentials or addresses PostgreSQL. Every run generates synthetic external
-identities and prints exactly one JSON result. HTTP failures are
+sequences to the Web endpoint selected by ``WEB_PORT``. Web forwards Vacancy,
+Application and Daily Metric operations to Core; the script never receives
+database credentials or addresses PostgreSQL. Every run generates synthetic
+external identities and prints exactly one JSON result. HTTP failures are
 decoded when possible and an unsatisfied flow exits non-zero without modifying
 containers or volumes.
 """
@@ -25,14 +25,9 @@ def request(
     payload: dict[str, object] | None = None,
     *,
     idempotency_key: str | None = None,
-    service: str = "web",
 ) -> tuple[int, dict]:
-    """Send one bounded JSON request to a selected loopback service endpoint."""
-    port = (
-        os.getenv("CORE_PORT", "8000")
-        if service == "core"
-        else os.getenv("WEB_PORT", "8080")
-    )
+    """Send one bounded JSON request to the loopback-only Web endpoint."""
+    port = os.getenv("WEB_PORT", "8080")
     headers = {"Accept": "application/json"}
     data = None
     if payload is not None:
@@ -88,13 +83,15 @@ def main() -> int:
     metric_status, metric = request(
         "PUT",
         f"/api/v1/metrics/{metric_date}",
-        {"applications": 1, "views_new": 2, "notes": "Synthetic Compose smoke"},
+        {
+            "metric_date": metric_date,
+            "applications": 1,
+            "views_new": 2,
+            "notes": "Synthetic Compose smoke",
+        },
         idempotency_key=metric_key,
-        service="core",
     )
-    metrics_status, metrics = request(
-        "GET", f"/api/v1/metrics?since={metric_date}&limit=10", service="core"
-    )
+    metrics_status, metrics = request("GET", "/api/v1/metrics")
     ok = (
         created_status == 201
         and updated_status == 200
