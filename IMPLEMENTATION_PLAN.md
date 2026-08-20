@@ -256,11 +256,10 @@ User Story:
 
 ## 7. OSINT
 
-`job-search-osint` получил provenance-safe scaffold: capability contract явно
-фиксирует providers и Core write как `not-configured`, хранение raw evidence —
-как локальную ответственность OSINT, а provenance и подтверждение — как
-обязательные условия. Unit/contract/pytest-bdd и quality gates пройдены offline;
-внешние провайдеры, Docker build и сетевые загрузки не запускались.
+`job-search-osint` реализует provider-neutral proposal/confirmation flow для
+официального сайта Company: provenance и неподтверждённые кандидаты остаются в
+OSINT, а Core принимает только подтверждённый normalized URL. Автоматические
+providers пока `not-configured` и требуют отдельного выбора.
 
 Реализовать:
 
