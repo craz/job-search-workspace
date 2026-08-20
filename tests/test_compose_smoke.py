@@ -26,6 +26,8 @@ class ComposeSmokeTests(unittest.TestCase):
             (200, {"items": [{"id": vacancy_id}], "total": 1}),
             (201, {"id": application_id, "vacancy": {"id": vacancy_id}}),
             (200, {"items": [{"id": application_id}], "total": 1}),
+            (201, {"metric_date": "2026-08-20", "applications": 1}),
+            (200, {"items": [{"metric_date": "2026-08-20"}], "total": 1}),
         ]
         output = io.StringIO()
 
@@ -34,7 +36,7 @@ class ComposeSmokeTests(unittest.TestCase):
 
         self.assertEqual(result, 0)
         self.assertTrue(json.loads(output.getvalue())["ok"])
-        self.assertEqual(request_mock.call_count, 5)
+        self.assertEqual(request_mock.call_count, 7)
 
     @patch("scripts.compose_smoke.request")
     def test_incomplete_flow_exits_nonzero(self, request_mock) -> None:
@@ -45,6 +47,8 @@ class ComposeSmokeTests(unittest.TestCase):
             (200, {"items": [], "total": 0}),
             (201, {"id": "application", "vacancy": {"id": "fixture"}}),
             (200, {"items": [{"id": "application"}], "total": 1}),
+            (201, {"metric_date": "2026-08-20", "applications": 1}),
+            (200, {"items": [{"metric_date": "2026-08-20"}], "total": 1}),
         ]
 
         with redirect_stdout(io.StringIO()):

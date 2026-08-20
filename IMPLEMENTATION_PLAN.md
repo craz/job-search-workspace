@@ -162,7 +162,8 @@ integration, contract и BDD-проверками.
 
 1. Applications — **завершено**: миграция, идемпотентные HTTP/JSON CLI
    create/list и связь с Vacancy.
-2. Daily Metrics.
+2. Daily Metrics — **завершено**: датированные replay-safe HTTP/JSON CLI
+   set/show/list, отдельная миграция и bounded history.
 3. People.
 4. Hypotheses.
 5. Assessments.
@@ -346,6 +347,6 @@ OSINT и Content технически независимы, но базовый 
 
 ## Следующий шаг
 
-Следующая выполняемая задача — **Daily Metrics**: отдельные миграция, доменный
-контракт, `/api/v1`, JSON CLI и исполняемый пользовательский сценарий без
-расширения доступа к PostgreSQL.
+Следующая выполняемая задача — **People**: подтверждённые профессиональные
+контакты как Core-owned сущность с отдельной миграцией и версионированными
+HTTP/JSON CLI контрактами; сырые OSINT-ответы остаются за пределами Core.

@@ -14,9 +14,9 @@ IDE одним деревом, а каждый сервис сохраняет �
 Публичные сервисы проектируются как самостоятельные, воспроизводимые и
 документированные проекты, понятные без доступа к приватному workspace.
 
-Первый исполняемый контур уже доступен: PostgreSQL 17, Core Vacancy/Application
-API и Web-доска с локальным журналом откликов запускаются совместно через
-корневой `compose.yaml`.
+Первый исполняемый контур уже доступен: PostgreSQL 17, Core
+Vacancy/Application/Daily Metric API и Web-доска с локальным журналом откликов
+запускаются совместно через корневой `compose.yaml`.
 
 ## Целевая система
 
@@ -55,7 +55,7 @@ make dev        # поднять dev stack с hot reload
 make logs       # посмотреть состояние сервисов
 make test       # запустить общий набор проверок
 make dev        # собрать и поднять PostgreSQL, Core и Web
-make compose-smoke  # проверить Vacancy и связанный Application через Web
+make compose-smoke  # проверить Vacancy, Application и Daily Metric через Web/Core
 make down       # остановить контейнеры, сохранив PostgreSQL volume
 ```
 
