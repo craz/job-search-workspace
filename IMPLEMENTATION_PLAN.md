@@ -258,18 +258,18 @@ User Story:
 
 `job-search-osint` реализует provider-neutral proposal/confirmation flow для
 официального сайта Company: provenance и неподтверждённые кандидаты остаются в
-OSINT, а Core принимает только подтверждённый normalized URL. Opt-in Brave Web
-Search adapter формирует только неподтверждённые proposals с bounded
-timeout/retry/rate-limit; без API key provider остаётся `not-configured`.
+OSINT, а Core принимает только подтверждённый normalized URL. Free SearXNG/`ddgs`
+discovery и people research уже отдают unconfirmed proposals; vacancy mirrors
+сохраняются тем же способом без автоматической записи в Core.
 
 Реализовать:
 
-1. Определение сайта компании.
-2. Поиск зеркала вакансии.
-3. Поиск публичных профессиональных профилей.
-4. Provenance и confidence.
-5. Подтверждение результата.
-6. Передачу подтверждённых Company/Person в Core.
+1. Определение сайта компании — **сделано**.
+2. Поиск зеркала вакансии — **сделано** (OSINT-local proposals).
+3. Поиск публичных профессиональных профилей — **частично** (people research).
+4. Provenance и confidence — **частично**.
+5. Подтверждение результата — **сделано** для website.
+6. Передачу подтверждённых Company/Person в Core — **сделано** для website.
 
 **Gate:** сырые данные остаются в OSINT volume, в Core передаются только
 нормализованные подтверждённые сведения, а публичные fixtures синтетические.
@@ -362,6 +362,5 @@ OSINT и Content технически независимы, но базовый 
 
 ## Следующий шаг
 
-Следующая выполняемая задача — **People**: подтверждённые профессиональные
-контакты как Core-owned сущность с отдельной миграцией и версионированными
-HTTP/JSON CLI контрактами; сырые OSINT-ответы остаются за пределами Core.
+Следующая выполняемая задача — показать vacancy mirrors на Web-доске и/или
+углубить professional profiles; сырые OSINT-ответы остаются за пределами Core.
