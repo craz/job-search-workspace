@@ -57,5 +57,23 @@ services:
     volumes:
       - ./services/web/src:/app/src:ro
 
+  scoring:
+    build: ./services/scoring
+    environment:
+      JOB_SEARCH_SCORING_CORE_BASE_URL: http://core:8000
+      JOB_SEARCH_SCORING_OLLAMA_BASE_URL: http://host.docker.internal:11434
+      JOB_SEARCH_SCORING_MODEL: job-search-scorer:latest
+      SCORING_STATE_DIR: /var/lib/job-search-scoring
+      SCORING_TIMEOUT_SECONDS: "90"
+    command: ["/bin/sh", "-c", "while true; do python -m job_search_scoring.cli work-once; sleep 5; done"]
+    depends_on:
+      core:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - scoring-state:/var/lib/job-search-scoring
+
 volumes:
   postgres-data:
+  scoring-state:

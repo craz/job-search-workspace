@@ -83,6 +83,9 @@ make down       # остановить контейнеры, сохранив Po
 Рабочая PostgreSQL, browser profile HH, токены, кэши и drafts будут храниться в
 Docker named volumes. Обычный restart или `docker compose down` их не удаляет.
 
+Scoring запускается без GPU и model weights в контейнере: Core доступен по HTTP,
+host Ollama — через `host.docker.internal`, raw/cache хранится в `scoring-state`.
+
 ## Локальная AI-история
 
 Пользователь может создать приватное хранилище оригинальных сессий Codex, Cursor

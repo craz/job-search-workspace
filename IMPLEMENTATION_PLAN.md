@@ -228,6 +228,11 @@ User Story:
 
 ## 6. Scoring
 
+**Статус:** реализован базовый исполняемый pipeline: persistent queue,
+cancel/work-once, bounded Core/Ollama clients, private raw store и нормализованная
+Assessment write. Автоматический scheduler и production retry policy остаются
+следующими инкрементами.
+
 User Story:
 
 ```text
