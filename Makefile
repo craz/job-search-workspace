@@ -29,7 +29,7 @@ bdd:
 test: unit bdd
 
 build:
-	docker compose build core web
+	docker compose build core web osint
 
 dev:
 	docker compose up --build
@@ -38,7 +38,7 @@ down:
 	docker compose down
 
 logs:
-	docker compose logs -f core web
+	docker compose logs -f core web osint searxng
 
 compose-smoke:
 	$(PYTHON) scripts/compose_smoke.py

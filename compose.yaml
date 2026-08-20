@@ -38,6 +38,7 @@ services:
     build: ./services/web
     environment:
       CORE_API_URL: http://core:8000
+      OSINT_API_URL: http://osint:8081
       WEB_LIVE_RELOAD: "1"
     command:
       - uvicorn
@@ -51,6 +52,8 @@ services:
       - /app/src
     depends_on:
       core:
+        condition: service_healthy
+      osint:
         condition: service_healthy
     ports:
       - "127.0.0.1:${WEB_PORT:-8080}:8080"
@@ -95,7 +98,7 @@ services:
 
   osint:
     build: ./services/osint
-    profiles: ["tools"]
+    entrypoint: ["python", "-m", "job_search_osint.api"]
     environment:
       JOB_SEARCH_OSINT_CORE_BASE_URL: http://core:8000
       OSINT_STATE_DIR: /var/lib/job-search-osint
@@ -107,8 +110,14 @@ services:
         condition: service_healthy
       searxng:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8081/health/ready', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
     volumes:
       - osint-cache:/var/lib/job-search-osint
+      - ./services/osint/src:/app/src:ro
 
 volumes:
   postgres-data:
