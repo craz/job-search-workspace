@@ -362,5 +362,5 @@ OSINT и Content технически независимы, но базовый 
 
 ## Следующий шаг
 
-Следующая выполняемая задача — показать vacancy mirrors на Web-доске и/или
-углубить professional profiles; сырые OSINT-ответы остаются за пределами Core.
+Следующая выполняемая задача — углубить professional profiles / улучшение
+выдачи people research; vacancy mirrors уже доступны в OSINT и на Web-доске.
