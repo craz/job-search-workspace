@@ -166,7 +166,8 @@ integration, contract и BDD-проверками.
    set/show/list, отдельная миграция и bounded history.
 3. People — **завершено**: подтверждённые контакты Company/Vacancy,
    идемпотентное создание, локальные статусы и Web dashboard без OSINT/messages.
-4. Hypotheses.
+4. Hypotheses — **завершено**: измеримые replay-safe эксперименты, фильтрация,
+   неизменяемый результат закрытия и полный Web dashboard.
 5. Assessments.
 
 **Gate:** чистая система поднимается в Docker, применяет миграции и проводит
@@ -198,6 +199,7 @@ User Story:
 - явную границу между локальной записью факта и внешней отправкой отклика;
 - сводку, историю и форму частичного обновления Daily Metrics;
 - карточки подтверждённых людей, форму создания и локальную смену статуса;
+- создание, просмотр и закрытие измеримых Hypotheses с наблюдаемым результатом;
 - loading, empty, success и error states;
 - live browser и hot reload;
 - BDD и browser smoke;

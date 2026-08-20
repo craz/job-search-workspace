@@ -21,6 +21,7 @@ class ComposeSmokeTests(unittest.TestCase):
         vacancy_id = "00000000-0000-0000-0000-000000000042"
         application_id = "00000000-0000-0000-0000-000000000044"
         person_id = "00000000-0000-0000-0000-000000000045"
+        hypothesis_id = "00000000-0000-0000-0000-000000000046"
         request_mock.side_effect = [
             (201, {"id": vacancy_id, "status": "new", "company": {"id": "company-43"}}),
             (200, {"id": vacancy_id, "status": "reviewing"}),
@@ -32,6 +33,9 @@ class ComposeSmokeTests(unittest.TestCase):
             (201, {"id": person_id, "vacancy": {"id": vacancy_id}, "status": "new"}),
             (200, {"id": person_id, "status": "researching"}),
             (200, {"items": [{"id": person_id}], "total": 1}),
+            (201, {"id": hypothesis_id, "status": "active"}),
+            (200, {"id": hypothesis_id, "status": "done"}),
+            (200, {"items": [{"id": hypothesis_id}], "total": 1}),
         ]
         output = io.StringIO()
 
@@ -40,7 +44,7 @@ class ComposeSmokeTests(unittest.TestCase):
 
         self.assertEqual(result, 0)
         self.assertTrue(json.loads(output.getvalue())["ok"])
-        self.assertEqual(request_mock.call_count, 10)
+        self.assertEqual(request_mock.call_count, 13)
 
     @patch("scripts.compose_smoke.request")
     def test_incomplete_flow_exits_nonzero(self, request_mock) -> None:
@@ -56,6 +60,9 @@ class ComposeSmokeTests(unittest.TestCase):
             (201, {"id": "person", "vacancy": {"id": "fixture"}, "status": "new"}),
             (200, {"id": "person", "status": "researching"}),
             (200, {"items": [{"id": "person"}], "total": 1}),
+            (201, {"id": "hypothesis", "status": "active"}),
+            (200, {"id": "hypothesis", "status": "done"}),
+            (200, {"items": [{"id": "hypothesis"}], "total": 1}),
         ]
 
         with redirect_stdout(io.StringIO()):

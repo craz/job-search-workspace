@@ -15,7 +15,7 @@ IDE одним деревом, а каждый сервис сохраняет �
 документированные проекты, понятные без доступа к приватному workspace.
 
 Первый исполняемый контур уже доступен: PostgreSQL 17, Core
-Vacancy/Application/Daily Metric/Person API и Web-доска с локальным журналом
+Vacancy/Application/Daily Metric/Person/Hypothesis API и Web-доска с локальным журналом
 откликов, дневными показателями и подтверждёнными контактами запускаются
 совместно через корневой `compose.yaml`.
 
@@ -56,7 +56,7 @@ make dev        # поднять dev stack с hot reload
 make logs       # посмотреть состояние сервисов
 make test       # запустить общий набор проверок
 make dev        # собрать и поднять PostgreSQL, Core и Web
-make compose-smoke  # проверить Vacancy, Application, Daily Metric и Person
+make compose-smoke  # проверить Vacancy, Application, Metric, Person и Hypothesis
 make down       # остановить контейнеры, сохранив PostgreSQL volume
 ```
 

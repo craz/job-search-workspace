@@ -111,6 +111,23 @@ def main() -> int:
         {"status": "researching"},
     )
     people_status, people = request("GET", "/api/v1/people")
+    hypothesis_payload = {
+        "source": "workspace-smoke",
+        "external_id": f"workspace-hypothesis-{uuid.uuid4()}",
+        "title": "Synthetic focused applications improve replies",
+        "description": "Disposable Compose experiment fixture.",
+        "test_size": 5,
+        "metric": "reply_rate",
+    }
+    hypothesis_status, hypothesis = request(
+        "POST", "/api/v1/hypotheses", hypothesis_payload,
+        idempotency_key=str(hypothesis_payload["external_id"]),
+    )
+    hypothesis_closed_status, hypothesis_closed = request(
+        "POST", f"/api/v1/hypotheses/{hypothesis.get('id', 'missing')}/close",
+        {"result": "Synthetic observed improvement"},
+    )
+    hypotheses_status, hypotheses = request("GET", "/api/v1/hypotheses")
     ok = (
         created_status == 201
         and updated_status == 200
@@ -134,6 +151,11 @@ def main() -> int:
         and person_updated.get("status") == "researching"
         and people_status == 200
         and any(item.get("id") == person.get("id") for item in people.get("items", []))
+        and hypothesis_status == 201
+        and hypothesis_closed_status == 200
+        and hypothesis_closed.get("status") == "done"
+        and hypotheses_status == 200
+        and any(item.get("id") == hypothesis.get("id") for item in hypotheses.get("items", []))
     )
     print(
         json.dumps(
@@ -149,9 +171,13 @@ def main() -> int:
                 "person_status": person_status,
                 "person_updated_status": person_updated_status,
                 "people_status": people_status,
+                "hypothesis_status": hypothesis_status,
+                "hypothesis_closed_status": hypothesis_closed_status,
+                "hypotheses_status": hypotheses_status,
                 "vacancy_id": created.get("id"),
                 "application_id": application.get("id"),
                 "person_id": person.get("id"),
+                "hypothesis_id": hypothesis.get("id"),
             },
             sort_keys=True,
         )
