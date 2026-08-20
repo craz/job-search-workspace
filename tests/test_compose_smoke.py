@@ -59,6 +59,16 @@ class ComposeSmokeTests(unittest.TestCase):
         self.assertIn("-include .env", makefile)
         self.assertIn("export CORE_PORT WEB_PORT", makefile)
 
+    def test_dev_compose_mounts_sources_and_enables_reload(self) -> None:
+        """The documented make dev loop must observe code and refresh processes."""
+        compose = (Path(__file__).parents[1] / "compose.yaml").read_text(encoding="utf-8")
+
+        self.assertIn("./services/core/src:/app/src:ro", compose)
+        self.assertIn("./services/web/src:/app/src:ro", compose)
+        self.assertEqual(compose.count("--reload --reload-dir"), 1)
+        self.assertEqual(compose.splitlines().count("      - --reload"), 1)
+        self.assertIn('WEB_LIVE_RELOAD: "1"', compose)
+
 
 if __name__ == "__main__":
     unittest.main()

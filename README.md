@@ -59,6 +59,12 @@ make compose-smoke  # проверить Vacancy и связанный Applicati
 make down       # остановить контейнеры, сохранив PostgreSQL volume
 ```
 
+`make dev` монтирует `services/core/src` и `services/web/src` в контейнеры,
+перезапускает затронутый Uvicorn-процесс после изменения Python и автоматически
+обновляет уже открытую Web-страницу после изменения browser assets. Изменения
+зависимостей, Dockerfile, Compose и миграций по-прежнему требуют контролируемой
+пересборки через повторный `make dev`.
+
 Доступны `make bootstrap`, `make doctor`, `make doctor-offline`, `make unit`,
 `make bdd`, `make test`, `make build`, `make dev`, `make logs`, `make down` и
 `make compose-smoke`. Backup/restore будут добавлены отдельным инкрементом 0B.
