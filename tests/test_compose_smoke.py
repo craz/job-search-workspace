@@ -6,6 +6,7 @@ import io
 import json
 import unittest
 from contextlib import redirect_stdout
+from pathlib import Path
 from unittest.mock import patch
 
 from scripts import compose_smoke
@@ -15,13 +16,16 @@ class ComposeSmokeTests(unittest.TestCase):
     """Validate success and failure decisions without network or Docker access."""
 
     @patch("scripts.compose_smoke.request")
-    def test_success_requires_create_update_and_persisted_list(self, request_mock) -> None:
+    def test_success_requires_vacancy_and_application_persistence(self, request_mock) -> None:
         """A complete public flow exits zero and emits one machine-readable result."""
         vacancy_id = "00000000-0000-0000-0000-000000000042"
+        application_id = "00000000-0000-0000-0000-000000000044"
         request_mock.side_effect = [
             (201, {"id": vacancy_id, "status": "new"}),
             (200, {"id": vacancy_id, "status": "reviewing"}),
             (200, {"items": [{"id": vacancy_id}], "total": 1}),
+            (201, {"id": application_id, "vacancy": {"id": vacancy_id}}),
+            (200, {"items": [{"id": application_id}], "total": 1}),
         ]
         output = io.StringIO()
 
@@ -30,7 +34,7 @@ class ComposeSmokeTests(unittest.TestCase):
 
         self.assertEqual(result, 0)
         self.assertTrue(json.loads(output.getvalue())["ok"])
-        self.assertEqual(request_mock.call_count, 3)
+        self.assertEqual(request_mock.call_count, 5)
 
     @patch("scripts.compose_smoke.request")
     def test_incomplete_flow_exits_nonzero(self, request_mock) -> None:
@@ -39,12 +43,21 @@ class ComposeSmokeTests(unittest.TestCase):
             (201, {"id": "fixture", "status": "new"}),
             (200, {"id": "fixture", "status": "reviewing"}),
             (200, {"items": [], "total": 0}),
+            (201, {"id": "application", "vacancy": {"id": "fixture"}}),
+            (200, {"items": [{"id": "application"}], "total": 1}),
         ]
 
         with redirect_stdout(io.StringIO()):
             result = compose_smoke.main()
 
         self.assertEqual(result, 1)
+
+    def test_make_exports_local_compose_ports_to_smoke(self) -> None:
+        """A port override used by Compose must also select the smoke endpoint."""
+        makefile = (Path(__file__).parents[1] / "Makefile").read_text(encoding="utf-8")
+
+        self.assertIn("-include .env", makefile)
+        self.assertIn("export CORE_PORT WEB_PORT", makefile)
 
 
 if __name__ == "__main__":

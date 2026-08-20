@@ -2,6 +2,9 @@
 
 PYTHON ?= python3
 
+-include .env
+export CORE_PORT WEB_PORT
+
 bootstrap:
 	$(PYTHON) scripts/workspace.py bootstrap
 

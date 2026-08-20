@@ -1,11 +1,12 @@
 """Exercise the public PostgreSQL-Core-Web flow through Web HTTP.
 
-The script sends a bounded create, status-update and list sequence to a
-loopback-only Web endpoint selected by ``WEB_PORT``. Web is responsible for
-forwarding those calls to Core; this script never receives database credentials
-or addresses PostgreSQL. Every run generates a synthetic external identity and
-prints exactly one JSON result. HTTP failures are decoded when possible and an
-unsatisfied flow exits non-zero without modifying containers or volumes.
+The script sends bounded Vacancy create/update/list and Application create/list
+sequences to a loopback-only Web endpoint selected by ``WEB_PORT``. Web is
+responsible for forwarding those calls to Core; this script never receives
+database credentials or addresses PostgreSQL. Every run generates synthetic
+external identities and prints exactly one JSON result. HTTP failures are
+decoded when possible and an unsatisfied flow exits non-zero without modifying
+containers or volumes.
 """
 
 from __future__ import annotations
@@ -39,7 +40,7 @@ def request(method: str, path: str, payload: dict[str, str] | None = None) -> tu
 
 
 def main() -> int:
-    """Create, update and re-read one synthetic vacancy through Web and Core."""
+    """Persist one synthetic Vacancy and linked Application through Web and Core."""
     identity = f"workspace-smoke-{uuid.uuid4()}"
     payload = {
         "company_name": "Workspace Smoke Labs",
@@ -55,12 +56,29 @@ def main() -> int:
         "PATCH", f"/api/v1/vacancies/{created.get('id', 'missing')}", {"status": "reviewing"}
     )
     listed_status, listed = request("GET", "/api/v1/vacancies")
+    application_payload = {
+        "vacancy_id": created.get("id", "missing"),
+        "source": "workspace-smoke",
+        "external_id": f"workspace-application-{uuid.uuid4()}",
+        "resume_version": "synthetic-v1",
+        "next_action": "Verify the local Application journal",
+    }
+    application_status, application = request(
+        "POST", "/api/v1/applications", application_payload
+    )
+    applications_status, applications = request("GET", "/api/v1/applications")
     ok = (
         created_status == 201
         and updated_status == 200
         and updated.get("status") == "reviewing"
         and listed_status == 200
         and any(item.get("id") == created.get("id") for item in listed.get("items", []))
+        and application_status == 201
+        and application.get("vacancy", {}).get("id") == created.get("id")
+        and applications_status == 200
+        and any(
+            item.get("id") == application.get("id") for item in applications.get("items", [])
+        )
     )
     print(
         json.dumps(
@@ -69,7 +87,10 @@ def main() -> int:
                 "created_status": created_status,
                 "updated_status": updated_status,
                 "listed_status": listed_status,
+                "application_status": application_status,
+                "applications_status": applications_status,
                 "vacancy_id": created.get("id"),
+                "application_id": application.get("id"),
             },
             sort_keys=True,
         )

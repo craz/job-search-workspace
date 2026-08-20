@@ -173,14 +173,16 @@ integration, contract и BDD-проверками.
 ## 4. Web: работа через Core API
 
 **Статус:** завершён. Независимый Web scaffold и HTTP-only Core gateway
-реализуют browser flow; совместный Compose подтверждает PostgreSQL → Core → Web,
-а headless Chrome и повторный запуск контейнеров проверяют UI и persistence.
+реализуют browser flow для вакансий и локального журнала откликов; совместный
+Compose подтверждает PostgreSQL → Core → Web, а headless Chrome и повторный
+запуск контейнеров проверяют UI и persistence. Web не отправляет реальные
+отклики во внешние системы.
 
 User Story:
 
 ```text
 Как пользователь системы,
-Я хочу видеть вакансии и менять их статус в браузере,
+Я хочу видеть вакансии, менять их статус и фиксировать отклики в браузере,
 Чтобы управлять поиском без ручных CLI-команд.
 ```
 
@@ -188,6 +190,8 @@ User Story:
 
 - список и создание вакансий;
 - смену статуса;
+- создание и список Applications, связанных с существующей вакансией;
+- явную границу между локальной записью факта и внешней отправкой отклика;
 - loading, empty, success и error states;
 - live browser и hot reload;
 - BDD и browser smoke;
