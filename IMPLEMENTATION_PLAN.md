@@ -269,8 +269,10 @@ discovery и people research уже отдают unconfirmed proposals; vacancy 
 3. Поиск публичных профессиональных профилей — **сделано** как people research
    с LinkedIn/team-page extraction (OSINT-local proposals).
 4. Provenance и confidence — **частично** (confidence по источнику).
-5. Подтверждение результата — **сделано** для website.
-6. Передачу подтверждённых Company/Person в Core — **сделано** для website.
+5. Подтверждение результата — **сделано** для website и Person
+   (`people confirm` / `POST /api/v1/people-confirm`).
+6. Передачу подтверждённых Company/Person в Core — **сделано** для website и
+   Person (роль мапится из title; vacancy/company linkage сохраняется).
 
 **Gate:** сырые данные остаются в OSINT volume, в Core передаются только
 нормализованные подтверждённые сведения, а публичные fixtures синтетические.
@@ -363,5 +365,6 @@ OSINT и Content технически независимы, но базовый 
 
 ## Следующий шаг
 
-Следующая выполняемая задача — на реальных компаниях проверить выдачу people/
-mirrors, затем подтверждение Person в Core либо HH read-only.
+Следующая выполняемая задача — Web UX подтверждения Person (кнопка на дашборде)
+либо HH read-only. Живая выдача people/mirrors зависит от качества поиска и
+доступности company-site из контейнера OSINT.
