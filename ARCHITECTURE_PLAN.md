@@ -173,13 +173,13 @@ noVNC, привязанный только к loopback-интерфейсу хо
 Ollama и GPU остаются на хосте. Scoring использует:
 
 ```text
-OLLAMA_BASE_URL=http://host.docker.internal:11434
+OLLAMA_BASE_URL=http://127.0.0.1:11434
 ```
 
-На Linux Compose добавляет `host.docker.internal:host-gateway`. GPU в контейнер
-Scoring не пробрасывается: вычисления выполняет процесс Ollama на хосте. Ollama
-должна принимать соединения из Docker-сети, но её порт не публикуется во внешнюю
-сеть.
+На поддерживаемом Linux runtime Scoring использует host network и обращается к
+Ollama и опубликованному loopback-порту Core через `127.0.0.1`. Это не требует
+разрешать входящий трафик из Docker bridge в firewall. GPU в контейнер Scoring
+не пробрасывается: вычисления выполняет процесс Ollama на хосте.
 
 ## 4. PostgreSQL и владение данными
 

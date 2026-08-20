@@ -84,7 +84,7 @@ make down       # остановить контейнеры, сохранив Po
 Docker named volumes. Обычный restart или `docker compose down` их не удаляет.
 
 Scoring запускается без GPU и model weights в контейнере: Core доступен по HTTP,
-host Ollama — через `host.docker.internal`, raw/cache хранится в `scoring-state`.
+host Ollama — через loopback в host network, raw/cache хранится в `scoring-state`.
 
 ## Локальная AI-история
 
