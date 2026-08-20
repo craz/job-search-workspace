@@ -25,4 +25,5 @@ does not access OSINT storage, provider APIs or another service's volume.
 - The dashboard can display unverified research without treating it as a Person.
 - OSINT availability has an independent loading/error state and cannot make the
   vacancy board unavailable.
-- A future promotion to Core remains a separate explicit workflow.
+- Promotion to Core is an explicit Web action that calls OSINT
+  `people-confirm`; Web does not invent Core Person writes for this path.
