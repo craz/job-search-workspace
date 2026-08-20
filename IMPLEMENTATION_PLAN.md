@@ -221,8 +221,8 @@ User Story:
 4. Получение вакансий — **сделано** (публичный search / fixture → Core,
    `source=hh`, идемпотентный sync; `external_writes_enabled=false`).
 5. Синхронизация откликов, переговоров и метрик — **частично**: fixture sync
-   откликов → Core Application (`applications sync --fixture`); negotiations
-   API/auth и metrics sync ещё нет.
+   откликов и дневных метрик → Core (`applications|metrics sync --fixture`);
+   live negotiations API/auth ещё нет.
 6. Dry-run отклика.
 7. Limited apply с лимитами, CAPTCHA-stop и аудитом.
 
@@ -369,6 +369,6 @@ OSINT и Content технически независимы, но базовый 
 ## Следующий шаг
 
 Следующая выполняемая задача — HH browser/auth (Chromium/Playwright/noVNC и
-сессия) для live negotiations/apply, либо metrics sync, затем dry-run apply.
-Read-only vacancy sync и fixture application sync уже доступны через
-`job-search-hh vacancies|applications sync`.
+сессия; нужен явный OK на download образов) для live negotiations/apply, затем
+dry-run apply. Fixture sync vacancies/applications/metrics уже доступен через
+`job-search-hh … sync`.
