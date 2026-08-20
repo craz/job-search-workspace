@@ -218,7 +218,8 @@ User Story:
 1. Chromium, Playwright и noVNC.
 2. Постоянный browser profile в Docker volume.
 3. Авторизация и проверка сессии.
-4. Получение вакансий.
+4. Получение вакансий — **сделано** (публичный search / fixture → Core,
+   `source=hh`, идемпотентный sync; `external_writes_enabled=false`).
 5. Синхронизация откликов, переговоров и метрик.
 6. Dry-run отклика.
 7. Limited apply с лимитами, CAPTCHA-stop и аудитом.
@@ -365,7 +366,6 @@ OSINT и Content технически независимы, но базовый 
 
 ## Следующий шаг
 
-Следующая выполняемая задача — HH read-only. Web UX подтверждения Person
-(`Подтвердить в Core` → `POST /api/v1/osint/people-confirm`) готов. Живая
-выдача people/mirrors по-прежнему зависит от качества поиска и доступности
-company-site из контейнера OSINT.
+Следующая выполняемая задача — HH browser/auth (Chromium/Playwright/noVNC и
+сессия) либо sync откликов/метрик, затем dry-run apply. Read-only vacancy sync
+в Core уже доступен через `job-search-hh vacancies sync`.
