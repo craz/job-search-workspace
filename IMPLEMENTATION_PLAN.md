@@ -223,7 +223,8 @@ User Story:
 5. Синхронизация откликов, переговоров и метрик — **частично**: fixture sync
    откликов и дневных метрик → Core (`applications|metrics sync --fixture`);
    live negotiations API/auth ещё нет.
-6. Dry-run отклика.
+6. Dry-run отклика — **сделано** (`apply dry-run --fixture`, audit `would_send`,
+   без HH write и без Core Application).
 7. Limited apply с лимитами, CAPTCHA-stop и аудитом.
 
 **Gate:** сессия переживает перезапуск, синхронизация идемпотентна, BDD не
@@ -368,7 +369,6 @@ OSINT и Content технически независимы, но базовый 
 
 ## Следующий шаг
 
-Следующая выполняемая задача — HH browser/auth (Chromium/Playwright/noVNC и
-сессия; нужен явный OK на download образов) для live negotiations/apply, затем
-dry-run apply. Fixture sync vacancies/applications/metrics уже доступен через
-`job-search-hh … sync`.
+Следующая выполняемая задача — limited apply (лимиты, CAPTCHA-stop, audit) после
+явного разрешения на HH writes; browser/auth подключается только с явным OK на
+download образов. Dry-run apply уже доступен через `job-search-hh apply dry-run`.
