@@ -117,8 +117,36 @@ services:
       - osint-cache:/var/lib/job-search-osint
       - ./services/osint/src:/app/src:ro
 
+  hh:
+    build: ./services/hh
+    environment:
+      CORE_API_URL: http://core:8000
+      JOB_SEARCH_HH_EXTERNAL_WRITES_ENABLED: "false"
+      JOB_SEARCH_HH_APPLY_LIMIT: "1"
+      HH_STATE_DIR: /var/lib/job-search-hh/state
+      HH_PROFILE_DIR: /var/lib/job-search-hh/profile
+    command:
+      - /bin/sh
+      - -c
+      - while true; do python -m job_search_hh.cli session status >/tmp/hh-session.json || true; sleep 30; done
+    depends_on:
+      core:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-m", "job_search_hh.cli", "session", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 5s
+    volumes:
+      - hh-state:/var/lib/job-search-hh/state
+      - hh-profile:/var/lib/job-search-hh/profile
+      - ./services/hh/src:/app/src:ro
+
 volumes:
   postgres-data:
   scoring-state:
   searxng-cache:
   osint-cache:
+  hh-state:
+  hh-profile:

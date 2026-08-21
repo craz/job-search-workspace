@@ -215,9 +215,13 @@ User Story:
 
 Переносить отдельными безопасными релизами:
 
-1. Chromium, Playwright и noVNC.
-2. Постоянный browser profile в Docker volume.
-3. Авторизация и проверка сессии.
+1. Chromium, Playwright и noVNC — **частично**: Compose service `hh` + volumes
+   `hh-profile`/`hh-state`, CLI `session|auth status`, capabilities
+   `browser_automation=scaffold`; бинарники Chromium/Playwright/noVNC ещё не
+   ставятся.
+2. Постоянный browser profile в Docker volume — **частично** (volume + lock stub).
+3. Авторизация и проверка сессии — **частично** (`auth status` marker absent;
+   реального login нет).
 4. Получение вакансий — **сделано** (публичный search / fixture → Core,
    `source=hh`, идемпотентный sync; `external_writes_enabled=false`).
 5. Синхронизация откликов, переговоров и метрик — **частично**: fixture sync
@@ -371,6 +375,6 @@ OSINT и Content технически независимы, но базовый 
 
 ## Следующий шаг
 
-Следующая выполняемая задача — browser/auth scaffold без download браузеров
-(Compose/`hh-profile` wiring и session status stubs). Live HH write transport
-для limited apply — только после явного разрешения на реальные HH writes.
+Следующая выполняемая задача — установка Chromium/Playwright/noVNC в HH image
+только после явного OK на download образов/браузеров. Без этого — live HH write
+transport для limited apply тоже только с явным OK на реальные HH writes.
