@@ -224,10 +224,10 @@ User Story:
    cookies в CLI.
 4. Получение вакансий — **сделано** (публичный search / fixture → Core,
    `source=hh`, идемпотентный sync; `external_writes_enabled=false`).
-5. Синхронизация откликов, переговоров и метрик — **частично**: fixture sync и
-   live authenticated GET `/negotiations` (gate `login_ready` + access token) →
-   Core; metrics live = derived snapshot; OAuth URL/exchange/storage и loopback
-   callback (`auth oauth-acquire`) сделаны; resume-view scrape ещё нет.
+5. Синхронизация откликов, переговоров и метрик — **сделано** для API-path:
+   fixture + live GET `/negotiations` → applications; live metrics =
+   negotiations + GET `/resumes/mine` views (403 → fallback); OAuth/loopback
+   callback готовы. Browser scrape истории просмотров по дням — out of scope.
 6. Dry-run отклика — **сделано** (`apply dry-run --fixture`, audit `would_send`,
    без HH write и без Core Application).
 7. Limited apply с лимитами, CAPTCHA-stop и аудитом — **частично**: scaffold
@@ -376,6 +376,6 @@ OSINT и Content технически независимы, но базовый 
 
 ## Следующий шаг
 
-Следующая выполняемая задача — resume-view / richer metrics sync (или browser
-scrape path) на confirmed session + token. Live HH write transport для limited
-apply — только с явным OK на реальные HH writes.
+Следующая выполняемая задача — проверка HH gate (сессия/token после recreate) и
+закрытие §5 как read-ready. Live HH write transport для limited apply — только
+с явным OK на реальные HH writes.
