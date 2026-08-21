@@ -1,13 +1,14 @@
 # Состояние проекта Job Search Multirepo
 
 **Дата снимка:** 2026-08-21 (UTC)  
-**Workspace HEAD:** `90f9f4e`  
+**Workspace HEAD:** см. `git rev-parse --short HEAD`  
 **HH submodule HEAD:** `1ec60bf`  
 **Ветка:** `main` (workspace ahead of origin; push только по явному запросу)
 
 Этот файл — оперативный снимок «где мы сейчас». Детальный план и gate-критерии
 живут в [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md); архитектура — в
-[`ARCHITECTURE_PLAN.md`](ARCHITECTURE_PLAN.md).
+[`ARCHITECTURE_PLAN.md`](ARCHITECTURE_PLAN.md). R0 design:
+[`docs/R0_DESIGN.md`](docs/R0_DESIGN.md).
 
 ## Краткий вердикт
 
@@ -21,11 +22,15 @@
 | HH write-path (API) | код dual-gate готов; **production API apply заблокирован scope HH-приложения** |
 | Content / Telegram §8 | не начат |
 | Сквозная сборка §9 / Hermes §10 | не закрыты |
+| R0 / PB-UX-00 Web redesign | **в работе** |
 
-**Главный продуктовый next:** Content/Telegram (§8) или сквозная сборка (§9).  
-**Главный HH next для реальных откликов:** browser-based apply (как в архиве
-`job_search`), либо расширение applicant scopes на [dev.hh.ru](https://dev.hh.ru).
+**Главный продуктовый next:** R0 / PB-UX-00 — базовый редизайн Web.  
+**Текущий task:** T-UX-00.1 — UI audit текущего Web → артефакт
+[`docs/R0_UI_AUDIT.md`](docs/R0_UI_AUDIT.md).
 
+Content/Telegram, browser HH apply, Scoring redesign и дальнейшее service-driven
+развитие по старой очереди `IMPLEMENTATION_PLAN.md` **сейчас не являются next
+step**.
 ## По этапам плана
 
 ### 0–2. Workspace, inventory, каркасы
@@ -113,10 +118,12 @@ Runtime / секреты (без значений в git):
 
 ## Решение по «го» / blockers
 
-- **«Го» на Content/Telegram** — основной default из плана.
-- **«Го» на browser HH apply** — путь к реальным откликам при текущих scopes.
+- **«Го»** = следующий task R0 (после audit — T-UX-00.2 visual direction +
+  `DESIGN.md`), или если скажешь явно другую задачу.
+- Content/Telegram, browser HH apply, Scoring redesign — только по явной фразе,
+  не default.
 - **«OK на HH writes» уже дан**, но API-path сейчас бессмысленен без scopes /
-  browser transport.
+  browser transport (не текущий next).
 - Push/PR — только по явной просьбе.
 
 ## Как обновлять этот файл
@@ -125,4 +132,5 @@ Runtime / секреты (без значений в git):
 
 1. Обновить дату и HEAD SHA.
 2. Поправить таблицу вердикта и блок HH/блокеров по факту.
-3. Синхронизировать формулировку «Следующий шаг» с `IMPLEMENTATION_PLAN.md`.
+3. Держать блок «Главный продуктовый next» / текущий task согласованным с
+   [`docs/R0_DESIGN.md`](docs/R0_DESIGN.md), пока активен R0.
