@@ -213,6 +213,12 @@ User Story:
 
 ## 5. HH: чтение перед отправкой
 
+**Статус read-path:** **read-ready** (2026-08-21). Gate verified: synthetic
+`session.json` + `hh_token.json` survive `docker compose up --force-recreate hh`
+on volumes `hh-state`/`hh-profile`. OAuth loopback default port is `8767`
+(avoids collision with other local apps on `8765`). See
+`services/hh/docs/runbooks/hh-read-gate.md`.
+
 Переносить отдельными безопасными релизами:
 
 1. Chromium, Playwright и noVNC — **сделано** в HH image + Compose loopback
@@ -234,8 +240,9 @@ User Story:
    `apply limited` с dual-gate (env + `--i-authorize-hh-writes`), limit и
    `captcha_stop` в отчёте; live HH POST ещё `not_implemented`.
 
-**Gate:** сессия переживает перезапуск, синхронизация идемпотентна, BDD не
-отправляет реальные отклики, а CAPTCHA/auth error безопасно останавливают процесс.
+**Gate (read):** сессия/token переживают recreate — **подтверждено**; синхронизация
+идемпотентна; BDD не отправляет реальные отклики; CAPTCHA/auth error останавливают
+процесс без bypass. **Write-gate** (§5.7 live POST) ещё не закрыт.
 
 ## 6. Scoring
 
@@ -376,6 +383,6 @@ OSINT и Content технически независимы, но базовый 
 
 ## Следующий шаг
 
-Следующая выполняемая задача — проверка HH gate (сессия/token после recreate) и
-закрытие §5 как read-ready. Live HH write transport для limited apply — только
-с явным OK на реальные HH writes.
+Следующая выполняемая задача — live HH write transport для `apply limited`
+(только с явным OK на реальные HH writes). Или если скажешь — Content/Telegram
+§8 / сквозная сборка §9.
