@@ -119,6 +119,8 @@ services:
 
   hh:
     build: ./services/hh
+    env_file:
+      - ./services/hh/.env
     environment:
       CORE_API_URL: http://core:8000
       JOB_SEARCH_HH_EXTERNAL_WRITES_ENABLED: "false"
@@ -130,7 +132,7 @@ services:
       HH_NOVNC_PORT: "6080"
       HH_VNC_PORT: "5900"
       HH_DISPLAY: ":99"
-      JOB_SEARCH_HH_REDIRECT_URI: http://127.0.0.1:8767/oauth/callback
+      # Redirect comes from services/hh/.env (archive-registered URI).
     depends_on:
       core:
         condition: service_healthy
@@ -143,6 +145,8 @@ services:
     ports:
       - "127.0.0.1:${HH_NOVNC_PORT:-6080}:6080"
       - "127.0.0.1:${HH_OAUTH_PORT:-8767}:8767"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - hh-state:/var/lib/job-search-hh/state
       - hh-profile:/var/lib/job-search-hh/profile
