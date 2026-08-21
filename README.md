@@ -33,6 +33,8 @@ Vacancy/Application/Daily Metric/Person/Hypothesis/Assessment API и Web-дос�
 
 - [Архитектурный план](ARCHITECTURE_PLAN.md)
 - [Пошаговый план реализации](IMPLEMENTATION_PLAN.md)
+- [Design system (R0)](DESIGN.md)
+- [Состояние проекта](PROJECT_STATUS.md)
 - [Полный процесс разработки](DEVELOPMENT_PROCESS.md)
 - [Правила участия](CONTRIBUTING.md)
 - [Инструкции агентам](AGENTS.md)
