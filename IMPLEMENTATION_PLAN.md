@@ -236,13 +236,17 @@ on volumes `hh-state`/`hh-profile`. OAuth loopback default port is `8767`
    callback готовы. Browser scrape истории просмотров по дням — out of scope.
 6. Dry-run отклика — **сделано** (`apply dry-run --fixture`, audit `would_send`,
    без HH write и без Core Application).
-7. Limited apply с лимитами, CAPTCHA-stop и аудитом — **частично**: scaffold
-   `apply limited` с dual-gate (env + `--i-authorize-hh-writes`), limit и
-   `captcha_stop` в отчёте; live HH POST ещё `not_implemented`.
+7. Limited apply с лимитами, CAPTCHA-stop и аудитом — **сделано** для gated
+   live transport: dual-gate (env + `--i-authorize-hh-writes`) +
+   `login_ready`/token → POST `/negotiations`; `captcha_or_auth_stop` прерывает
+   run; без gate сеть не трогается. Реальный production apply всё ещё требует
+   явного операторского OK (env обычно false).
 
 **Gate (read):** сессия/token переживают recreate — **подтверждено**; синхронизация
 идемпотентна; BDD не отправляет реальные отклики; CAPTCHA/auth error останавливают
-процесс без bypass. **Write-gate** (§5.7 live POST) ещё не закрыт.
+процесс без bypass. **Write-gate:** код live POST готов, но Compose/default оставляют
+`JOB_SEARCH_HH_EXTERNAL_WRITES_ENABLED=false`; реальные отправки — только с явным
+операторским OK.
 
 ## 6. Scoring
 
@@ -383,6 +387,6 @@ OSINT и Content технически независимы, но базовый 
 
 ## Следующий шаг
 
-Следующая выполняемая задача — live HH write transport для `apply limited`
-(только с явным OK на реальные HH writes). Или если скажешь — Content/Telegram
-§8 / сквозная сборка §9.
+Следующая выполняемая задача — Content/Telegram §8 (или сквозная сборка §9).
+Реальный production `apply limited` на HH — только если явно скажешь OK на
+HH writes (env+flag уже есть в коде).
