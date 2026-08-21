@@ -225,7 +225,9 @@ User Story:
    live negotiations API/auth ещё нет.
 6. Dry-run отклика — **сделано** (`apply dry-run --fixture`, audit `would_send`,
    без HH write и без Core Application).
-7. Limited apply с лимитами, CAPTCHA-stop и аудитом.
+7. Limited apply с лимитами, CAPTCHA-stop и аудитом — **частично**: scaffold
+   `apply limited` с dual-gate (env + `--i-authorize-hh-writes`), limit и
+   `captcha_stop` в отчёте; live HH POST ещё `not_implemented`.
 
 **Gate:** сессия переживает перезапуск, синхронизация идемпотентна, BDD не
 отправляет реальные отклики, а CAPTCHA/auth error безопасно останавливают процесс.
@@ -369,6 +371,6 @@ OSINT и Content технически независимы, но базовый 
 
 ## Следующий шаг
 
-Следующая выполняемая задача — limited apply (лимиты, CAPTCHA-stop, audit) после
-явного разрешения на HH writes; browser/auth подключается только с явным OK на
-download образов. Dry-run apply уже доступен через `job-search-hh apply dry-run`.
+Следующая выполняемая задача — browser/auth scaffold без download браузеров
+(Compose/`hh-profile` wiring и session status stubs). Live HH write transport
+для limited apply — только после явного разрешения на реальные HH writes.
