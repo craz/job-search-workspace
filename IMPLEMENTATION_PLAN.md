@@ -224,9 +224,9 @@ User Story:
    cookies в CLI.
 4. Получение вакансий — **сделано** (публичный search / fixture → Core,
    `source=hh`, идемпотентный sync; `external_writes_enabled=false`).
-5. Синхронизация откликов, переговоров и метрик — **частично**: fixture sync
-   откликов и дневных метрик → Core (`applications|metrics sync --fixture`);
-   live negotiations API/auth ещё нет.
+5. Синхронизация откликов, переговоров и метрик — **частично**: fixture sync и
+   live authenticated GET `/negotiations` (gate `login_ready` + access token) →
+   Core; metrics live = derived snapshot; OAuth UI / resume-view scrape ещё нет.
 6. Dry-run отклика — **сделано** (`apply dry-run --fixture`, audit `would_send`,
    без HH write и без Core Application).
 7. Limited apply с лимитами, CAPTCHA-stop и аудитом — **частично**: scaffold
@@ -375,6 +375,6 @@ OSINT и Content технически независимы, но базовый 
 
 ## Следующий шаг
 
-Следующая выполняемая задача — live authenticated HH read (negotiations/metrics)
-на базе confirmed session, без HH writes. Live HH write transport для limited
-apply — только с явным OK на реальные HH writes.
+Следующая выполняемая задача — OAuth token acquisition / безопасная запись
+access token после operator login (без дампа в CLI). Live HH write transport для
+limited apply — только с явным OK на реальные HH writes.
