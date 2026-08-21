@@ -388,5 +388,8 @@ OSINT и Content технически независимы, но базовый 
 ## Следующий шаг
 
 Следующая выполняемая задача — Content/Telegram §8 (или сквозная сборка §9).
-Реальный production `apply limited` на HH — только если явно скажешь OK на
-HH writes (env+flag уже есть в коде).
+Для реальных HH-откликов при текущем 403 scope приложения — browser apply;
+API limited apply остаётся dual-gated, но production API упирается в scopes
+dev.hh.ru.
+
+Оперативный снимок состояния: [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
