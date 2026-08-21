@@ -125,10 +125,11 @@ services:
       JOB_SEARCH_HH_APPLY_LIMIT: "1"
       HH_STATE_DIR: /var/lib/job-search-hh/state
       HH_PROFILE_DIR: /var/lib/job-search-hh/profile
-    command:
-      - /bin/sh
-      - -c
-      - while true; do python -m job_search_hh.cli session status >/tmp/hh-session.json || true; sleep 30; done
+      HH_NOVNC_ENABLED: "1"
+      HH_CHROMIUM_INSTALLED: "1"
+      HH_NOVNC_PORT: "6080"
+      HH_VNC_PORT: "5900"
+      HH_DISPLAY: ":99"
     depends_on:
       core:
         condition: service_healthy
@@ -136,8 +137,10 @@ services:
       test: ["CMD", "python", "-m", "job_search_hh.cli", "session", "status"]
       interval: 10s
       timeout: 5s
-      retries: 6
-      start_period: 5s
+      retries: 12
+      start_period: 20s
+    ports:
+      - "127.0.0.1:${HH_NOVNC_PORT:-6080}:6080"
     volumes:
       - hh-state:/var/lib/job-search-hh/state
       - hh-profile:/var/lib/job-search-hh/profile
