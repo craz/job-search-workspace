@@ -226,8 +226,8 @@ User Story:
    `source=hh`, идемпотентный sync; `external_writes_enabled=false`).
 5. Синхронизация откликов, переговоров и метрик — **частично**: fixture sync и
    live authenticated GET `/negotiations` (gate `login_ready` + access token) →
-   Core; metrics live = derived snapshot; OAuth URL/exchange/storage сделаны;
-   loopback callback server / resume-view scrape ещё нет.
+   Core; metrics live = derived snapshot; OAuth URL/exchange/storage и loopback
+   callback (`auth oauth-acquire`) сделаны; resume-view scrape ещё нет.
 6. Dry-run отклика — **сделано** (`apply dry-run --fixture`, audit `would_send`,
    без HH write и без Core Application).
 7. Limited apply с лимитами, CAPTCHA-stop и аудитом — **частично**: scaffold
@@ -376,6 +376,6 @@ OSINT и Content технически независимы, но базовый 
 
 ## Следующий шаг
 
-Следующая выполняемая задача — loopback OAuth callback listener в HH container
-(принять `code` на `127.0.0.1` redirect без ручного copy). Live HH write
-transport для limited apply — только с явным OK на реальные HH writes.
+Следующая выполняемая задача — resume-view / richer metrics sync (или browser
+scrape path) на confirmed session + token. Live HH write transport для limited
+apply — только с явным OK на реальные HH writes.
