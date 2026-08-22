@@ -4,14 +4,14 @@
 
 | Field | Value |
 |---|---|
-| **Slice** | PB-DATA-00.1 — Legacy inventory |
+| **Slice** | PB-DATA-00.2 — Source → target mapping |
 | **Date** | 2026-08-22 (UTC+3) |
-| **Source** | `/data/Projects/job_search` (read-only) |
-| **Target** | `/data/Projects/job_search_ref` (Core PostgreSQL) |
-| **Source policy** | Read-only inspection only; no writes to source |
-| **Next slice** | PB-DATA-00.2 — Source → target mapping |
+| **Prior slice** | PB-DATA-00.1 @ `c860038` |
+| **Next slice** | PB-DATA-00.3 — Migration safety contract |
 
-Prior code inventory (module ownership, not entity counts): `docs/inventory/data.md`, `docs/inventory/migration-map.md`.
+| **Source** | `/data/Projects/job_search` (read-only) |
+| **Target** | `/data/Projects/job_search_ref` → Core PostgreSQL |
+| **Source policy** | Read-only; no writes to source during inventory/mapping |
 
 ---
 
@@ -339,32 +339,369 @@ No malformed JSON observed in sampled `vacancy_scores.jsonl` lines. No orphan FK
 
 ---
 
-## 11. Unknowns requiring DATA-00.2 investigation
+## 11. Unknowns from DATA-00.1 — resolved in §14–§21
 
-1. **Scoring merge strategy:** import JSONL scores as Assessments for HH IDs only, create missing Vacancies, or import overlap-only?
-2. **Watchlist companies:** migrate all **1366** or only companies referenced by vacancies/people?
-3. **Embedded vs JSONL assessment:** how to dedupe 16 column rows vs JSONL for same vacancy?
-4. **Target Assessment model** in Core vs legacy split (columns + JSONL rich payload) — mapping status likely `NEEDS_TARGET_MODEL` for full JSONL fields.
-5. **Content logs:** verify `draft_path` files exist; Content service stub in target — defer or map to Core?
-6. **Settings keys:** which become typed config vs dropped cursors?
-7. **Resume/profile:** map files to future CandidateProfile/ResumeVersion (R1) — `NEEDS_TARGET_MODEL`.
-8. **12 vacancies without `company_id`:** infer company from text/URL or import with null company?
-9. **Daily metrics before `search_start_date`:** include rows from **2025-08-29** or trim to search window?
-10. **Legacy status enum** (`viewed`, `reject`, …) → Core `VacancyStatus` mapping validation.
-
-**Observation (non-binding):** SQLite entities **likely map** to Core Vacancy/Company/Application/Person/DailyMetric/Hypothesis; scoring JSONL **likely maps** to Core Assessment with extra payload decisions pending.
+Section 11 open questions from inventory are answered in mapping sections below. Remaining product decisions are listed in **§21 OWNER DECISION REQUIRED**.
 
 ---
 
-## 12. Next step
+## 12. Next step (historical)
 
-**PB-DATA-00.2 — Source → target mapping**
-
-Produce mapping table per entity with statuses: `SUPPORTED_NOW`, `NEEDS_TARGET_MODEL`, `DROP_INTENTIONALLY`, `MANUAL_REVIEW`.
+Superseded by **§22**.
 
 ---
 
-## Inspection reproducibility
+## 13. Target model inventory (job_search_ref Core)
+
+Verified against `services/core/src/job_search_core/models.py`, `schemas.py`, Alembic migrations (7 revisions). **No** CandidateProfile, ResumeVersion, SearchCycle, Offer, or Content tables exist.
+
+| Target entity | Table | PK | Unique keys | Required fields | Nullable / optional | Relationships |
+|---|---|---|---|---|---|---|
+| **Company** | `companies` | UUID | `(source, external_id)` | `name`, `source`, `external_id` | `website_url` | ← Vacancy, Person |
+| **Vacancy** | `vacancies` | UUID | `(source, external_id)`, `idempotency_key` | `company_id`, `source`, `external_id`, `title`, `url`, `idempotency_key`, `request_fingerprint` | `description` | FK → Company **required**; → Application, Person, Assessment |
+| **Application** | `applications` | UUID | `(source, external_id)`, `idempotency_key` | `vacancy_id`, `source`, `external_id`, `applied_at`, … | `result`, cover letter fields, `next_action*` | FK → Vacancy |
+| **Person** | `people` | UUID | `(source, external_id)`, `idempotency_key` | `company_id`, `source`, `external_id`, `full_name`, `role` | `vacancy_id`, `title`, `url`, `confidence`, `notes` | FK → Company; optional Vacancy |
+| **Assessment** | `assessments` | UUID | `(source, external_id)`, `idempotency_key` | `vacancy_id`, `source`, `external_id`, `relevance_score`, `verdict`, `reason`, `action`, `model`, `prompt_version`, `assessed_at` | `risk` | FK → Vacancy |
+| **DailyMetric** | `daily_metrics` | `metric_date` (date) | PK = date | none strictly (all metric cols nullable) | all counters + `notes` | standalone |
+| **Hypothesis** | `hypotheses` | UUID | `(source, external_id)`, `idempotency_key` | `source`, `external_id`, `title` | `description`, `test_size`, `metric`, `result` | standalone |
+
+**Enums (target):**
+
+- `VacancyStatus`: `new`, `reviewing`, `rejected`, `shortlisted`
+- `ApplicationResult`: `reply`, `interview`, `rejected`, `offer`
+- `PersonRole`: `hiring_manager`, `recruiter`, `referral`, `peer`
+- `PersonStatus`: `new`, `researching`, `contacted`, `replied`, `dropped`
+- `HypothesisStatus`: `active`, `done`
+- `AssessmentVerdict`: `apply`, `maybe`, `skip`
+
+**Write path:** HTTP `/api/v1/*` + idempotency header; Company created **only** implicitly via `VacancyCreate` (same `source` + `company_external_id`) or must pre-exist for Person. No standalone Company POST in current API.
+
+**Legacy provenance gap:** Core has **no** generic `legacy_id` / JSON metadata column. Provenance must use `(source, external_id)` encoding (§17).
+
+---
+
+## 14. Source → target mapping (entity level)
+
+| Legacy source | Legacy entity | Rows | Target | Status | Identity key | Relationship strategy | Notes |
+|---|---|---:|---|---|---|---|---|
+| `job_search.db` | `companies` (referenced) | **323** | `Company` | **SUPPORTED_NOW** | `(source, external_id)` — see §17 | Created before/with Vacancy/Person | 320 linked from vacancies + 3 people-only |
+| `job_search.db` | `companies` (watch-only) | **1043** | `Company` | **MANUAL_REVIEW** | HH `employer_id` when present | N/A until decision | See §14.1 |
+| `job_search.db` | `vacancies` (with `company_id`) | **499** | `Vacancy` | **SUPPORTED_NOW** | HH id from URL or legacy fallback | FK → Company | 401 with HH `/vacancy/{id}` |
+| `job_search.db` | `vacancies` (no `company_id`) | **12** | `Vacancy` | **NEEDS_PARENT_ENTITY** | bot path or HH id | Must create/link Company first | 11× `hh_bot` `/b/` URLs; 1× HH vacancy |
+| `job_search.db` | `applications` | **407** | `Application` | **SUPPORTED_NOW** | `legacy:application:{id}` | FK → imported Vacancy | 406 with `result` NULL — valid |
+| `job_search.db` | `people` | **24** | `Person` | **SUPPORTED_NOW** | `legacy:person:{id}` | FK → Company (+ optional Vacancy) | Roles/status map directly |
+| `job_search.db` | `daily_metrics` | **81** | `DailyMetric` | **SUPPORTED_NOW** | `metric_date` | Independent | Pre-search rows need policy (§21) |
+| `job_search.db` | `hypotheses` | **2** | `Hypothesis` | **SUPPORTED_NOW** | `legacy:hypothesis:{id}` | Independent | Both `active` |
+| `job_search.db` | embedded `reason/risk/action` | **16** | `Assessment` | **SUPPORTED_NOW** | per vacancy + legacy slice | FK → Vacancy | **No JSONL overlap** (§14.4) |
+| `vacancy_scores.jsonl` | scores linked to SQLite (cat. **A**) | **20** HH / **21** lines | `Assessment` | **SUPPORTED_NOW** | `legacy-scoring:{hh_id}:{scored_at}` | FK → existing Vacancy | Pick latest per HH if duplicates |
+| `vacancy_scores.jsonl` | scores off-DB (cat. **B**) | **850** HH / **988** lines | Vacancy + `Assessment` | **MANUAL_REVIEW** | HH vacancy id | Create Vacancy from JSONL payload, then Assessment | Payload sufficient; **product decision** (§21) |
+| `vacancy_scores.jsonl` | insufficient (cat. **C**) | **0** | — | — | — | — | None found |
+| `data/osint/*.json` | OSINT raw harvest | **4** files | — | **REBUILDABLE** | HH vacancy id filename | Person already in SQLite | Do not stuff raw JSON into Person |
+| `resume.txt`, `resume_summary.txt` | profile text | **2** files | CandidateProfile / ResumeVersion | **NEEDS_TARGET_MODEL** | — | Used by historical scoring | R1 target concept |
+| `content_logs` | Telegram/draft journal | **28** | Content journal | **NEEDS_TARGET_MODEL** | — | Content service deferred | `linked_type` NULL |
+| `telegram_channel_messages.jsonl` | channel mirror | **29** lines | Content | **NEEDS_TARGET_MODEL** | — | Adjacent to Content | Not Core |
+| `settings` | key/value | **17** | — | **DROP_INTENTIONALLY** | — | Operational cursors / local config | Not domain history |
+| `vacancy_fetch_queue.jsonl` | fetch queue | **2085** | — | **REBUILDABLE** | — | — | Pipeline artifact |
+| `hh_snapshots/`, logs, tokens, browser profile, ChatGPT export | various | large | — | **DROP_INTENTIONALLY** | — | — | See §2 |
+
+### 14.1 Watch-only companies (legacy semantics)
+
+Legacy `companies.track_status` (`watch` | `active` | `contacted` | `pass`) is a **user company tracker** (CLI `company show/set/sync`). Companies are created on first lookup; HH `employer_id` and vacancy counters are often filled by **`company sync`** / HH API, not only manual intent.
+
+| Bucket | Count | Semantics |
+|---|---:|---|
+| **A** Linked to Vacancy | **320** distinct companies | Used in real funnel — **SUPPORTED_NOW** |
+| **B** Linked to Person only | **3** | OSINT contacts — **SUPPORTED_NOW** |
+| **C** Watch-only (no vac, no person) | **1043** (**1042** `watch`, **1022** with `employer_id`) | Employer watchlist / auto-sync candidates — **MANUAL_REVIEW** |
+
+**Recommendation:** first slice imports **323 referenced companies only**. Bulk import of **1043** watch-only rows is **not** auto-approved — many are exploratory HH employer tracking; migrating all would dominate Core with low funnel linkage.
+
+---
+
+## 15. Field transformations (SUPPORTED_NOW only)
+
+Non-trivial mappings only. Trivial direct copies omitted.
+
+### Company (from legacy `companies`, referenced subset)
+
+| Legacy field | Target field | Transform | Validation |
+|---|---|---|---|
+| `employer_id` | `external_id` | direct when non-empty | unique per `source` |
+| (no employer_id) | `external_id` | `legacy-company:{sqlite_id}` | |
+| `name` | `name` | direct | max 255 |
+| `site_url` | `website_url` | direct URL | optional PUT if vacancy path skipped |
+| `source` (implicit) | `source` | `hh` if employer_id else `legacy` | matches Vacancy/Person import |
+| `track_status`, descriptions, HH counters | — | **omit** | no target columns |
+
+### Vacancy (legacy `vacancies` with resolvable company)
+
+| Legacy field | Target field | Transform | Validation |
+|---|---|---|---|
+| URL `/vacancy/{id}` | `external_id` | capture HH id | 401 rows |
+| non-HH URL / bot link | `external_id` | `legacy-vacancy:{sqlite_id}` | 110 rows — **MANUAL_REVIEW** URL as `url` |
+| legacy `source` | `source` | map to `hh` if HH vacancy id else `legacy` | preserve provenance in external_id |
+| `company_id` | `company_id` | lookup imported Company UUID | 499 rows ready |
+| `title` | `title` | direct | |
+| `url` | `url` | direct (HttpUrl) | required |
+| description fields | `description` | none in SQLite — null or JSONL merge later | |
+| `status` | `status` | enum map §16 | |
+| `salary_*`, `cohort`, `relevance`, `notes` | — | **omit** (no target fields) | document in unmapped report |
+| `reason/risk/action` | `Assessment` | separate entity — not Vacancy columns in target | see embedded Assessment row |
+
+### Application
+
+| Legacy field | Target field | Transform | Validation |
+|---|---|---|---|
+| `id` | `external_id` | `legacy-application:{id}` | |
+| — | `source` | constant `legacy` | |
+| `vacancy_id` | `vacancy_id` | map legacy → target UUID | |
+| `applied_at` | `applied_at` | parse ISO text → timestamptz | |
+| `result` | `result` | enum map §16; **NULL stays NULL** | optional outcome |
+| `next_action_date` | `next_action_at` | parse date/datetime | |
+| `cover_letter_text` | `cover_letter_text` | direct | 93 non-empty |
+
+**Semantics:** legacy `result` is **optional observed outcome**, not required at apply time. **406 NULL results are not corrupt.**
+
+### Person
+
+| Legacy field | Target field | Transform | Validation |
+|---|---|---|---|
+| `role` | `role` | direct enum | same values |
+| `status` | `status` | direct enum | `new`, `dropped` observed |
+| `source` | `source` | normalize slug (`company_site` → `legacy`) | max 64 |
+| `id` | `external_id` | `legacy-person:{id}` | |
+| `hh_vacancy_id` | — | use for Vacancy lookup only | not stored on Person |
+| `confidence` | `confidence` | direct | 0–1 |
+
+### DailyMetric
+
+| Legacy field | Target field | Transform | Validation |
+|---|---|---|---|
+| `date` | `metric_date` | parse date | PK |
+| counter columns | same names | direct nullable ints | CHECK ≥ 0 |
+| `updated_at` | `updated_at` | parse timestamptz | |
+
+**Early rows (2025-08-29 …):** legacy `settings.search_start_date` = **`2026-06-04`**. Rows before that date are **resume view history**, not wrong data — include/exclude is a **product decision** (§21).
+
+### Hypothesis
+
+| Legacy field | Target field | Transform | Validation |
+|---|---|---|---|
+| `id` | `external_id` | `legacy-hypothesis:{id}` | |
+| — | `source` | `legacy` | |
+| `status` | `status` | `active` → `active` | |
+| other text fields | direct | | |
+
+### Assessment (embedded columns, 16 rows)
+
+| Legacy field | Target field | Transform | Validation |
+|---|---|---|---|
+| vacancy row | `vacancy_id` | mapped UUID | |
+| — | `source` | `legacy-board` | |
+| — | `external_id` | `legacy-board:vacancy:{sqlite_id}` | |
+| — | `relevance_score` | **MANUAL_REVIEW** — not stored in columns | need default or skip |
+| `reason`, `risk`, `action` | same | direct text | |
+| — | `verdict` | **MANUAL_REVIEW** — not in columns | derive from action text or default `maybe` |
+| — | `model`, `prompt_version` | constants in migration contract | DATA-00.3 |
+
+**Note:** embedded rows lack score/verdict — **MANUAL_REVIEW** for minimal AssessmentCreate compliance unless DATA-00.3 allows synthetic defaults.
+
+### Assessment (JSONL category A, 20 HH ids)
+
+| Legacy JSONL | Target field | Transform | Validation |
+|---|---|---|---|
+| `score.score` | `relevance_score` | direct int 0–100 | |
+| `score.verdict` | `verdict` | direct | apply/maybe/skip |
+| `score.reasons[]` | `reason` | join bullets / newline | required |
+| `score.mismatches[]`, `strengths[]` | `risk` or append to `reason` | concat | rich text lossy |
+| — | `action` | derive from verdict (§16) | required field |
+| `score.method` | `model` | `legacy:{method}` | JSONL has no `model` |
+| — | `prompt_version` | `legacy-import-v1` (contract) | not in source |
+| `score.scored_at` | `assessed_at` | parse ISO | |
+| HH id | `external_id` | `{hh_id}:{scored_at}` or latest-only | dedupe §17 |
+
+---
+
+## 16. Enum / status mappings
+
+### Vacancy status (legacy → `VacancyStatus`)
+
+| Legacy | Target | Notes |
+|---|---|---|
+| `found` | `new` | |
+| `viewed` | `reviewing` | |
+| `prioritized` | `shortlisted` | |
+| `applied` | `reviewing` | apply fact lives in Application row |
+| `interview` | `shortlisted` | |
+| `reject` | `rejected` | |
+| `archived` | `rejected` | |
+
+**MANUAL_REVIEW:** whether `applied`/`interview` should ever be `shortlisted` vs `reviewing` — proposed mapping above is conservative.
+
+### Application result (legacy → `ApplicationResult`)
+
+| Legacy | Target | Notes |
+|---|---|---|
+| `NULL` | `NULL` | **expected** — no outcome yet |
+| `автоответ` | **MANUAL_REVIEW** | closest: `reply`? | single row |
+
+### Assessment verdict
+
+JSONL / target: **direct** `apply` | `maybe` | `skip`.
+
+### Derived Assessment `action` (JSONL — no source field)
+
+| Verdict | Proposed `action` |
+|---|---|
+| `apply` | `apply` |
+| `maybe` | `review` |
+| `skip` | `skip` |
+
+Finalize in DATA-00.3 safety contract.
+
+---
+
+## 17. Identity and idempotency keys
+
+Uses **actual** Core constraints `(source, external_id)` and API idempotency headers.
+
+| Entity | Proposed `source` | Proposed `external_id` | Idempotency key prefix |
+|---|---|---|---|
+| Company (HH) | `hh` | `{employer_id}` | `migrate-company-hh-{employer_id}` |
+| Company (no employer) | `legacy` | `company-{sqlite_id}` | `migrate-company-{sqlite_id}` |
+| Vacancy (HH URL) | `hh` | `{hh_vacancy_id}` | `migrate-vacancy-hh-{hh_id}` |
+| Vacancy (other) | `legacy` | `vacancy-{sqlite_id}` | `migrate-vacancy-{sqlite_id}` |
+| Application | `legacy` | `application-{sqlite_id}` | `migrate-application-{sqlite_id}` |
+| Person | `legacy` | `person-{sqlite_id}` | `migrate-person-{sqlite_id}` |
+| Hypothesis | `legacy` | `hypothesis-{sqlite_id}` | `migrate-hypothesis-{sqlite_id}` |
+| Assessment (JSONL) | `legacy-scoring` | `{hh_vacancy_id}:{scored_at}` | same |
+| Assessment (embedded) | `legacy-board` | `vacancy-{sqlite_id}` | same |
+| DailyMetric | n/a (date PK) | date string | `migrate-metric-{date}` |
+
+**Multi-score JSONL:** **134** HH ids have 2–4 score lines (**139** extra lines). Rule: import **latest `scored_at` per HH id** unless OWNER decides to keep history (would need distinct `external_id`s).
+
+**Legacy SQLite integer IDs:** encode in `external_id` — Core has no separate provenance column.
+
+---
+
+## 18. Migration dependency order
+
+Based on **target FK requirements**:
+
+```text
+1. Companies (referenced subset: 323)
+2. Vacancies (499 with company_id; +12 after parent resolution)
+3. Applications (407)
+4. People (24)
+5. Assessments — embedded 16 + JSONL category A (after vacancies exist)
+6. Daily metrics (81) — independent, can parallelize after step 1
+7. Hypotheses (2) — independent
+```
+
+**Deferred / separate passes:**
+
+- Watch-only companies (1043) — after OWNER decision
+- JSONL category B vacancies + assessments (850) — after OWNER decision
+- Resume files — after CandidateProfile exists (R1)
+- Content / Telegram — after Content service
+
+---
+
+## 19. First supported migration slice
+
+Minimal **semantically coherent** import **without target schema changes**:
+
+| Step | Data | Count | Status |
+|---|---|---:|---|
+| 1 | Companies referenced by vacancies + people | **323** | SUPPORTED_NOW |
+| 2 | Vacancies with `company_id` | **499** | SUPPORTED_NOW |
+| 3 | Applications | **407** | SUPPORTED_NOW |
+| 4 | People | **24** | SUPPORTED_NOW |
+| 5 | Daily metrics | **81** (or subset per §21) | SUPPORTED_NOW |
+| 6 | Hypotheses | **2** | SUPPORTED_NOW |
+| 7a | Assessments from JSONL cat. **A** | **20** HH (latest line each) | SUPPORTED_NOW |
+| 7b | Assessments from embedded columns | **16** | SUPPORTED_NOW* |
+
+\*Embedded assessments need score/verdict defaults — **MANUAL_REVIEW** within slice (§15).
+
+**Explicitly deferred from first slice:**
+
+- **1043** watch-only companies
+- **850** JSONL category B (off-DB vacancies + scores)
+- **12** vacancies without `company_id` (until parent strategy approved)
+- Resume files, Content logs, Telegram JSONL, OSINT raw JSON, settings, queues
+
+**Gate intent (preview):** funnel history (vacancies, applications, people, metrics, hypotheses) + linked assessments importable; unmapped report lists watchlist, off-DB scores, deferred models.
+
+---
+
+## 20. Deferred / needs target model
+
+| Dataset | Status | Blocker |
+|---|---|---|
+| `resume.txt`, `resume_summary.txt` | NEEDS_TARGET_MODEL | CandidateProfile / ResumeVersion (R1) |
+| `content_logs`, Telegram artifacts | NEEDS_TARGET_MODEL | Content service not implemented |
+| Watch-only companies (1043) | MANUAL_REVIEW | Product scope |
+| JSONL category B (850 HH) | MANUAL_REVIEW | Product scope + import order |
+| 12 orphan vacancies | NEEDS_PARENT_ENTITY | Company required on Vacancy |
+| Embedded assessment score/verdict | MANUAL_REVIEW | Incomplete source fields |
+| Legacy `settings` | DROP_INTENTIONALLY | Not history |
+| Fetch queues, snapshots, secrets | REBUILDABLE / DROP | — |
+
+---
+
+## 21. Decisions required before DATA-00.3
+
+### OWNER DECISION REQUIRED
+
+1. **Watch-only companies (1043):** import all, import subset (e.g. `active` + relevance graded), or skip in first migration?
+2. **JSONL category B (850 HH vacancies with full payload):** import as new Vacancies + Assessments, or keep scores unmapped until user re-fetches?
+3. **12 vacancies without `company_id`:** synthesize Company from `company` text + bot URL, or skip?
+4. **Daily metrics before `2026-06-04`:** include 17 pre-search rows or trim to search window?
+5. **Multi-score JSONL (134 HH ids):** latest-only vs retain all score history?
+6. **Embedded 16 assessments:** acceptable default score/verdict for incomplete rows, or skip?
+7. **Content history (28 logs + Telegram):** defer entirely until Content service?
+
+### Resolved by inspection (no OWNER needed)
+
+- Application `result` NULL — valid optional field
+- Target Assessment exists — JSONL maps with lossy reason merge
+- Vacancy **cannot** exist without Company in target — confirmed NOT NULL FK
+- Category C scoring rows — **0** insufficient payloads
+
+---
+
+## 22. Next step
+
+**PB-DATA-00.3 — Migration safety contract**
+
+Document: read-only source, backup, dry-run, idempotency, provenance encoding, failure/rerun, verification, unmapped report — before any importer code.
+
+---
+
+## Scoring JSONL breakdown (870 HH vacancy IDs)
+
+| Category | HH ids | Score lines | Description | Mapping status |
+|---|---:|---:|---|---|
+| **A** Linked to SQLite vacancy | **20** | **21** | HH id exists in DB URL | Assessment **SUPPORTED_NOW** after Vacancy import |
+| **B** Off-DB, reconstructable payload | **850** | **988** | JSONL `vacancy` has title + description/URL | Vacancy + Assessment — **MANUAL_REVIEW** (product) |
+| **C** HH id only / insufficient | **0** | **0** | — | — |
+| **D** Malformed | **0** | **0** | — | — |
+
+**Multi-score:** 134 HH ids with >1 line; methods: `ollama` 871, `rules` 137, `manual+ollama` 1; verdicts: maybe 570, apply 223, skip 216.
+
+### Embedded assessment vs JSONL (16 rows)
+
+| Check | Result |
+|---|---|
+| Overlap same HH id in JSONL | **0 / 16** |
+| Interpretation | Separate **legacy board column** scoring generation, not duplicate of JSONL |
+| Precedence rule | **Do not merge silently** — embedded rows stand alone; JSONL separate |
+| If both existed for same vacancy | would be **MANUAL_REVIEW** — not observed |
+
+---
+
+## Inspection reproducibility (DATA-00.2)
 
 | Check | Result |
 |---|---|
@@ -372,6 +709,7 @@ Produce mapping table per entity with statuses: `SUPPORTED_NOW`, `NEEDS_TARGET_M
 | `job_search.db` mtime before/after inspection | **Unchanged:** `2026-07-31 14:21:07 +0300` |
 | SQLite opened read-only | Yes (`file:...?mode=ro`) |
 | Secrets in this document | **None** (no token values, cover letter text, or chat content) |
-| Legacy mutating scripts run | **None** |
+| Legacy mutating scripts run | **None** (DATA-00.1 + DATA-00.2) |
+| `job_search.db` mtime after DATA-00.2 | **Unchanged:** `2026-07-31 14:21:07 +0300` |
 
-Inventory queries reproduced via read-only SQLite + file metadata inspection on **2026-08-22**.
+Mapping inspection on **2026-08-22** against Core @ `services/core` models/schemas.

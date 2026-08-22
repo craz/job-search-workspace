@@ -1,7 +1,7 @@
 # Состояние проекта Job Search Multirepo
 
 **Дата снимка:** 2026-08-22 (UTC+3)  
-**Workspace HEAD:** `51e372493f7db797332d5249c2df3472021bc744`  
+**Workspace HEAD:** `a2317eadcebc42fab975b1ff42abaf854c8a2b0f`  
 **Web submodule HEAD:** `86f37cb2647a49eababba0189ba8df24565b51bc`  
 **HH submodule HEAD:** `1ec60bf`  
 **Ветка:** `main`
@@ -24,15 +24,15 @@
 | Content / Telegram §8 | не начат (submodule stub) |
 | Сквозная сборка §9 / Hermes §10 | не закрыты |
 | **Plan revisions** | **ARCHITECTURE_PLAN rev. 2** · **IMPLEMENTATION_PLAN rev. 2** |
-| **PB-DATA-00** | **DATA-00.1 COMPLETE** — [`docs/DATA_MIGRATION.md`](docs/DATA_MIGRATION.md) |
+| **PB-DATA-00** | **DATA-00.1 ✓ · DATA-00.2 ✓** — [`docs/DATA_MIGRATION.md`](docs/DATA_MIGRATION.md) |
 | **R0 / PB-UX-00 Web redesign** | **CLOSED — Gate R0 ACCEPTED WITH NON-BLOCKING DEBT (2026-08-22)** |
 
 **Gate R0:** **ACCEPTED WITH NON-BLOCKING DEBT** (product owner, 2026-08-22).  
 **PB-UX-00:** **CLOSED** (T-UX-00.1 … T-UX-00.9 complete).  
 **R0** больше не является текущей реализационной работой.
 
-**Главный продуктовый next:** **PB-DATA-00.2** — source → target mapping.  
-См. [`docs/DATA_MIGRATION.md`](docs/DATA_MIGRATION.md), [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) rev. 2.
+**Главный продуктовый next:** **PB-DATA-00.3** — migration safety contract.  
+См. [`docs/DATA_MIGRATION.md`](docs/DATA_MIGRATION.md) §21–§22, [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) rev. 2.
 
 Артефакты R0:
 - [`DESIGN.md`](DESIGN.md) — normative visual system (Calm Dense Productivity, dark primary)
@@ -109,7 +109,7 @@ Content/Telegram, browser HH apply и Scoring foundation **не являются
 
 ## Решение по «го» / blockers
 
-- **«Го»** = **PB-DATA-00.2** source → target mapping, или явная альтернатива пользователя.
+- **«Го»** = **PB-DATA-00.3** migration safety contract, или явная альтернатива пользователя.
 - R1+ — после Gate PB-DATA-00 (или documented PO waiver).
 
 ## Как обновлять этот файл
