@@ -345,15 +345,18 @@ Vacancies must support **scanning dozens of rows**: title + status badge + compa
 
 ## System states
 
-Must be **visually distinct**.
+Must be **visually and semantically distinct** on the dark R0 scheme.
 
 | State | Pattern |
 |---|---|
-| **Loading** | Inline skeleton or spinner **in main content**; `aria-busy`; actions that depend on data not looking ready |
-| **Empty** | Calm illustration-optional; title «Нет …»; one primary CTA when applicable; **no danger color** |
-| **Error** | Danger accent; clear message; retry if applicable; **not** the same dashed empty card |
-| **Success / notice** | Transient notice in **shell** (header-adjacent or sticky top of main), visible from any section |
-| **Offline / degraded** | Header signal + optional banner; vacancy load failure uses Error pattern |
+| **Loading** | `.state.state--loading` + `.loader`; neutral surface; `aria-busy` on section; reload shows loading before fetch |
+| **Empty** | `.state.state--empty`; muted bg; calm copy; optional section CTA button; **no danger color** |
+| **Error** | `.state.state--error`; danger-soft fill + border; `role="alert"`; **Retry** when reload applies |
+| **Success / notice** | Shell `.notice.notice--*` with text label + message; variants: success, error, info, warning |
+| **Offline / degraded** | Header `.signal.offline` (danger tone) + section Error when Core fetch fails |
+| **Inline secondary** | `.inline-state--empty|error|loading` inside row details (OSINT), not full-page cards |
+
+Legacy `.state-card` removed after T-UX-00.7.
 
 ---
 
@@ -490,4 +493,6 @@ Use the audit set from [`docs/R0_UI_AUDIT.md`](docs/R0_UI_AUDIT.md) §14 for bef
 
 **Implemented (T-UX-00.6):** Vacancies/Journal/People/Hypotheses/Assessments render as `.list-row` collections; Vacancies OSINT/mirrors live in `<details class="row-detail">`; Metrics use `.metric-cell` inside `.surface--panel`; all dialogs use `.dialog__form` + `.field`/`.control`. Legacy `.vacancy-card`, `.person-card`, … selectors removed from CSS. **R0 primary scheme = dark** (`color-scheme: dark`, semantic tokens in Web CSS).
 
-**Next engineering task:** T-UX-00.7 — unified loading / empty / error / notice states.
+**Implemented (T-UX-00.7):** unified system states — `.state--loading|empty|error`, `.notice--*`, `.inline-state--*`; legacy `.state-card` removed.
+
+**Next engineering task:** T-UX-00.8 — regression + final visual review.

@@ -2,7 +2,7 @@
 
 **Product:** Job Search  
 **Roadmap stage:** R0 — Привести Web в рабочий визуальный вид  
-**Status:** T-UX-00.6 implementation complete (review3 layout + dark scheme); Gate visual acceptance — not declared. Next T-UX-00.7 (system states).  
+**Status:** T-UX-00.7 complete; next T-UX-00.8 (regression + final visual review). Gate R0 — not closed.  
 **Source of product truth:** UJM v1 → Product Backlog → Roadmap v1
 
 ## 1. Цель R0
@@ -318,11 +318,15 @@ BDD: существующие функциональные сценарии до
 - **visual review (post-migration):** исправлены proportions `.list-row` (primary flexible + trailing auto); section counts отделены от заголовков; убрана prototype numbering в toolbars; Journal date compact; Assessments disclosure inline в trailing row;
 - **visual review (review3):** compact nav width (`--nav-width: 10.5rem`); collection screens на full-width main; Metrics dashboard с локальным `max-width`;
 - **dark scheme (T-UX-00.6):** R0 primary UI = dark productivity; semantic tokens, no theme switch;
-- **остаётся legacy:** `.state-card`, `.notice`, `.loader` (T-UX-00.7).
 
 ### T-UX-00.7. System states
 
-Унифицировать loading / empty / error / success / status states.
+**Принято (T-UX-00.7):**
+
+- unified `.state--loading|empty|error` для section states; `.notice--success|error|info|warning` для shell feedback;
+- `.inline-state--empty|error|loading` для nested OSINT/detail regions;
+- Retry на section errors; optional empty CTA там, где есть section create action;
+- `.is-processing` на async submit/OSINT controls; legacy `.state-card` удалён;
 
 ### T-UX-00.8. Regression + visual review
 
@@ -365,11 +369,11 @@ T-UX-00.4 reusable primitives              ✓
     ↓
 T-UX-00.5 global navigation / layout        ✓
     ↓
-T-UX-00.6 migration existing screens      ✓
+T-UX-00.6 migration + dark scheme         ✓
     ↓
-T-UX-00.7 system states                  ← NOW
+T-UX-00.7 system states                  ✓
     ↓
-Gate R0
+T-UX-00.8 regression + visual review      ← NOW
 ```
 
 Норматив: [`DESIGN.md`](../DESIGN.md). Research: [`R0_DESIGN_REFERENCES.md`](R0_DESIGN_REFERENCES.md).
