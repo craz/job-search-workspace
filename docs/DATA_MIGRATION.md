@@ -963,38 +963,57 @@ Implement target backup + real import per §23.4–§23.19 using the DATA-00.4 d
 | **Zero-write guarantee** | Source opened SQLite `mode=ro`; target uses PostgreSQL `BEGIN READ ONLY` + session rollback; row-count before/after guard |
 | **Tests** | `tests/test_migration_dry_run.py` (via `make test` / `make unit`) |
 
-### Latest live dry-run (2026-08-22)
+### Latest live dry-run (2026-08-22, post URL audit)
 
 | Field | Value |
 |---|---|
-| **Run ID** | `migrate-20260822-074357-e2d1df7` |
+| **Run ID** | `migrate-20260822-080707-2fbd904` |
 | **Result** | **PASS** |
 | **Source DB SHA-256** | `33cd9776dbf141d85d06381108c3f2208c5699b13395f5bc1bd2f65a0ebee983` |
 | **JSONL SHA-256** | `e21e18f96dff58c9817a8826c7d477837fa255cf0b9022a48992295c3f3922b2` |
 | **Target mutation** | **none** (counts unchanged) |
+| **Planned inserts total** | **1308** (was 1355 before URL audit) |
 
 **Eligible / planned inserts:**
 
 | Entity | Eligible | Planned insert |
 |---|---:|---:|
 | Companies | 323 | 323 |
-| Vacancies | 499 | 499 |
+| Vacancies | **452** | **452** |
 | Applications | 407 | 407 |
 | People | 24 | 24 |
 | Daily metrics | 81 | 81 |
 | Hypotheses | 2 | 2 |
 | Assessments | **19** | **19** |
 
+### Vacancy URL policy (pre-APPLY audit)
+
+**Target contract:** Core `Vacancy.url` is **NOT NULL** (`models.py`) and **required** in `VacancyCreate` (`HttpUrl`). Identity uses `(source, external_id)` — URL is not part of migration identity.
+
+**Rule:** Vacancy URL must **never** be substituted by `company.hh_url`, `company.site_url`, or synthetic placeholders.
+
+| Category | Count | Handling |
+|---|---:|---|
+| **A** Real vacancy URL in legacy row | 452 | direct import |
+| **B** Reconstructable from trusted HH vacancy id (`people.hh_vacancy_id`) | 0 | `https://hh.ru/vacancy/{id}` |
+| **C** URL absent, target allows NULL | 0 | n/a — target requires URL |
+| **D** URL absent, cannot reconstruct | **47** | **DEFER** (`missing_vacancy_url`) |
+
+All **47** deferred rows: `source=company_track`, title *Product Owner / PM (целевая роль)*, empty `url`, no `people.hh_vacancy_id`. These are company-level target-role trackers, not HH vacancy listings.
+
 **Assessment note:** JSONL category A contains **20** HH ids linked to SQLite URLs, but **1** score (`134532490`) belongs to orphan vacancy `520` without `company_id` → **DEFERRED** as `orphan_vacancy_linked_score`. First slice imports **19** assessments only.
 
 **Migration sentinels (not historical policy):**
 
 - `prompt_version = legacy_job_search:import`
-- missing vacancy URL fallback → company `hh_url` / `site_url` / `https://legacy.job-search.invalid/vacancy/{id}` with report warnings
 
 **Legacy anomaly:** 1× `legacy_result_autoreply` (`application:3`).
 
-**Deferred highlights:** 1043 watch-only companies · 12 orphan vacancies · 850 off-DB scores · 16 embedded assessments · 988 off-DB score lines · 1 historical score line · 1 orphan-linked assessment.
+**Deferred highlights:** 1043 watch-only companies · 12 orphan vacancies · **47 vacancies missing URL** · 850 off-DB scores · 16 embedded assessments · 988 off-DB score lines · 1 historical score line · 1 orphan-linked assessment.
+
+### Prior dry-run (superseded URL fallback — do not use for APPLY)
+
+Run `migrate-20260822-074357-e2d1df7` used removed fallbacks (company URL / placeholder) — **invalid for APPLY**.
 
 ---
 

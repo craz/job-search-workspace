@@ -120,6 +120,7 @@ def run_dry_run(
             "counts": snapshot.deferred_counts,
             "watch_only_companies": len(snapshot.watch_only_companies),
             "orphan_vacancies": len(snapshot.orphan_vacancies),
+            "vacancies_missing_url": len(snapshot.vacancies_missing_url),
             "embedded_assessments": len(snapshot.embedded_assessment_vacancy_ids),
             "off_db_score_lines": len(snapshot.scoring_deferred_off_db),
             "historical_score_lines": len(snapshot.scoring_deferred_history),

@@ -8,7 +8,7 @@ import sqlite3
 from pathlib import Path
 from typing import Any
 
-from scripts.migration.constants import EXPECTED_DEFERRED_COUNTS
+from scripts.migration.constants import EXPECTED_DEFERRED_COUNTS, HH_VACANCY_URL_TEMPLATE
 from scripts.migration.types import LegacySnapshot
 
 HH_VACANCY_ID = re.compile(r"/vacancy/(\d+)")
@@ -28,6 +28,22 @@ def extract_hh_vacancy_id(url: str | None) -> str | None:
         return None
     match = HH_VACANCY_ID.search(url)
     return match.group(1) if match else None
+
+
+def vacancy_has_importable_url(row: dict[str, Any], *, people_hh_vacancy_id: str | None = None) -> bool:
+    """Return True when a real or reconstructable vacancy URL exists in source."""
+    if _blank_to_none(row.get("url")):
+        return True
+    if people_hh_vacancy_id:
+        return True
+    return False
+
+
+def _blank_to_none(value: str | None) -> str | None:
+    if value is None:
+        return None
+    stripped = value.strip()
+    return stripped or None
 
 
 def _row_dict(row: sqlite3.Row) -> dict[str, Any]:
@@ -71,7 +87,29 @@ def load_legacy_snapshot(legacy_root: Path) -> LegacySnapshot:
     companies = [row for row in tables["companies"] if row["id"] in referenced_company_ids]
     watch_only = [row for row in tables["companies"] if row["id"] not in referenced_company_ids]
 
-    vacancies = [row for row in tables["vacancies"] if row.get("company_id") is not None]
+    people_hh_by_vacancy_id: dict[int, str] = {}
+    for person in tables["people"]:
+        hh_id = _blank_to_none(person.get("hh_vacancy_id"))
+        if hh_id and person.get("vacancy_id") is not None:
+            people_hh_by_vacancy_id[int(person["vacancy_id"])] = hh_id
+
+    with_company = [row for row in tables["vacancies"] if row.get("company_id") is not None]
+    vacancies = [
+        row
+        for row in with_company
+        if vacancy_has_importable_url(
+            row,
+            people_hh_vacancy_id=people_hh_by_vacancy_id.get(int(row["id"])),
+        )
+    ]
+    vacancies_missing_url = [
+        row
+        for row in with_company
+        if not vacancy_has_importable_url(
+            row,
+            people_hh_vacancy_id=people_hh_by_vacancy_id.get(int(row["id"])),
+        )
+    ]
     orphan_vacancies = [row for row in tables["vacancies"] if row.get("company_id") is None]
 
     hh_vacancy_ids = {
@@ -127,7 +165,9 @@ def load_legacy_snapshot(legacy_root: Path) -> LegacySnapshot:
     source_counts = {
         "companies_total": len(tables["companies"]),
         "companies_referenced": len(companies),
-        "vacancies_with_company": len(vacancies),
+        "vacancies_with_company": len(with_company),
+        "vacancies_eligible": len(vacancies),
+        "vacancies_missing_url": len(vacancies_missing_url),
         "vacancies_without_company": len(orphan_vacancies),
         "applications": len(tables["applications"]),
         "people": len(tables["people"]),
@@ -149,7 +189,9 @@ def load_legacy_snapshot(legacy_root: Path) -> LegacySnapshot:
         companies=companies,
         watch_only_companies=watch_only,
         vacancies=vacancies,
+        vacancies_missing_url=vacancies_missing_url,
         orphan_vacancies=orphan_vacancies,
+        people_hh_by_vacancy_id=people_hh_by_vacancy_id,
         applications=tables["applications"],
         people=tables["people"],
         daily_metrics=tables["daily_metrics"],

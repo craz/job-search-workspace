@@ -39,6 +39,20 @@ def _deferred_operations(snapshot: LegacySnapshot) -> list[MigrationOperation]:
                 reason="needs_parent_entity",
             )
         )
+    for row in snapshot.vacancies_missing_url:
+        operations.append(
+            MigrationOperation(
+                entity_type="vacancies",
+                action=PlanAction.DEFERRED,
+                source_identity=SourceIdentity(
+                    entity_type="vacancies",
+                    source=None,
+                    external_id=str(row["id"]),
+                    legacy_key=f"vacancy:{row['id']}",
+                ),
+                reason="missing_vacancy_url",
+            )
+        )
     for vacancy_id in snapshot.embedded_assessment_vacancy_ids:
         operations.append(
             MigrationOperation(
@@ -115,7 +129,7 @@ def build_plan(
         entity_counts.source = snapshot.source_counts.get(
             {
                 "companies": "companies_referenced",
-                "vacancies": "vacancies_with_company",
+                "vacancies": "vacancies_eligible",
                 "applications": "applications",
                 "people": "people",
                 "daily_metrics": "daily_metrics",

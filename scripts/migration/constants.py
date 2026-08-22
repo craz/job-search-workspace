@@ -13,11 +13,14 @@ SOURCE_SCORING = "legacy_job_search_scoring"
 # Migration sentinel — NOT a historical prompt/policy version (DATA-00.3 §23.14).
 PROMPT_VERSION_SENTINEL = "legacy_job_search:import"
 
+# Canonical HH vacancy page URL — matches legacy `/vacancy/{id}` convention (DATA_MIGRATION §5).
+HH_VACANCY_URL_TEMPLATE = "https://hh.ru/vacancy/{vacancy_id}"
+
 MODE_DRY_RUN = "DRY_RUN"
 
 EXPECTED_ELIGIBLE_COUNTS: dict[str, int] = {
     "companies": 323,
-    "vacancies": 499,
+    "vacancies": 452,  # 499 with company_id minus 47 company_track rows without reconstructable vacancy URL
     "applications": 407,
     "people": 24,
     "daily_metrics": 81,
@@ -27,6 +30,7 @@ EXPECTED_ELIGIBLE_COUNTS: dict[str, int] = {
 EXPECTED_DEFERRED_COUNTS: dict[str, int] = {
     "watch_only_companies": 1043,
     "orphan_vacancies": 12,
+    "vacancies_missing_url": 47,
     "embedded_assessments": 16,
     "off_db_scored_vacancies": 850,
 }

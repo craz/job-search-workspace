@@ -59,6 +59,7 @@ from scripts.migration.transform import (  # noqa: E402
     transform_snapshot,
     transform_vacancies,
 )
+from scripts.migration.vacancy_url import resolve_vacancy_url  # noqa: E402
 from scripts.migration.types import LegacyAnomaly  # noqa: E402
 from scripts.migration.validation import collect_validation_issues  # noqa: E402
 
@@ -88,6 +89,8 @@ class LegacySourceIntegrationTests(unittest.TestCase):
         snapshot = load_legacy_snapshot(LEGACY_ROOT)
         self.assertEqual(snapshot.source_counts["companies_referenced"], 323)
         self.assertEqual(snapshot.source_counts["vacancies_with_company"], 499)
+        self.assertEqual(snapshot.source_counts["vacancies_eligible"], 452)
+        self.assertEqual(len(snapshot.vacancies_missing_url), 47)
         self.assertEqual(snapshot.source_counts["vacancies_without_company"], 12)
         self.assertEqual(snapshot.source_counts["applications"], 407)
         self.assertEqual(len(snapshot.watch_only_companies), 1043)
@@ -100,7 +103,7 @@ class LegacySourceIntegrationTests(unittest.TestCase):
         companies = transform_companies(snapshot)
         vacancies = transform_vacancies(snapshot)
         self.assertEqual(len(companies), 323)
-        self.assertEqual(len(vacancies), 499)
+        self.assertEqual(len(vacancies), 452)
         self.assertTrue(any(item.identity.source == "hh" for item in companies))
         self.assertTrue(any(item.identity.source == SOURCE_LEGACY for item in vacancies))
 
@@ -144,6 +147,45 @@ class LegacySourceIntegrationTests(unittest.TestCase):
         for record in snapshot.scoring_deferred_off_db[:5]:
             hh_id = str((record.get("score") or {}).get("vacancy_id"))
             self.assertNotIn(hh_id, planned)
+
+
+    def test_missing_url_vacancies_are_deferred_not_planned(self) -> None:
+        snapshot = load_legacy_snapshot(LEGACY_ROOT)
+        planned = transform_vacancies(snapshot)
+        planned_ids = {item.identity.legacy_key for item in planned}
+        for row in snapshot.vacancies_missing_url:
+            self.assertNotIn(f"vacancy:{row['id']}", planned_ids)
+        self.assertEqual(len(snapshot.vacancies_missing_url), 47)
+
+
+@unittest.skipUnless(LEGACY_ROOT.joinpath("data/job_search.db").exists(), "legacy source unavailable")
+class VacancyUrlPolicyTests(unittest.TestCase):
+    """Regression tests for honest vacancy URL handling."""
+
+    def test_missing_url_does_not_use_company_hh_url(self) -> None:
+        row = {"id": 41, "url": "", "title": "Product Owner / PM"}
+        company = {"hh_url": "https://hh.ru/employer/9244855", "site_url": "https://example.com"}
+        url, warnings = resolve_vacancy_url(row, people_hh_vacancy_id=None)
+        self.assertIsNone(url)
+        self.assertEqual(warnings, [])
+
+    def test_placeholder_url_is_not_created(self) -> None:
+        row = {"id": 99, "url": None}
+        url, _warnings = resolve_vacancy_url(row, people_hh_vacancy_id=None)
+        self.assertIsNone(url)
+        self.assertNotIn("legacy.job-search.invalid", url or "")
+
+    def test_hh_url_reconstructed_only_with_valid_external_id(self) -> None:
+        row = {"id": 1, "url": ""}
+        url, warnings = resolve_vacancy_url(row, people_hh_vacancy_id="134532490")
+        self.assertEqual(url, "https://hh.ru/vacancy/134532490")
+        self.assertEqual(warnings, ["reconstructed_from_hh_vacancy_id"])
+
+    def test_existing_vacancy_url_is_preserved(self) -> None:
+        row = {"id": 1, "url": "https://hh.ru/vacancy/12345"}
+        url, warnings = resolve_vacancy_url(row, people_hh_vacancy_id=None)
+        self.assertEqual(url, "https://hh.ru/vacancy/12345")
+        self.assertEqual(warnings, [])
 
 
 class MigrationDryRunBehaviorTests(unittest.TestCase):
@@ -217,6 +259,7 @@ class MigrationDryRunBehaviorTests(unittest.TestCase):
             report = json.loads((run_dir / "dry-run-report.json").read_text(encoding="utf-8"))
             self.assertEqual(report["mode"], "DRY_RUN")
             self.assertEqual(report["counts"]["companies"]["eligible"], 323)
+            self.assertEqual(report["counts"]["vacancies"]["eligible"], 452)
             self.assertEqual(report["counts"]["assessments"]["eligible"], 19)
             self.assertIn(PROMPT_VERSION_SENTINEL, "\n".join(report["notes"]))
             self.assertTrue(success)

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from datetime import UTC, date, datetime
 from typing import Any
-from urllib.parse import urlparse
 
 from scripts.migration.constants import (
     APPLICATION_RESULT_MAP,
@@ -17,6 +16,7 @@ from scripts.migration.constants import (
     VACANCY_STATUS_MAP,
 )
 from scripts.migration.source_reader import extract_hh_vacancy_id
+from scripts.migration.vacancy_url import resolve_vacancy_hh_id, resolve_vacancy_url
 from scripts.migration.types import LegacyAnomaly, LegacySnapshot, ParentIdentity, PlannedRecord, SourceIdentity
 
 
@@ -41,20 +41,56 @@ def _blank_to_none(value: str | None) -> str | None:
     return stripped or None
 
 
-def resolve_vacancy_url(row: dict[str, Any], company_row: dict[str, Any]) -> tuple[str, list[str]]:
-    """Resolve a required vacancy URL using legacy data and honest migration fallbacks."""
-    warnings: list[str] = []
-    direct = _blank_to_none(row.get("url"))
-    if direct:
-        return direct, warnings
-    for field in ("hh_url", "site_url"):
-        candidate = _blank_to_none(company_row.get(field))
-        if candidate:
-            warnings.append(f"legacy_missing_vacancy_url:using_company_{field}")
-            return candidate, warnings
-    placeholder = f"https://legacy.job-search.invalid/vacancy/{row['id']}"
-    warnings.append("legacy_missing_vacancy_url:placeholder")
-    return placeholder, warnings
+def vacancy_identity(row: dict[str, Any], *, people_hh_vacancy_id: str | None = None) -> SourceIdentity:
+    hh_id = resolve_vacancy_hh_id(row, people_hh_vacancy_id=people_hh_vacancy_id)
+    if hh_id:
+        return SourceIdentity(
+            entity_type="vacancies",
+            source=SOURCE_HH,
+            external_id=hh_id,
+            legacy_key=f"vacancy:{row['id']}",
+        )
+    return SourceIdentity(
+        entity_type="vacancies",
+        source=SOURCE_LEGACY,
+        external_id=f"vacancy-{row['id']}",
+        legacy_key=f"vacancy:{row['id']}",
+    )
+
+
+def transform_vacancies(snapshot: LegacySnapshot) -> list[PlannedRecord]:
+    company_by_id = {row["id"]: row for row in snapshot.companies}
+    records: list[PlannedRecord] = []
+    for row in snapshot.vacancies:
+        company_row = company_by_id[row["company_id"]]
+        parent = company_identity(company_row)
+        people_hh = snapshot.people_hh_by_vacancy_id.get(int(row["id"]))
+        identity = vacancy_identity(row, people_hh_vacancy_id=people_hh)
+        status = row.get("status") or "found"
+        if status not in VACANCY_STATUS_MAP:
+            raise ValueError(f"unknown vacancy status: {status}")
+        url, url_warnings = resolve_vacancy_url(row, people_hh_vacancy_id=people_hh)
+        if url is None:
+            raise ValueError(f"vacancy {row['id']} reached transform without reconstructable URL")
+        records.append(
+            PlannedRecord(
+                entity_type="vacancies",
+                identity=identity,
+                parent=ParentIdentity("companies", parent.source or SOURCE_LEGACY, parent.external_id),
+                payload={
+                    "source": identity.source,
+                    "external_id": identity.external_id,
+                    "title": row["title"],
+                    "url": url,
+                    "description": None,
+                    "status": VACANCY_STATUS_MAP[status],
+                    "company_source": parent.source,
+                    "company_external_id": parent.external_id,
+                },
+                warnings=url_warnings,
+            )
+        )
+    return records
 
 
 def company_identity(row: dict[str, Any]) -> SourceIdentity:
@@ -71,23 +107,6 @@ def company_identity(row: dict[str, Any]) -> SourceIdentity:
         source=SOURCE_LEGACY,
         external_id=f"company-{row['id']}",
         legacy_key=f"company:{row['id']}",
-    )
-
-
-def vacancy_identity(row: dict[str, Any]) -> SourceIdentity:
-    hh_id = extract_hh_vacancy_id(row.get("url"))
-    if hh_id:
-        return SourceIdentity(
-            entity_type="vacancies",
-            source=SOURCE_HH,
-            external_id=hh_id,
-            legacy_key=f"vacancy:{row['id']}",
-        )
-    return SourceIdentity(
-        entity_type="vacancies",
-        source=SOURCE_LEGACY,
-        external_id=f"vacancy-{row['id']}",
-        legacy_key=f"vacancy:{row['id']}",
     )
 
 
@@ -110,38 +129,6 @@ def transform_companies(snapshot: LegacySnapshot) -> list[PlannedRecord]:
     return records
 
 
-def transform_vacancies(snapshot: LegacySnapshot) -> list[PlannedRecord]:
-    company_by_id = {row["id"]: row for row in snapshot.companies}
-    records: list[PlannedRecord] = []
-    for row in snapshot.vacancies:
-        company_row = company_by_id[row["company_id"]]
-        parent = company_identity(company_row)
-        identity = vacancy_identity(row)
-        status = row.get("status") or "found"
-        if status not in VACANCY_STATUS_MAP:
-            raise ValueError(f"unknown vacancy status: {status}")
-        url, url_warnings = resolve_vacancy_url(row, company_row)
-        records.append(
-            PlannedRecord(
-                entity_type="vacancies",
-                identity=identity,
-                parent=ParentIdentity("companies", parent.source or SOURCE_LEGACY, parent.external_id),
-                payload={
-                    "source": identity.source,
-                    "external_id": identity.external_id,
-                    "title": row["title"],
-                    "url": url,
-                    "description": None,
-                    "status": VACANCY_STATUS_MAP[status],
-                    "company_source": parent.source,
-                    "company_external_id": parent.external_id,
-                },
-                warnings=url_warnings,
-            )
-        )
-    return records
-
-
 def transform_applications(
     snapshot: LegacySnapshot,
     *,
@@ -151,7 +138,8 @@ def transform_applications(
     records: list[PlannedRecord] = []
     for row in snapshot.applications:
         vacancy_row = vacancy_by_id[row["vacancy_id"]]
-        parent = vacancy_identity(vacancy_row)
+        people_hh = snapshot.people_hh_by_vacancy_id.get(int(vacancy_row["id"]))
+        parent = vacancy_identity(vacancy_row, people_hh_vacancy_id=people_hh)
         identity = SourceIdentity(
             entity_type="applications",
             source=SOURCE_LEGACY,
@@ -228,7 +216,8 @@ def transform_people(snapshot: LegacySnapshot) -> list[PlannedRecord]:
         if row.get("vacancy_id") is not None:
             vacancy_row = vacancy_by_id.get(row["vacancy_id"])
             if vacancy_row is not None:
-                vac = vacancy_identity(vacancy_row)
+                people_hh = snapshot.people_hh_by_vacancy_id.get(int(vacancy_row["id"]))
+                vac = vacancy_identity(vacancy_row, people_hh_vacancy_id=people_hh)
                 vacancy_parent = ParentIdentity("vacancies", vac.source or SOURCE_LEGACY, vac.external_id)
         records.append(
             PlannedRecord(
@@ -347,7 +336,7 @@ def transform_assessments(snapshot: LegacySnapshot) -> list[PlannedRecord]:
         vacancy_row = vacancy_by_hh.get(hh_id)
         if vacancy_row is None:
             continue
-        parent = vacancy_identity(vacancy_row)
+        parent = vacancy_identity(vacancy_row, people_hh_vacancy_id=snapshot.people_hh_by_vacancy_id.get(int(vacancy_row["id"])))
         verdict = score.get("verdict")
         if verdict not in ASSESSMENT_ACTION_MAP:
             raise ValueError(f"unknown assessment verdict: {verdict!r}")
