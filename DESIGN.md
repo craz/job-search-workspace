@@ -103,12 +103,14 @@ Journal create may remain contextual (from Vacancy) — header primary CTA is no
 ### Shell
 
 - Header height compact (~48–56px)
-- Nav width ~200–240px (collapsible icon+label later; R0 can be fixed)
+- Nav width **~10.5rem (168px)** compact fixed (collapsible icon+label later; R0 can stay fixed)
 - Main fills remaining width
 
 ### Content width
 
-- Default main content: fluid up to **~1120–1280px**, then soft cap with side margin
+- **Collection workspace** (`.list-rows`, section toolbars): uses **full remaining main width** after nav — dense scanability, no artificial right gutter
+- **Internal panels** (metrics dashboard, expandable row details, dialog bodies): may keep their own **local max-width / grid proportions** so content does not stretch awkwardly on ultra-wide screens
+- Optional soft cap (~1120–1280px) reserved for future long-form readable views — not applied to default list collections
 - Dialogs: see Dialogs
 - Do not full-bleed marketing bands
 
@@ -122,6 +124,7 @@ Journal create may remain contextual (from Vacancy) — header primary CTA is no
 ### Panels
 
 - Use a **single surface** (page background + optional bordered content region)
+- **List collections** span the full main canvas; **dashboard panels** (e.g. Metrics `.metrics-dashboard`) may cap width locally while staying left-aligned in main
 - Metric summary: **metric cells in one panel** (grid/dividers), not cards-inside-cards
 
 ### Cards — when allowed

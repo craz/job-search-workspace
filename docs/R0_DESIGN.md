@@ -316,6 +316,7 @@ BDD: существующие функциональные сценарии до
 - row actions — `.btn--secondary` / `.btn--ghost`; section CTA — `.btn--primary`;
 - удалены legacy card/grid CSS и unused button aliases;
 - **visual review (post-migration):** исправлены proportions `.list-row` (primary flexible + trailing auto); section counts отделены от заголовков; убрана prototype numbering в toolbars; Journal date compact; Assessments disclosure inline в trailing row;
+- **visual review (review3):** compact nav width (`--nav-width: 10.5rem`); collection screens на full-width main; Metrics dashboard с локальным `max-width`;
 - **остаётся legacy:** `.state-card`, `.notice`, `.loader` (T-UX-00.7).
 
 ### T-UX-00.7. System states
