@@ -187,21 +187,28 @@ Minimize one-off `0.72rem` / `0.9rem` magic; map to the scale in T-UX-00.3.
 
 ## Colors
 
-Semantic roles first. Implemented in Web as `--color-*` CSS variables (T-UX-00.3).
+Semantic roles first. Implemented in Web as `--color-*` CSS variables (T-UX-00.3+).
+
+**R0 scheme decision:** primary UI = **dark productivity** (one scheme, no theme switch in R0). Tokens are semantic so a future light/alternate scheme can swap `:root` values without component rewrites.
 
 | Role | Intent | Token (Web CSS) |
 |---|---|---|
-| `bg` | App background — neutral light gray/off-white | `--color-bg` `#f4f5f7` |
-| `surface` | Panels, dialogs, rows on hover slightly distinct | `--color-surface` `#ffffff` |
-| `text` | Primary ink | `--color-text` `#141820` |
-| `text-secondary` | Metadata, help | `--color-text-secondary` `#5c6574` |
-| `border` | 1px separators and control borders | `--color-border` `#d8dde5` |
-| `accent` | Brand/interactive accent — restrained cool blue | `--color-accent` `#2563eb` |
-| `success` | Positive / online / completed | `--color-success` `#15803d` |
-| `warning` | Risk, needs attention, unverified OSINT | `--color-warning` `#b45309` |
-| `danger` | Error, destructive, offline-critical | `--color-danger` `#b91c1c` |
-| `info` | Neutral informational highlight | `--color-info` `#0369a1` |
-| `muted` | Disabled/chrome quiet fills | `--color-muted` `#e8ebf0` |
+| `bg` | App canvas — deep neutral, not pure black | `--color-bg` `#0f1115` |
+| `surface` | Panels, list collections, dialogs | `--color-surface` `#151922` |
+| `surface-hover` | Row/control hover lift | `--color-surface-hover` `#1b2130` |
+| `nav-bg` | Header + sidebar — calmer than main canvas | `--color-nav-bg` `#12151c` |
+| `text` | Primary copy | `--color-text` `#e6e8ec` |
+| `text-secondary` | Metadata, help | `--color-text-secondary` `#98a2b3` |
+| `border` | 1px separators and control borders | `--color-border` `#2a303b` |
+| `accent` | Brand/interactive — restrained cool blue | `--color-accent` `#5b8cff` |
+| `accent-soft` | Active nav tint, subtle highlights | `--color-accent-soft` `#1c2c4d` |
+| `success` | Positive / online / completed | `--color-success` `#46b77a` |
+| `warning` | Risk, needs attention, unverified OSINT | `--color-warning` `#d6a84b` |
+| `danger` | Error, destructive, offline-critical | `--color-danger` `#e16b70` |
+| `info` | Neutral informational highlight | `--color-info` `#62a5e8` |
+| `muted` | Quiet fills, bar tracks, neutral badges | `--color-muted` `#252b35` |
+
+Each semantic status also has a `-soft` dark fill for badges/callouts (see Web CSS).
 
 Legacy component aliases (`--ink`, `--paper`, …) remain temporarily and map to
 the roles above until T-UX-00.4+ migration.
@@ -210,7 +217,9 @@ Rules:
 
 - Accent ≠ success ≠ danger  
 - Charts/scores may use accent or a dedicated score tone — **not** the same token as form error  
-- Dark mode is **out of R0**
+- **No theme toggle in R0**; light scheme is not required for Gate R0  
+- Avoid pure `#000` backgrounds, neon/glow controls, and gradient chrome  
+- `color-scheme: dark` on `:root` so native controls match custom surfaces
 
 ---
 
@@ -479,6 +488,6 @@ Use the audit set from [`docs/R0_UI_AUDIT.md`](docs/R0_UI_AUDIT.md) §14 for bef
 | Primitive classes | New frontend framework |
 | Migration of sections | Domain/API changes |
 
-**Implemented (T-UX-00.6):** Vacancies/Journal/People/Hypotheses/Assessments render as `.list-row` collections; Vacancies OSINT/mirrors live in `<details class="row-detail">`; Metrics use `.metric-cell` inside `.surface--panel`; all dialogs use `.dialog__form` + `.field`/`.control`. Legacy `.vacancy-card`, `.person-card`, … selectors removed from CSS.
+**Implemented (T-UX-00.6):** Vacancies/Journal/People/Hypotheses/Assessments render as `.list-row` collections; Vacancies OSINT/mirrors live in `<details class="row-detail">`; Metrics use `.metric-cell` inside `.surface--panel`; all dialogs use `.dialog__form` + `.field`/`.control`. Legacy `.vacancy-card`, `.person-card`, … selectors removed from CSS. **R0 primary scheme = dark** (`color-scheme: dark`, semantic tokens in Web CSS).
 
 **Next engineering task:** T-UX-00.7 — unified loading / empty / error / notice states.

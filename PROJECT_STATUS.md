@@ -25,13 +25,13 @@
 | R0 / PB-UX-00 Web redesign | **в работе** |
 
 **Главный продуктовый next:** R0 / PB-UX-00 — базовый редизайн Web.  
-**Текущий task:** T-UX-00.6 — implementation complete, visual review corrections applied → next **T-UX-00.7** (system states). Gate visual acceptance не объявлен.
+**Текущий task:** T-UX-00.6 — dark scheme applied; next **T-UX-00.7** (system states). Gate visual acceptance не объявлен.
 
 Артефакты направления:
 - [`DESIGN.md`](DESIGN.md) — normative visual system (+ navigation T-UX-00.5, screen migration T-UX-00.6)
 - [`docs/R0_DESIGN_REFERENCES.md`](docs/R0_DESIGN_REFERENCES.md) — сравнение референсов  
 - [`docs/R0_UI_AUDIT.md`](docs/R0_UI_AUDIT.md) — audit  
-- Web: `services/web/src/job_search_web/static/{index.html,styles.css,app.js}`; review3: nav width + full-width lists (`docs/r0/screenshots/t-ux-00.6-review3/`)
+- Web: `services/web/src/job_search_web/static/{index.html,styles.css,app.js}`; dark scheme: `docs/r0/screenshots/t-ux-00.6-dark/`
 
 Content/Telegram, browser HH apply, Scoring redesign и дальнейшее service-driven
 развитие по старой очереди `IMPLEMENTATION_PLAN.md` **сейчас не являются next
