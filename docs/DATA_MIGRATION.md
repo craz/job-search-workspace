@@ -4,10 +4,10 @@
 
 | Field | Value |
 |---|---|
-| **Slice** | PB-DATA-00.3 — Migration safety contract **COMPLETE** |
+| **Slice** | PB-DATA-00.4 — Dry-run implementation **COMPLETE** |
 | **Date** | 2026-08-22 (UTC+3) |
-| **Prior mapping** | PB-DATA-00.2 @ `b66d13d` |
-| **Next slice** | PB-DATA-00.4 — Dry-run implementation |
+| **Prior mapping** | PB-DATA-00.2 @ `b66d13d` · safety contract @ `6737b8a` |
+| **Next slice** | PB-DATA-00.5 — Backup + first supported migration APPLY |
 
 | **Source** | `/data/Projects/job_search` (read-only) |
 | **Target** | `/data/Projects/job_search_ref` → Core PostgreSQL |
@@ -946,9 +946,55 @@ Legacy source remains authoritative for all deferred data.
 
 ## 25. Next step
 
-**PB-DATA-00.4 — Dry-run implementation**
+**PB-DATA-00.5 — Backup + first supported migration APPLY**
 
-Implement read-only importer producing `dry-run-report.json` per §23.17 without target mutation.
+Implement target backup + real import per §23.4–§23.19 using the DATA-00.4 dry-run plan.
+
+---
+
+## 26. DATA-00.4 dry-run implementation
+
+| Item | Value |
+|---|---|
+| **Command** | `make migration-dry-run` |
+| **Module** | `scripts/migration/` (`python -m scripts.migration dry-run`) |
+| **Runtime** | Core venv (`services/core/.venv`) + `PYTHONPATH=.:services/core/src` |
+| **Artifacts** | `backups/migration-runs/{run_id}/` (`source-fingerprint.json`, `dry-run-report.json`, `dry-run-report.md`) |
+| **Zero-write guarantee** | Source opened SQLite `mode=ro`; target uses PostgreSQL `BEGIN READ ONLY` + session rollback; row-count before/after guard |
+| **Tests** | `tests/test_migration_dry_run.py` (via `make test` / `make unit`) |
+
+### Latest live dry-run (2026-08-22)
+
+| Field | Value |
+|---|---|
+| **Run ID** | `migrate-20260822-074357-e2d1df7` |
+| **Result** | **PASS** |
+| **Source DB SHA-256** | `33cd9776dbf141d85d06381108c3f2208c5699b13395f5bc1bd2f65a0ebee983` |
+| **JSONL SHA-256** | `e21e18f96dff58c9817a8826c7d477837fa255cf0b9022a48992295c3f3922b2` |
+| **Target mutation** | **none** (counts unchanged) |
+
+**Eligible / planned inserts:**
+
+| Entity | Eligible | Planned insert |
+|---|---:|---:|
+| Companies | 323 | 323 |
+| Vacancies | 499 | 499 |
+| Applications | 407 | 407 |
+| People | 24 | 24 |
+| Daily metrics | 81 | 81 |
+| Hypotheses | 2 | 2 |
+| Assessments | **19** | **19** |
+
+**Assessment note:** JSONL category A contains **20** HH ids linked to SQLite URLs, but **1** score (`134532490`) belongs to orphan vacancy `520` without `company_id` → **DEFERRED** as `orphan_vacancy_linked_score`. First slice imports **19** assessments only.
+
+**Migration sentinels (not historical policy):**
+
+- `prompt_version = legacy_job_search:import`
+- missing vacancy URL fallback → company `hh_url` / `site_url` / `https://legacy.job-search.invalid/vacancy/{id}` with report warnings
+
+**Legacy anomaly:** 1× `legacy_result_autoreply` (`application:3`).
+
+**Deferred highlights:** 1043 watch-only companies · 12 orphan vacancies · 850 off-DB scores · 16 embedded assessments · 988 off-DB score lines · 1 historical score line · 1 orphan-linked assessment.
 
 ---
 

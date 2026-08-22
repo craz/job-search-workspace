@@ -1,7 +1,7 @@
 # Состояние проекта Job Search Multirepo
 
 **Дата снимка:** 2026-08-22 (UTC+3)  
-**Workspace HEAD:** `14dae8898e5313b357d051971704629fb733c0f6`  
+**Workspace HEAD:** `60db8a1f1dd97fd9d1a41a876524cdf0df45d6cc`  
 **Web submodule HEAD:** `86f37cb2647a49eababba0189ba8df24565b51bc`  
 **HH submodule HEAD:** `1ec60bf`  
 **Ветка:** `main`
@@ -24,14 +24,14 @@
 | Content / Telegram §8 | не начат (submodule stub) |
 | Сквозная сборка §9 / Hermes §10 | не закрыты |
 | **Plan revisions** | **ARCHITECTURE_PLAN rev. 2** · **IMPLEMENTATION_PLAN rev. 2** |
-| **PB-DATA-00** | **DATA-00.1 ✓ · DATA-00.2 ✓ · DATA-00.3 ✓** — [`docs/DATA_MIGRATION.md`](docs/DATA_MIGRATION.md) §23 |
+| **PB-DATA-00** | **DATA-00.1 ✓ · DATA-00.2 ✓ · DATA-00.3 ✓ · DATA-00.4 ✓** — [`docs/DATA_MIGRATION.md`](docs/DATA_MIGRATION.md) §26 |
 | **R0 / PB-UX-00 Web redesign** | **CLOSED — Gate R0 ACCEPTED WITH NON-BLOCKING DEBT (2026-08-22)** |
 
 **Gate R0:** **ACCEPTED WITH NON-BLOCKING DEBT** (product owner, 2026-08-22).  
 **PB-UX-00:** **CLOSED** (T-UX-00.1 … T-UX-00.9 complete).  
 **R0** больше не является текущей реализационной работой.
 
-**Главный продуктовый next:** **PB-DATA-00.4** — dry-run implementation.  
+**Главный продуктовый next:** **PB-DATA-00.5** — backup + first supported migration APPLY.  
 См. [`docs/DATA_MIGRATION.md`](docs/DATA_MIGRATION.md) §25, [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) rev. 2.
 
 Артефакты R0:
@@ -109,7 +109,7 @@ Content/Telegram, browser HH apply и Scoring foundation **не являются
 
 ## Решение по «го» / blockers
 
-- **«Го»** = **PB-DATA-00.4** dry-run implementation, или явная альтернатива пользователя.
+- **«Го»** = **PB-DATA-00.5** backup + APPLY, или явная альтернатива пользователя.
 - R1+ — после Gate PB-DATA-00 (или documented PO waiver).
 
 ## Как обновлять этот файл
