@@ -1,4 +1,4 @@
-.PHONY: bootstrap doctor doctor-offline inventory-check ai-history-sync test unit bdd build dev down logs compose-smoke migration-dry-run
+.PHONY: bootstrap doctor doctor-offline inventory-check ai-history-sync test unit bdd build dev down logs compose-smoke migration-dry-run migration-apply
 
 PYTHON ?= python3
 CORE_VENV := services/core/.venv/bin/python
@@ -48,3 +48,7 @@ compose-smoke:
 
 migration-dry-run:
 	$(CORE_PYTHONPATH) $(CORE_VENV) -m scripts.migration dry-run
+
+migration-apply:
+	@test -n "$(RUN_ID)" || (echo "RUN_ID is required, e.g. make migration-apply RUN_ID=migrate-YYYYMMDD-HHMMSS-sha" >&2; exit 2)
+	$(CORE_PYTHONPATH) $(CORE_VENV) -m scripts.migration apply --run-id $(RUN_ID)

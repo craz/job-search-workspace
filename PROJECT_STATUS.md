@@ -1,7 +1,7 @@
 # Состояние проекта Job Search Multirepo
 
 **Дата снимка:** 2026-08-22 (UTC+3)  
-**Workspace HEAD:** `60db8a1f1dd97fd9d1a41a876524cdf0df45d6cc`  
+**Workspace HEAD:** `69f8a10` (pre-APPLY push) · post-DATA-00.5 commits local only  
 **Web submodule HEAD:** `86f37cb2647a49eababba0189ba8df24565b51bc`  
 **HH submodule HEAD:** `1ec60bf`  
 **Ветка:** `main`
@@ -24,15 +24,15 @@
 | Content / Telegram §8 | не начат (submodule stub) |
 | Сквозная сборка §9 / Hermes §10 | не закрыты |
 | **Plan revisions** | **ARCHITECTURE_PLAN rev. 2** · **IMPLEMENTATION_PLAN rev. 2** |
-| **PB-DATA-00** | **DATA-00.1 ✓ · DATA-00.2 ✓ · DATA-00.3 ✓ · DATA-00.4 ✓** — [`docs/DATA_MIGRATION.md`](docs/DATA_MIGRATION.md) §26 |
+| **PB-DATA-00** | **DATA-00.1 ✓ · DATA-00.2 ✓ · DATA-00.3 ✓ · DATA-00.4 ✓ · DATA-00.5 ✓** — [`docs/DATA_MIGRATION.md`](docs/DATA_MIGRATION.md) §27 |
 | **R0 / PB-UX-00 Web redesign** | **CLOSED — Gate R0 ACCEPTED WITH NON-BLOCKING DEBT (2026-08-22)** |
 
 **Gate R0:** **ACCEPTED WITH NON-BLOCKING DEBT** (product owner, 2026-08-22).  
 **PB-UX-00:** **CLOSED** (T-UX-00.1 … T-UX-00.9 complete).  
 **R0** больше не является текущей реализационной работой.
 
-**Главный продуктовый next:** **PB-DATA-00.5** — backup + first supported migration APPLY.  
-См. [`docs/DATA_MIGRATION.md`](docs/DATA_MIGRATION.md) §25, [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) rev. 2.
+**Главный продуктовый next:** **PB-DATA-00.6** — final migration verification + unmapped/deferred report.  
+См. [`docs/DATA_MIGRATION.md`](docs/DATA_MIGRATION.md) §27, [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) rev. 2.
 
 Артефакты R0:
 - [`DESIGN.md`](DESIGN.md) — normative visual system (Calm Dense Productivity, dark primary)

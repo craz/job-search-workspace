@@ -189,6 +189,8 @@ def transform_applications(
                         if _parse_datetime(row.get("next_action_date"))
                         else None
                     ),
+                    "vacancy_source": parent.source,
+                    "vacancy_external_id": parent.external_id,
                 },
                 warnings=warnings,
             )
@@ -203,14 +205,14 @@ def transform_people(snapshot: LegacySnapshot) -> list[PlannedRecord]:
     for row in snapshot.people:
         company_row = company_by_id[row["company_id"]]
         company = company_identity(company_row)
+        raw_source = _blank_to_none(row.get("source")) or SOURCE_LEGACY
+        normalized_source = PERSON_SOURCE_NORMALIZE.get(raw_source, raw_source)
         identity = SourceIdentity(
             entity_type="people",
-            source=SOURCE_LEGACY,
+            source=normalized_source,
             external_id=f"person-{row['id']}",
             legacy_key=f"person:{row['id']}",
         )
-        raw_source = _blank_to_none(row.get("source")) or SOURCE_LEGACY
-        normalized_source = PERSON_SOURCE_NORMALIZE.get(raw_source, raw_source)
         parent = ParentIdentity("companies", company.source or SOURCE_LEGACY, company.external_id)
         vacancy_parent = None
         if row.get("vacancy_id") is not None:

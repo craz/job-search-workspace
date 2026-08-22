@@ -46,6 +46,7 @@ from scripts.migration.constants import (  # noqa: E402
     SOURCE_LEGACY,
     SOURCE_SCORING,
 )
+from scripts.migration.apply import run_apply  # noqa: E402
 from scripts.migration.dry_run import run_dry_run  # noqa: E402
 from scripts.migration.equivalence import records_equivalent  # noqa: E402
 from scripts.migration.fingerprint import build_source_fingerprint, fingerprint_file, fingerprints_equal  # noqa: E402
@@ -65,13 +66,17 @@ from scripts.migration.validation import collect_validation_issues  # noqa: E402
 
 
 def create_sqlite_target() -> str:
+    handle = tempfile.NamedTemporaryFile(suffix=".db")
+    handle.close()
+    url = f"sqlite+pysqlite:///{handle.name}"
     engine = create_engine(
-        "sqlite+pysqlite://",
+        url,
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
     Base.metadata.create_all(engine)
-    return "sqlite+pysqlite://"
+    engine.dispose()
+    return url
 
 
 @unittest.skipUnless(LEGACY_ROOT.joinpath("data/job_search.db").exists(), "legacy source unavailable")
@@ -263,6 +268,71 @@ class MigrationDryRunBehaviorTests(unittest.TestCase):
             self.assertEqual(report["counts"]["assessments"]["eligible"], 19)
             self.assertIn(PROMPT_VERSION_SENTINEL, "\n".join(report["notes"]))
             self.assertTrue(success)
+
+
+@unittest.skipUnless(LEGACY_ROOT.joinpath("data/job_search.db").exists(), "legacy source unavailable")
+class MigrationApplyBehaviorTests(unittest.TestCase):
+    """Synthetic APPLY tests using an isolated sqlite target."""
+
+    def test_apply_inserts_first_slice_in_one_transaction(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / "runs"
+            target = create_sqlite_target()
+            run_dir, _, _, dry_success = run_dry_run(
+                workspace_root=ROOT,
+                legacy_root=LEGACY_ROOT,
+                target_database_url=target,
+                output_root=output,
+            )
+            self.assertTrue(dry_success)
+            apply_dir, apply_success = run_apply(
+                workspace_root=ROOT,
+                dry_run_id=run_dir.name,
+                legacy_root=LEGACY_ROOT,
+                target_database_url=target,
+                output_root=output,
+                skip_backup=True,
+            )
+            self.assertEqual(apply_dir, run_dir)
+            self.assertTrue(apply_success)
+            report = json.loads((run_dir / "apply-report.json").read_text(encoding="utf-8"))
+            self.assertEqual(report["transaction_result"], "committed")
+            inserted_total = sum(values["inserted"] for values in report["applied"].values())
+            self.assertEqual(inserted_total, 1308)
+
+    def test_post_apply_dry_run_is_idempotent(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / "runs"
+            target = create_sqlite_target()
+            run_dir, _, _, dry_success = run_dry_run(
+                workspace_root=ROOT,
+                legacy_root=LEGACY_ROOT,
+                target_database_url=target,
+                output_root=output,
+            )
+            self.assertTrue(dry_success)
+            _, apply_success = run_apply(
+                workspace_root=ROOT,
+                dry_run_id=run_dir.name,
+                legacy_root=LEGACY_ROOT,
+                target_database_url=target,
+                output_root=output,
+                skip_backup=True,
+            )
+            self.assertTrue(apply_success)
+            _, before, after, success = run_dry_run(
+                workspace_root=ROOT,
+                legacy_root=LEGACY_ROOT,
+                target_database_url=target,
+                output_root=output / "post",
+            )
+            self.assertEqual(before, after)
+            self.assertTrue(success)
+            report = json.loads(list((output / "post").glob("*/dry-run-report.json"))[0].read_text(encoding="utf-8"))
+            ops = report["operations_summary"]
+            self.assertEqual(ops.get("PLANNED_INSERT", 0), 0)
+            self.assertEqual(ops.get("EXISTING_EQUIVALENT", 0), 1308)
+            self.assertEqual(ops.get("CONFLICT", 0), 0)
 
 
 if __name__ == "__main__":

@@ -7,7 +7,7 @@
 | **Slice** | PB-DATA-00.4 — Dry-run implementation **COMPLETE** |
 | **Date** | 2026-08-22 (UTC+3) |
 | **Prior mapping** | PB-DATA-00.2 @ `b66d13d` · safety contract @ `6737b8a` |
-| **Next slice** | PB-DATA-00.5 — Backup + first supported migration APPLY |
+| **Next slice** | PB-DATA-00.6 — Final migration verification + unmapped/deferred report |
 
 | **Source** | `/data/Projects/job_search` (read-only) |
 | **Target** | `/data/Projects/job_search_ref` → Core PostgreSQL |
@@ -1014,6 +1014,86 @@ All **47** deferred rows: `source=company_track`, title *Product Owner / PM (ц�
 ### Prior dry-run (superseded URL fallback — do not use for APPLY)
 
 Run `migrate-20260822-074357-e2d1df7` used removed fallbacks (company URL / placeholder) — **invalid for APPLY**.
+
+---
+
+## 27. DATA-00.5 first supported migration
+
+| Item | Value |
+|---|---|
+| **Pre-APPLY dry-run** | `migrate-20260822-082703-69f8a10` |
+| **APPLY run_id** | `migrate-20260822-082703-69f8a10` (same artifact dir) |
+| **Post-APPLY idempotency dry-run** | `migrate-20260822-082851-69f8a10` |
+| **Result** | **PASS** |
+| **Transaction** | single SQLAlchemy transaction · **committed** |
+| **Command** | `make migration-apply RUN_ID=migrate-20260822-082703-69f8a10` |
+
+### Applied scope (first slice)
+
+| Entity | Inserted | Pre-APPLY baseline | Post-APPLY total |
+|---|---:|---:|---:|
+| Companies | **323** | 2 | **325** |
+| Vacancies | **452** | 11 | **463** |
+| Applications | **407** | 11 | **418** |
+| People | **24** | 5 | **29** |
+| Daily metrics | **81** | 1 | **82** |
+| Hypotheses | **2** | 2 | **4** |
+| Assessments | **19** | 3 | **22** |
+
+**Total inserted:** **1308** · **conflicts:** 0 · **deferred unchanged:** 2108 ops reported as DEFERRED.
+
+### Target backup (pre-APPLY)
+
+| Field | Value |
+|---|---|
+| **Path** | `backups/migration-runs/migrate-20260822-082703-69f8a10/target-pre-apply.dump` |
+| **Format** | PostgreSQL custom (`pg_dump -Fc`) |
+| **Size** | 28713 bytes |
+| **SHA-256** | `e1d96250a96d58e458a75d5edd63392b4661608a7540c8f8fccaf8ccbdf0e841` |
+| **Validation** | `docker compose exec -T postgres pg_restore --list` exit 0 |
+
+### Source integrity
+
+| Artifact | SHA-256 (unchanged) |
+|---|---|
+| `job_search.db` | `33cd9776dbf141d85d06381108c3f2208c5699b13395f5bc1bd2f65a0ebee983` |
+| `vacancy_scores.jsonl` | `e21e18f96dff58c9817a8826c7d477837fa255cf0b9022a48992295c3f3922b2` |
+
+### Idempotency (post-APPLY dry-run)
+
+| Metric | Value |
+|---|---|
+| `PLANNED_INSERT` | **0** |
+| `EXISTING_EQUIVALENT` | **1308** |
+| `CONFLICT` | **0** |
+| Deferred counts | unchanged |
+
+### Mapping fixes discovered during APPLY
+
+- **Person identity:** `(source, external_id)` now uses normalized legacy `people.source` (not hard-coded `legacy_job_search`).
+- **Application payload:** planned equivalence includes `vacancy_source` / `vacancy_external_id`.
+- **Vacancy write path:** when `company_source != vacancy.source`, migration resolves Company by company identity before insert (avoids duplicate companies via `create_vacancy` lookup).
+
+**Vacancy URL policy (unchanged):** no company URL / placeholder substitutes; 47 `company_track` rows remain **DEFERRED**.
+
+### 27.1 Restore runbook (operator)
+
+**When:** only after a successful APPLY if full target rollback is required. Do **not** run against live target without stopping writes.
+
+1. Stop Core/Web consumers that write to PostgreSQL (`docker compose stop core web` or equivalent).
+2. Restore the verified dump (replace `{run_id}`):
+
+```bash
+docker compose stop core web
+cat backups/migration-runs/{run_id}/target-pre-apply.dump \
+  | docker compose exec -T postgres pg_restore -U job_search -d job_search --clean --if-exists --no-owner
+docker compose start core web
+```
+
+3. Verify counts return to pre-APPLY baseline and post-APPLY identities are absent.
+4. Re-run `make migration-dry-run` — expect `PLANNED_INSERT=1308` again if restore succeeded.
+
+**Safe validation without touching live target:** pipe the dump into a temporary local database only when a disposable Postgres instance is already available; do not create new infrastructure solely for this check.
 
 ---
 

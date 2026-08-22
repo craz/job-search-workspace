@@ -17,6 +17,14 @@ PROMPT_VERSION_SENTINEL = "legacy_job_search:import"
 HH_VACANCY_URL_TEMPLATE = "https://hh.ru/vacancy/{vacancy_id}"
 
 MODE_DRY_RUN = "DRY_RUN"
+MODE_APPLY = "APPLY"
+
+LOCKED_SOURCE_FINGERPRINTS: dict[str, str] = {
+    "job_search_db": "33cd9776dbf141d85d06381108c3f2208c5699b13395f5bc1bd2f65a0ebee983",
+    "vacancy_scores_jsonl": "e21e18f96dff58c9817a8826c7d477837fa255cf0b9022a48992295c3f3922b2",
+}
+
+EXPECTED_PLANNED_INSERTS_TOTAL = 1308
 
 EXPECTED_ELIGIBLE_COUNTS: dict[str, int] = {
     "companies": 323,
