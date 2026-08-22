@@ -1,7 +1,7 @@
 # Состояние проекта Job Search Multirepo
 
 **Дата снимка:** 2026-08-22 (UTC+3)  
-**Workspace HEAD:** `203b6818d463b555566c2823d74d7047bb53ea8f`  
+**Workspace HEAD:** `51e372493f7db797332d5249c2df3472021bc744`  
 **Web submodule HEAD:** `86f37cb2647a49eababba0189ba8df24565b51bc`  
 **HH submodule HEAD:** `1ec60bf`  
 **Ветка:** `main`
@@ -23,15 +23,16 @@
 | HH write-path (API) | код dual-gate готов; **production API apply заблокирован scope HH-приложения** |
 | Content / Telegram §8 | не начат (submodule stub) |
 | Сквозная сборка §9 / Hermes §10 | не закрыты |
-| **Plan revisions** | **ARCHITECTURE_PLAN rev. 2** (`0d23dcf`) · **IMPLEMENTATION_PLAN rev. 2** (`203b681`) |
+| **Plan revisions** | **ARCHITECTURE_PLAN rev. 2** · **IMPLEMENTATION_PLAN rev. 2** |
+| **PB-DATA-00** | **DATA-00.1 COMPLETE** — [`docs/DATA_MIGRATION.md`](docs/DATA_MIGRATION.md) |
 | **R0 / PB-UX-00 Web redesign** | **CLOSED — Gate R0 ACCEPTED WITH NON-BLOCKING DEBT (2026-08-22)** |
 
 **Gate R0:** **ACCEPTED WITH NON-BLOCKING DEBT** (product owner, 2026-08-22).  
 **PB-UX-00:** **CLOSED** (T-UX-00.1 … T-UX-00.9 complete).  
 **R0** больше не является текущей реализационной работой.
 
-**Главный продуктовый next:** **PB-DATA-00.1** — legacy inventory (`job_search` → `docs/DATA_MIGRATION.md`).  
-См. [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) rev. 2.
+**Главный продуктовый next:** **PB-DATA-00.2** — source → target mapping.  
+См. [`docs/DATA_MIGRATION.md`](docs/DATA_MIGRATION.md), [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) rev. 2.
 
 Артефакты R0:
 - [`DESIGN.md`](DESIGN.md) — normative visual system (Calm Dense Productivity, dark primary)
@@ -108,7 +109,7 @@ Content/Telegram, browser HH apply и Scoring foundation **не являются
 
 ## Решение по «го» / blockers
 
-- **«Го»** = **PB-DATA-00.1** legacy inventory, или явная альтернатива пользователя.
+- **«Го»** = **PB-DATA-00.2** source → target mapping, или явная альтернатива пользователя.
 - R1+ — после Gate PB-DATA-00 (или documented PO waiver).
 
 ## Как обновлять этот файл
