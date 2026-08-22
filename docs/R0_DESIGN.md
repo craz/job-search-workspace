@@ -2,7 +2,7 @@
 
 **Product:** Job Search  
 **Roadmap stage:** R0 — Привести Web в рабочий визуальный вид  
-**Status:** T-UX-00.5 done; next T-UX-00.6 (migration existing screens)  
+**Status:** T-UX-00.6 done; next T-UX-00.7 (system states)  
 **Source of product truth:** UJM v1 → Product Backlog → Roadmap v1
 
 ## 1. Цель R0
@@ -305,6 +305,18 @@ BDD: существующие функциональные сценарии до
 
 Последовательно мигрировать текущие основные экраны без изменения их продуктовой функции.
 
+**Принято (T-UX-00.6):**
+
+- все шесть sections — **list-first** collections (`.list-rows`, `.list-row`, `.list-row-group`);
+- Vacancies: compact row + `<details class="row-detail">` для OSINT/mirrors/evidence;
+- Metrics: `surface--panel` + `.metric-cell` grid + compact history bars;
+- Assessments: row + expandable detail (reason/risk/action);
+- все dialogs/forms — `.dialog__*`, `.field`, `.control`;
+- domain statuses через `.badge` (vacancy, person, hypothesis, assessment verdict);
+- row actions — `.btn--secondary` / `.btn--ghost`; section CTA — `.btn--primary`;
+- удалены legacy card/grid CSS и unused button aliases;
+- **остаётся legacy:** `.state-card`, `.notice`, `.loader` (T-UX-00.7).
+
 ### T-UX-00.7. System states
 
 Унифицировать loading / empty / error / success / status states.
@@ -350,9 +362,9 @@ T-UX-00.4 reusable primitives              ✓
     ↓
 T-UX-00.5 global navigation / layout        ✓
     ↓
-T-UX-00.6 migration existing screens     ← NOW
+T-UX-00.6 migration existing screens      ✓
     ↓
-T-UX-00.7 system states
+T-UX-00.7 system states                  ← NOW
     ↓
 Gate R0
 ```

@@ -475,4 +475,6 @@ Use the audit set from [`docs/R0_UI_AUDIT.md`](docs/R0_UI_AUDIT.md) §14 for bef
 | Primitive classes | New frontend framework |
 | Migration of sections | Domain/API changes |
 
-**Next engineering task:** T-UX-00.3 — design tokens + page shell (code), guided by this document.
+**Implemented (T-UX-00.6):** Vacancies/Journal/People/Hypotheses/Assessments render as `.list-row` collections; Vacancies OSINT/mirrors live in `<details class="row-detail">`; Metrics use `.metric-cell` inside `.surface--panel`; all dialogs use `.dialog__form` + `.field`/`.control`. Legacy `.vacancy-card`, `.person-card`, … selectors removed from CSS.
+
+**Next engineering task:** T-UX-00.7 — unified loading / empty / error / notice states.
