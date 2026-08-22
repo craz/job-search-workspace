@@ -52,7 +52,7 @@ Content/Telegram, browser HH apply и Scoring foundation **не являются
 - Gate has **no blockers**
 
 **Known non-blocking debt** (не reopen R0 без architecture blocker):
-- workspace cursor-rule test involving `12-no-choice-menus.mdc`;
+- ~~workspace cursor-rule test involving `12-no-choice-menus.mdc`~~ — **RESOLVED** (single global `alwaysApply`: `00-project-context.mdc`);
 - legacy naming (`panel-eyebrow`, metrics class naming);
 - duplicate smoke/demo Core data;
 - repository housekeeping / old untracked R0 artifacts (`t-ux-00.8-final/`, `review2/`, prompts).

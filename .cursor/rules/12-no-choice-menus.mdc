@@ -1,6 +1,6 @@
 ---
-description: Основной шаг под «го» плюс явные альтернативы
-alwaysApply: true
+description: Стиль решений после завершённого шага — один default под «го», альтернативы явно; читать при интерактивной работе и предложении next step
+alwaysApply: false
 ---
 
 # Decision style
