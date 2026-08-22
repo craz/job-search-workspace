@@ -148,6 +148,11 @@ Small, sequential scale. One UI sans family (actually loaded in implementation).
 | Secondary | 12–13px | 400 | Muted help, safety notes |
 | Score (Assessment) | 20–28px | 650 | Prominent but not 4rem billboard |
 
+**Implementation (T-UX-00.3):** `--font-family-ui` uses an honest system sans stack
+(`ui-sans-serif, system-ui, …`) without declaring unloaded webfonts. Inter may be
+added later via self-hosted files if product chooses; until then no fake `Inter`
+in CSS.
+
 Rules:
 
 - Line-height ~1.35–1.5 for body; tighter for rows (~1.25)
@@ -171,25 +176,30 @@ Compact scale (px): **4 · 8 · 12 · 16 · 24 · 32**
 
 Minimize one-off `0.72rem` / `0.9rem` magic; map to the scale in T-UX-00.3.
 
+**Implementation (T-UX-00.3):** `--space-1` … `--space-6` = 4/8/12/16/24/32px in Web CSS.
+
 ---
 
 ## Colors
 
-Semantic roles first. Exact hex chosen in tokens (T-UX-00.3); roles are normative now.
+Semantic roles first. Implemented in Web as `--color-*` CSS variables (T-UX-00.3).
 
-| Role | Intent |
-|---|---|
-| `bg` | App background — neutral light gray/off-white (**not** warm paper cream + acid splash) |
-| `surface` | Panels, dialogs, rows on hover slightly distinct |
-| `text` | Primary ink |
-| `text-secondary` | Metadata, help |
-| `border` | 1px separators and control borders |
-| `accent` | Brand/interactive accent — **restrained** (cool blue or teal). Not Asana coral, not neon lime |
-| `success` | Positive / online / completed |
-| `warning` | Risk, needs attention, unverified OSINT |
-| `danger` | Error, destructive, offline-critical |
-| `info` | Neutral informational highlight |
-| `muted` | Disabled/chrome quiet fills |
+| Role | Intent | Token (Web CSS) |
+|---|---|---|
+| `bg` | App background — neutral light gray/off-white | `--color-bg` `#f4f5f7` |
+| `surface` | Panels, dialogs, rows on hover slightly distinct | `--color-surface` `#ffffff` |
+| `text` | Primary ink | `--color-text` `#141820` |
+| `text-secondary` | Metadata, help | `--color-text-secondary` `#5c6574` |
+| `border` | 1px separators and control borders | `--color-border` `#d8dde5` |
+| `accent` | Brand/interactive accent — restrained cool blue | `--color-accent` `#2563eb` |
+| `success` | Positive / online / completed | `--color-success` `#15803d` |
+| `warning` | Risk, needs attention, unverified OSINT | `--color-warning` `#b45309` |
+| `danger` | Error, destructive, offline-critical | `--color-danger` `#b91c1c` |
+| `info` | Neutral informational highlight | `--color-info` `#0369a1` |
+| `muted` | Disabled/chrome quiet fills | `--color-muted` `#e8ebf0` |
+
+Legacy component aliases (`--ink`, `--paper`, …) remain temporarily and map to
+the roles above until T-UX-00.4+ migration.
 
 Rules:
 

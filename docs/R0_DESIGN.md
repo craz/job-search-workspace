@@ -2,7 +2,7 @@
 
 **Product:** Job Search  
 **Roadmap stage:** R0 — Привести Web в рабочий визуальный вид  
-**Status:** T-UX-00.1–00.2 done; next T-UX-00.3 (tokens + shell)  
+**Status:** T-UX-00.3 done; next T-UX-00.4 (reusable primitives)  
 **Source of product truth:** UJM v1 → Product Backlog → Roadmap v1
 
 ## 1. Цель R0
@@ -333,9 +333,9 @@ T-UX-00.1 UI audit                 ✓
     ↓
 T-UX-00.2 visual direction + DESIGN.md  ✓
     ↓
-T-UX-00.3 tokens + page shell      ← NOW
+T-UX-00.3 tokens + page shell           ✓
     ↓
-reusable primitives
+T-UX-00.4 reusable primitives         ← NOW
     ↓
 migration
     ↓

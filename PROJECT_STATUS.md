@@ -25,12 +25,13 @@
 | R0 / PB-UX-00 Web redesign | **в работе** |
 
 **Главный продуктовый next:** R0 / PB-UX-00 — базовый редизайн Web.  
-**Текущий task:** T-UX-00.2 завершён → next **T-UX-00.3** (design tokens + page shell).
+**Текущий task:** T-UX-00.3 завершён → next **T-UX-00.4** (reusable UI primitives).
 
 Артефакты направления:
-- [`DESIGN.md`](DESIGN.md) — нормативный visual system  
+- [`DESIGN.md`](DESIGN.md) — нормативный visual system (+ token values T-UX-00.3)
 - [`docs/R0_DESIGN_REFERENCES.md`](docs/R0_DESIGN_REFERENCES.md) — сравнение референсов  
 - [`docs/R0_UI_AUDIT.md`](docs/R0_UI_AUDIT.md) — audit  
+- Web shell: `services/web/src/job_search_web/static/{index.html,styles.css}`
 
 Content/Telegram, browser HH apply, Scoring redesign и дальнейшее service-driven
 развитие по старой очереди `IMPLEMENTATION_PLAN.md` **сейчас не являются next
