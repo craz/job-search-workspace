@@ -1,10 +1,10 @@
 # Состояние проекта Job Search Multirepo
 
 **Дата снимка:** 2026-08-22 (UTC+3)  
-**Workspace HEAD:** `4148599b19412d49aa5328ec9ddfd19306b7c491`  
+**Workspace HEAD:** `203b6818d463b555566c2823d74d7047bb53ea8f`  
 **Web submodule HEAD:** `86f37cb2647a49eababba0189ba8df24565b51bc`  
 **HH submodule HEAD:** `1ec60bf`  
-**Ветка:** `main` (workspace ahead of origin; push только по явному запросу)
+**Ветка:** `main`
 
 Этот файл — оперативный снимок «где мы сейчас». Детальный план и gate-критерии
 живут в [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md); архитектура — в
@@ -23,14 +23,15 @@
 | HH write-path (API) | код dual-gate готов; **production API apply заблокирован scope HH-приложения** |
 | Content / Telegram §8 | не начат (submodule stub) |
 | Сквозная сборка §9 / Hermes §10 | не закрыты |
+| **Plan revisions** | **ARCHITECTURE_PLAN rev. 2** (`0d23dcf`) · **IMPLEMENTATION_PLAN rev. 2** (`203b681`) |
 | **R0 / PB-UX-00 Web redesign** | **CLOSED — Gate R0 ACCEPTED WITH NON-BLOCKING DEBT (2026-08-22)** |
 
 **Gate R0:** **ACCEPTED WITH NON-BLOCKING DEBT** (product owner, 2026-08-22).  
 **PB-UX-00:** **CLOSED** (T-UX-00.1 … T-UX-00.9 complete).  
 **R0** больше не является текущей реализационной работой.
 
-**Главный продуктовый next (после revision планов):** **PB-DATA-00** — миграция
-данных `job_search` → `job_search_ref`, затем **R1** (HH connection + active resume).
+**Главный продуктовый next:** **PB-DATA-00.1** — legacy inventory (`job_search` → `docs/DATA_MIGRATION.md`).  
+См. [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) rev. 2.
 
 Артефакты R0:
 - [`DESIGN.md`](DESIGN.md) — normative visual system (Calm Dense Productivity, dark primary)
@@ -39,9 +40,7 @@
 - Screenshots: `docs/r0/screenshots/t-ux-00.8-ia5/`
 - Web: `services/web/.../static/` @ `86f37cb`
 
-Content/Telegram, browser HH apply, Scoring redesign и service-driven развитие по
-старой очереди `IMPLEMENTATION_PLAN.md` **не являются immediate next** до revision
-планов и PB-DATA-00.
+Content/Telegram, browser HH apply и Scoring foundation **не являются immediate next** — см. Roadmap R1+.
 
 ## Gate R0 — accepted state (2026-08-22)
 
@@ -109,9 +108,8 @@ Content/Telegram, browser HH apply, Scoring redesign и service-driven разв�
 
 ## Решение по «го» / blockers
 
-- **«Го»** после revision планов = **PB-DATA-00** (миграция legacy data), или явная альтернатива пользователя.
-- R1/R2+ — только после PB-DATA-00 и revision `IMPLEMENTATION_PLAN.md`.
-- Push/PR — только по явной просьбе.
+- **«Го»** = **PB-DATA-00.1** legacy inventory, или явная альтернатива пользователя.
+- R1+ — после Gate PB-DATA-00 (или documented PO waiver).
 
 ## Как обновлять этот файл
 

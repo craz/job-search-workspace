@@ -46,3 +46,10 @@ backups/
 tmp/
 temp/
 .cache/
+
+# Superseded R0 working artifacts (canonical: t-ux-00.8-ia5/)
+docs/r0/screenshots/t-ux-00.8-final/
+docs/r0/screenshots/t-ux-00.8-review2/
+docs/STATUS_NEXT_STEP_PATCH.md
+docs/promts/
+docs/R0_UI_AUDIT_TEMPLATE.md
