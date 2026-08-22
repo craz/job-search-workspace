@@ -1,303 +1,443 @@
-# План разделения `job_search` на самостоятельные проекты
+# План архитектуры Job Search Multirepo
 
-## 1. Цель и основные решения
+**Revision:** 2  
+**Aligned with:** UJM v1 + Product Backlog + Roadmap v1  
+**Updated:** 2026-08-22  
+**Previous revision:** 1 (initial multirepo split plan, workspace bootstrap era)
 
-Исходный проект `/data/Projects/job_search` остаётся неизменяемым архивом и
-источником кода. Новая система создаётся в отдельных Git-репозиториях с чистой
-историей. Репозитории не импортируют Python-код друг друга и не получают прямой
-доступ к чужим хранилищам.
+Исходный проект `/data/Projects/job_search` остаётся **read-only архивом** и
+источником миграции. Новая система живёт в отдельных Git-репозиториях workspace
+`job_search_ref`. Репозитории не импортируют Python-код друг друга и не получают
+прямой доступ к чужим хранилищам.
 
-Принятые решения:
+Нормативный визуальный слой Web — [`DESIGN.md`](DESIGN.md). Операционный статус —
+[`PROJECT_STATUS.md`](PROJECT_STATUS.md). Gate R0 — [`docs/R0_ACCEPTANCE.md`](docs/R0_ACCEPTANCE.md).
 
-- шесть проектов выделяются на текущем этапе, седьмой (`job-search-hermes`) — позже;
-- общий workspace связывает независимые проекты как Git submodules в `services/`;
-- межпроектное взаимодействие выполняется через HTTP API и версионированный JSON CLI;
-- старый CLI `job-search` сохранять не требуется;
-- новая система начинает работу с пустой базой без импорта старой SQLite;
-- основная СУБД — PostgreSQL 17;
-- приложения запускаются через Docker Compose;
-- Ollama и GPU остаются на хосте, Scoring обращается к Ollama по HTTP;
-- рабочие данные хранятся в Docker named volumes, а не в каталогах workspace;
-- существующая локальная установка Hermes на текущем этапе не изменяется.
+## 1. Границы продукта и системы
 
-## 2. Репозитории и ответственность
+Job Search — **single-user personal product** для одного оператора на доверенной
+локальной машине.
+
+**Не планируется и не проектируется:**
+
+- таблица пользователей Job Search;
+- RBAC / roles;
+- tenant / multi-tenant model;
+- product login / session для Web.
+
+**HeadHunter authentication/session** — интеграционная concern сервиса HH, не
+auth-модель продукта. Web и Core HTTP API опираются на модель **trusted local
+operator**: сервисы на loopback / внутренней Docker-сети без application-level auth.
+
+**Hermes** — adjacent/later tooling; не драйвер текущей архитектуры. Его
+контейнеризация и перенос конфигурации отложены.
+
+**Целевые сервисы (conceptual):**
+
+| Сервис | Роль |
+|---|---|
+| **Core** | Каноническая доменная persistence и `/api/v1` |
+| **Web** | Локальный UI; HTTP consumer Core (+ OSINT research view) |
+| **HH** | Адаптер HeadHunter (OAuth, browser, sync, gated apply) |
+| **Scoring** | Оценка вакансий через host Ollama → Assessment в Core |
+| **OSINT** | On-demand исследование людей/сайтов; provenance у себя |
+| **Content** | Черновики и Telegram (будущий этап; submodule stub) |
+
+## 2. Продуктовая последовательность (Roadmap)
+
+**Старый порядок «Core → Web → HH → Scoring → OSINT → Content» — не Roadmap.**
+Это была последовательность **переноса кода** из архива; она largely выполнена
+как инженерный bootstrap, но **не определяет продуктовый приоритет**.
+
+**Актуальная продуктовая цепочка:**
+
+```text
+R0 — CLOSED (PB-UX-00, Gate R0 2026-08-22)
+  ↓
+revision ARCHITECTURE_PLAN.md (this document, rev. 2)
+  ↓
+revision IMPLEMENTATION_PLAN.md
+  ↓
+PB-DATA-00 — job_search → job_search_ref migration
+  ↓
+R1 — HH connection + active resume / profile context
+  ↓
+R2 — find → score in Vacancy context → user decision (PB-03, PB-04)
+  ↓
+R3 — outreach + response (optional manually-triggered OSINT)
+  ↓
+R4 — hiring process
+  ↓
+R5 — offer + finish search
+```
+
+**User-centric flow (target):**
+
+```text
+HH / profile context
+  → vacancy ingestion
+  → scoring (Scoring service → Assessment in Core)
+  → user decision on Vacancy
+  → channel selection (HH / direct / both)
+  → optional manually-triggered OSINT
+  → outreach recorded
+  → response → hiring → offer → search completion
+```
+
+Устаревшая формулировка «HH → Core → Scoring → OSINT enriches company → Web»
+**не соответствует** UJM/Roadmap: OSINT не запускается silently для каждой
+вакансии; enrichment компании — часть on-demand OSINT, не автоматический prelude.
+
+## 3. Workspace и репозитории
 
 ### `job-search-workspace`
 
-Управляющий, а не продуктовый репозиторий. Содержит:
+Управляющий репозиторий (не продуктовый):
 
-- `.gitmodules` с Git URL и ветками сервисов;
-- gitlinks с проверенными совместимыми commit SHA;
-- `compose.yaml` и локальную сетевую конфигурацию;
-- архитектурную документацию;
-- команды `bootstrap`, `build`, `up`, `down`, `doctor`, `test`, `backup`, `restore`.
+- `.gitmodules`, gitlinks с проверенными SHA;
+- `compose.yaml`, Make (`bootstrap`, `dev`, `doctor`, `test`, `backup`, `restore`);
+- архитектурная и процессная документация.
 
-`bootstrap` инициализирует отсутствующие submodules. Обычная работа с workspace
-не меняет Git-состояние уже инициализированных сервисов автоматически.
+Developer experience: `make dev` поднимает stack; Web на loopback; HH Chromium
+через noVNC; hot reload для Core/Web/OSINT src mounts.
 
-Developer experience стандартизирован на уровне workspace:
+Имена долгоживущих deployment-инстансов — [`NAMING_CONVENTION.md`](NAMING_CONVENTION.md).
 
-- `make dev` поднимает development stack с hot reload;
-- `make logs` и `make doctor` показывают состояние и readiness сервисов;
-- Web открывается и проверяется в live browser;
-- HH Chromium доступен через локальный noVNC;
-- изменения кода перезагружают затронутый сервис, а изменения Dockerfile,
-  зависимостей, Compose, env или миграций запускают контролируемый rebuild/restart;
-- интерактивный host shell автоматически активирует `.venv` через `direnv`, а
-  Make/CI используют `scripts/ensure-venv.sh`; ручная активация не требуется.
+### Продуктовые репозитории (`services/*`)
 
-Имена долгоживущих deployment-инстансов и инфраструктурных сущностей выбираются
-по [`NAMING_CONVENTION.md`](NAMING_CONVENTION.md) с проверкой реестра `USED`.
-Имена обычных Compose services остаются функциональными и не занимают identity
-names из инфраструктурного namespace.
+| Repo | Владение | Статус (rev. 2) |
+|---|---|---|
+| `job-search-core` | PostgreSQL, домен, Alembic, `/api/v1`, JSON CLI | **Implemented** |
+| `job-search-web` | Static SPA + HTTP proxy | **Implemented** (R0 IA accepted) |
+| `job-search-hh` | HH integration, Chromium, volumes | **Implemented** (read-ready) |
+| `job-search-scoring` | Queue, Ollama, Assessment writeback | **Partial** (basic pipeline) |
+| `job-search-osint` | Research API/CLI, provenance cache | **Implemented** (on-demand) |
+| `job-search-content` | Drafts, Telegram | **Stub** (empty submodule, not in compose) |
+| `job-search-hermes` | Audit CLI consumer | **Deferred** |
 
-### 1. `job-search-core`
+## 4. Runtime и постоянное состояние
 
-Владеет основной предметной моделью и PostgreSQL:
+Docker Compose (`compose.yaml`) поднимает:
 
-- компании;
-- вакансии;
-- отклики;
-- дневные метрики;
-- гипотезы;
-- люди и контакты;
-- итоговые оценки вакансий.
+- `postgres` — PostgreSQL 17;
+- `core`, `web` — опубликованы на loopback хоста;
+- `scoring` — **host network**, long-running worker (`cli run`);
+- `searxng` — search backend для OSINT (infra, не product service);
+- `osint` — internal HTTP :8081;
+- `hh` — browser runtime, noVNC, OAuth loopback.
 
-Core содержит доменные правила, application services, миграции Alembic,
-машинный CLI и FastAPI `/api/v1`. Core не знает о Playwright, Telegram, Ollama
-или конкретных OSINT-провайдерах.
-
-### 2. `job-search-hh`
-
-Отвечает за интеграцию с HeadHunter:
-
-- HH OAuth/API;
-- Chromium и Playwright;
-- интерактивный вход через noVNC;
-- получение вакансий;
-- отправку и синхронизацию откликов;
-- переговоры и чаты;
-- CAPTCHA- и auth-гейты.
-
-Профиль Chromium, cookies и токены принадлежат только HH. В Core передаются
-нормализованные вакансии, отклики, статусы и метрики.
-
-### 3. `job-search-scoring`
-
-Отвечает за:
-
-- получение и подготовку текста вакансии;
-- промпты;
-- очередь оценки;
-- вызовы Ollama;
-- benchmark и сравнение моделей;
-- хранение сырых ответов и истории запусков.
-
-В Core передаётся только нормализованный результат: релевантность, причина,
-риск, рекомендуемое действие, модель и время расчёта.
-
-### 4. `job-search-osint`
-
-Отвечает за поиск сайтов компаний, сотрудников и referral-кандидатов. Сырые
-ответы провайдеров, кэш и provenance принадлежат OSINT. Подтверждённые сведения
-о компаниях и людях передаются в Core.
-
-### 5. `job-search-content`
-
-Отвечает за:
-
-- дневные, недельные и периодические черновики;
-- Telegram preview, publish и delete;
-- чтение канала;
-- журнал публикаций.
-
-Content получает публичные данные через Core API. Черновики, Telegram message
-IDs и токены Telegram не принадлежат Core.
-
-### 6. `job-search-web`
-
-Содержит HTML-доску и формы управления воронкой. Web не имеет собственной
-предметной БД и не выполняет SQL: чтение и изменение доменных данных идут только
-через Core API. Нормализованные неподтверждённые OSINT-предложения Web читает и
-запускает через отдельный research API; сырые ответы и хранилище OSINT ему
-недоступны. Решение зафиксировано в
-[`docs/adr/004-web-osint-research-view.md`](docs/adr/004-web-osint-research-view.md).
-Запуск HH и Scoring из Web не входит в первую версию.
-
-### 7. `job-search-hermes` — отложенный этап
-
-Hermes остаётся в существующей локальной установке и продолжает хранить аудит
-в нынешнем месте. Его контейнеризация, перенос конфигурации и внутренний
-рефакторинг исключены из текущего этапа. На первом этапе проверяется только его
-способность вызывать публичные JSON CLI новых проектов.
-
-## 3. Runtime и постоянное состояние
-
-Docker Compose запускает:
-
-- PostgreSQL;
-- Core;
-- Web;
-- HH с Chromium, Playwright и noVNC;
-- Scoring;
-- OSINT;
-- Content.
-
-Постоянное состояние хранится в именованных volumes:
+**Content не в compose** до реализации сервиса.
 
 | Volume | Владелец | Содержимое |
 |---|---|---|
-| `postgres-data` | PostgreSQL/Core | Основная PostgreSQL-база |
-| `hh-profile` | HH | Chromium profile и cookies |
-| `hh-state` | HH | Токены, снимки и служебное состояние |
-| `scoring-cache` | Scoring | Очередь, ответы моделей и кэш |
-| `osint-cache` | OSINT | Ответы провайдеров и provenance |
-| `content-data` | Content | Черновики и журнал Telegram-публикаций |
+| `postgres-data` | PostgreSQL/Core | Основная БД |
+| `hh-profile` | HH | Chromium profile, cookies |
+| `hh-state` | HH | Tokens, snapshots, lock state |
+| `scoring-state` | Scoring | JSON queue, raw model responses, lease state |
+| `osint-cache` | OSINT | Provider responses, provenance |
+| `searxng-cache` | SearXNG | Search cache |
 
-Volumes физически находятся на хосте под управлением Docker, но не отображаются
-как рабочие каталоги внутри workspace. `docker compose down` их сохраняет.
-Удаление volumes не входит в обычные Make-команды и считается отдельной
-разрушительной операцией.
+`docker compose down` volumes сохраняет. Backup: `pg_dump` / volume export через
+workspace Make (см. runbooks).
 
-Workspace предоставляет явные операции резервного копирования:
+**Фоновая обработка:** только Scoring scheduler/worker (local JSON queue + file
+lock). HH sync и OSINT — **on-demand** (CLI exec или HTTP request). Нет Kafka,
+Redis, Celery, vector DB или Kubernetes в текущей архитектуре.
 
-- PostgreSQL: `pg_dump` и `pg_restore`;
-- остальные volumes: архивный export/import в путь, явно указанный пользователем;
-- backup не включает секреты без отдельного явного флага.
+**Ollama** на хосте (`127.0.0.1:11434`); Scoring через host network. GPU не в
+контейнере Scoring. Все local AI inference — через Ollama.
 
-### Chromium
+**Chromium** — только в HH-контейнере; один profile + lock для login/sync/apply.
 
-Chromium работает внутри HH-контейнера. Интерактивный экран доступен через
-noVNC, привязанный только к loopback-интерфейсу хоста. Один профиль Chromium не
-может одновременно использоваться несколькими операциями: login, sync и apply
-защищаются общим lock.
+## 5. PostgreSQL и владение данными
 
-### Ollama
+PostgreSQL 17, SQLAlchemy 2.x, Alembic. **Только Core** имеет credentials
+прикладного пользователя PostgreSQL. Postgres **не** публикуется на host.
 
-Ollama и GPU остаются на хосте. Scoring использует:
+Другие сервисы **не** выполняют SQL к domain tables; только HTTP/JSON CLI к Core
+(или собственное private state).
 
-```text
-OLLAMA_BASE_URL=http://127.0.0.1:11434
-```
+**Source of truth по сущностям:**
 
-На поддерживаемом Linux runtime Scoring использует host network и обращается к
-Ollama и опубликованному loopback-порту Core через `127.0.0.1`. Это не требует
-разрешать входящий трафик из Docker bridge в firewall. GPU в контейнер Scoring
-не пробрасывается: вычисления выполняет процесс Ollama на хосте.
+| Entity / artifact | Owner | Notes |
+|---|---|---|
+| Company, Vacancy, Application | Core | `(source, external_id)` uniqueness |
+| DailyMetric | Core | |
+| Person, Hypothesis | Core | |
+| Assessment / ScoringResult | Core | Written by Scoring; read by Web via Core API |
+| HH tokens, cookies, profile | HH volumes | Never in Core |
+| Scoring queue, raw LLM output | Scoring state volume | Normalized result → Core only |
+| OSINT raw/proposed findings | OSINT cache | Confirmed → Core HTTP |
+| Content drafts, Telegram IDs | Content (future) | Not in Core |
+| Legacy SQLite archive | `/data/Projects/job_search` | Read-only migration source |
 
-## 4. PostgreSQL и владение данными
+**Implemented Core schema** (Alembic, 7 revisions): `Company`, `Vacancy`,
+`Application`, `DailyMetric`, `Person`, `Hypothesis`, `Assessment` — см.
+`services/core/src/job_search_core/models.py`.
 
-Используется PostgreSQL 17, SQLAlchemy 2.x и Alembic. Доменные сущности не должны
-зависеть от ORM-моделей.
+**Target concepts (Roadmap; детальные схемы — позже):**
 
-Только Core имеет учётные данные прикладного пользователя PostgreSQL. Остальные
-проекты обращаются к данным через Core API. PostgreSQL по умолчанию не публикует
-порт на хост.
+- `SearchProfile`, `CandidateProfile` / `ProfileVersion`;
+- `ResumeVersion`, linkage к active HH resume (R1);
+- user **decision** on Vacancy (отдельно от LLM verdict — R2/PB-04);
+- hiring pipeline, `Offer`, `SearchCycle` (R4–R5).
 
-Основные ограничения схемы:
+Архитектурное правило: **не проектировать unfinished schemas здесь**; фиксируем
+ownership и семантические связи. Core остаётся каноническим store нормализованных
+domain entities, если иное не будет принято отдельным ADR.
 
-- внешние ключи между компаниями, вакансиями, откликами и людьми;
-- уникальность внешних сущностей по `(source, external_id)`;
-- идемпотентность импортов и синхронизаций;
-- контролируемые значения статусов;
-- UTC timestamp для машинных событий и явная пользовательская timezone для отчётов;
-- `JSONB` только для расширяемых внешних метаданных, а не вместо основных колонок;
-- отдельная таблица применённых миграций Alembic.
+**Greenfield note:** новая PostgreSQL создавалась пустой. Legacy SQLite **не**
+импортируется автоматически — см. §13 PB-DATA-00.
 
-Новая база создаётся пустой. Старая `data/job_search.db` автоматически не
-переносится и остаётся только в архивном исходном проекте.
+## 6. Публичные контракты
 
-## 5. Публичные контракты
+### Core HTTP API (`/api/v1`)
 
-### Core HTTP API
+Ресурсы: `vacancies`, `companies`, `applications`, `metrics`, `hypotheses`,
+`people`, `assessments`.
 
-Core публикует `/api/v1` для ресурсов:
-
-- `vacancies`;
-- `companies`;
-- `applications`;
-- `metrics`;
-- `hypotheses`;
-- `people`;
-- `assessments`.
-
-Записывающие запросы интеграций принимают idempotency key. Ошибки имеют
-стабильный машинный код, сообщение и `trace_id`. OpenAPI является источником
-правды для HTTP-контракта.
+Записывающие запросы интеграций — **idempotency key**. Ошибки: stable machine
+code + `trace_id`. OpenAPI — source of truth (`services/core`).
 
 ### JSON CLI
 
-Машинные команды принимают `--output json`. stdout содержит только один
-JSON-документ, а диагностика отправляется в stderr. Общий envelope:
+`--output json`, envelope `contract_version` / `ok` / `data` / `errors`. Нет
+shared Python package между репами; contract tests на OpenAPI/JSON Schema.
 
-```json
-{
-  "contract_version": "1.0",
-  "command": "...",
-  "ok": true,
-  "data": {},
-  "errors": [],
-  "trace_id": "..."
-}
+### Web proxy
+
+Web re-exposes Core routes and OSINT research routes (`/api/v1/osint/*`) without
+own DB. Web **не** orchestrates HH or Scoring launch in текущей версии.
+
+## 7. Core
+
+Core — **canonical application/domain layer**:
+
+- domain rules, application services;
+- Alembic migrations;
+- FastAPI `/api/v1` + machine CLI.
+
+Core **не знает** о Playwright, Telegram, Ollama, конкретных OSINT providers.
+
+**Assessment / ScoringResult** в Core — результат оценки **Vacancy** (score,
+verdict, reason, risk, action, model metadata). Это domain entity, не UI section.
+
+## 8. Web (R0 accepted IA)
+
+Web следует [`DESIGN.md`](DESIGN.md) — Calm Dense Productivity, **dark primary**.
+
+**Top-level workspaces (5):**
+
+1. Vacancies  
+2. Journal  
+3. Metrics  
+4. People  
+5. Hypotheses  
+
+**Assessment contextual to Vacancy** — не standalone workspace:
+
+```text
+Vacancy → score + verdict summary → scoring details → user decision (R2+)
 ```
 
-Проекты не используют общий импортируемый Python-пакет. Владелец интерфейса
-хранит OpenAPI или JSON Schema, а потребители проверяют совместимость contract
-tests. Несовместимое изменение создаёт новую major-версию контракта.
+R0: Web client-joins `/api/v1/assessments` при загрузке Vacancies; score/verdict
+в row; reason/risk/action в expand. Manual assessment dialog removed; API intact.
 
-## 6. Порядок реализации
+Детальный CSS/design-system в ARCHITECTURE_PLAN **не** дублируется — см. DESIGN.md.
 
-1. Зафиксировать карту файлов, команд, таблиц и тестов исходного проекта; каждому
-   модулю назначить ровно один целевой репозиторий.
-2. Создать workspace и шесть репозиториев текущего этапа с чистой Git-историей,
-   едиными правилами версий, README, `.env.example`, тестами и Dockerfile.
-3. Собрать Core: PostgreSQL-схема, Alembic, доменные сервисы, `/api/v1`, JSON CLI
-   и OpenAPI.
-4. Перенести Web и заменить прямое чтение SQLite вызовами Core API.
-5. Перенести HH вместе с Chromium, Playwright, noVNC, блокировкой профиля и
-   отдельными volumes.
-6. Перенести Scoring, подключить host Ollama и запись итоговых оценок через Core.
-7. Перенести OSINT, оставляя сырые результаты локальными и отправляя в Core
-   подтверждённые сущности.
-8. Перенести Content, отделив drafts и Telegram-журнал от Core.
-9. Проверить существующий локальный Hermes с публичными JSON CLI, не меняя его
-   код, конфигурацию и аудит.
-10. Перенос `job-search-hermes` выполнить отдельным будущим проектом.
+## 9. HH service (R1 architectural dependency)
 
-Каждый этап завершается рабочим отдельным проектом и самостоятельным коммитом.
-Незавершённый код между репозиториями не переносится.
+HH — **external HeadHunter adapter**:
 
-После зелёных проверок каждый завершённый логический шаг автоматически
-коммитится Conventional Commit сообщением. В commit включаются только файлы
-текущей задачи; push, PR, merge, tag и release остаются отдельными явно
-разрешаемыми действиями.
+- OAuth/token + browser session (noVNC operator login);
+- vacancy sync → Core;
+- applications/metrics sync (API where scope allows, fixtures/fallback otherwise);
+- dual-gated apply (`JOB_SEARCH_HH_EXTERNAL_WRITES_ENABLED` + CLI flag).
 
-## 7. Тестирование и критерии готовности
+**R1 product prerequisite:**
 
-- Каждый репозиторий устанавливается и тестируется без исходного `job_search`.
-- Проекты не импортируют пакеты друг друга и не открывают чужие хранилища.
-- Compose с пустыми volumes поднимает PostgreSQL, Core и остальные сервисы.
-- Пересоздание контейнеров сохраняет БД, Chromium profile, токены, кэши и drafts.
-- Backup PostgreSQL восстанавливается в чистый volume.
-- Web создаёт вакансию и меняет статус только через Core API.
-- Повторная HH-синхронизация одной сущности не создаёт дубль.
-- HH dry-run не отправляет отклик и возвращает валидный JSON.
-- Через noVNC выполняется вход в HH, а сессия сохраняется после перезапуска.
-- Scoring достигает host Ollama и контролируемо обрабатывает её недоступность.
-- OSINT сохраняет provenance у себя и идемпотентно обновляет Core.
-- Content preview исключает приватные данные; Telegram проверяется fake transport.
-- Локальный Hermes сохраняет текущий аудит и может вызывать новые JSON CLI.
-- Contract tests проверяют OpenAPI Core и JSON Schema CLI.
-- `workspace doctor` проверяет Docker, версии сервисов, Core, PostgreSQL, HH,
-  Ollama, конфигурацию volumes и отсутствие секретов в Git.
+```text
+HH session/auth
+  → current HH account/profile
+  → resume list
+  → active HH resume
+  → linkage to local CandidateProfile / ResumeVersion context
+```
 
-## 8. Безопасность
+**Scope reality (verified):** applicant token may be alive (`GET /me` → 200), но
+`GET /negotiations`, `GET /resumes/mine` → **403** для текущего HH app permissions.
+Production API apply blocked until scope expansion **or** browser apply transport.
+**Не обещать** API operations beyond current HH application capabilities.
 
-- Секреты поступают через Docker secrets или локальный `.env`, который не
-  коммитится.
-- noVNC и служебные API доступны только через loopback либо внутреннюю Docker-сеть.
-- Профиль HH не подключается к другим контейнерам.
-- Hermes не получает действия удаления истории, обхода лимитов или отправки
-  ответов рекрутерам.
-- Логи не содержат токены, cookies, пароли и полные сопроводительные письма.
-- Операции удаления volumes и восстановления backup требуют явной команды.
+PB-00 (live HH ingestion) — architectural dependency для R1; см. HH runbooks.
+
+Volumes `hh-state`, `hh-profile` — exclusive HH ownership.
+
+## 10. Scoring service (R2)
+
+Scoring — **standalone service** (не часть Core, не top-level Web workspace).
+
+**Target conceptual pipeline (R2; detailed design — later artifact):**
+
+```text
+Vacancy + CandidateProfile
+  → deterministic signals
+  → semantic signals / retrieval (embeddings as signals, not automatic verdict)
+  → relevant profile context
+  → LLM score (host Ollama)
+  → ScoringResult → Core Assessment
+```
+
+**Rules:**
+
+- Canonical output: **score + verdict** (`apply` / `maybe` / `skip` conceptually).
+- Fast batch score vs detailed analysis — **different use cases**.
+- Scoring **policy versionable** separately from model and CandidateProfile version.
+- Web presents score/verdict **in Vacancy context**; user decision **separate**
+  from LLM recommendation (R2/PB-04).
+
+**Implemented now (basic):**
+
+- JSON file queue in `scoring-state`;
+- worker reads Vacancy from Core HTTP;
+- Ollama call; raw stored locally;
+- normalized `POST /api/v1/assessments` with `source: job-search-scoring`.
+
+**Not in scope of this document:** full `SCORING_SERVICE_FOUNDATION` — см. future
+`services/scoring/docs/SCORING_SERVICE.md` and ADRs. Rev. 2 фиксирует boundary,
+principles, reproducibility expectation (raw + normalized lineage), link requirement.
+
+## 11. OSINT (R3 behavior)
+
+OSINT — on-demand research; **не** silent auto-enrichment каждой вакансии.
+
+**Target product flow:**
+
+```text
+User decides to pursue Vacancy
+  → selects channel (HH / direct / both)
+  → if direct path: user manually triggers OSINT
+  → OSINT searches for relevant people / contact signals
+  → findings keep provenance + confidence
+  → user confirms person/contact
+  → outreach recorded in Core (Application / Person)
+```
+
+**Implemented triggers:**
+
+- CLI: website discover/confirm, people research, vacancy mirrors;
+- Web HTTP: people-research, vacancy-mirrors, people-confirm (via OSINT API);
+- SearXNG + fallback providers; evidence in `osint-cache`;
+- unconfirmed proposals **never** written to Core.
+
+Website discover/confirm — CLI-first (no website routes in OSINT HTTP API yet).
+
+## 12. Content (later)
+
+Planned: drafts, Telegram preview/publish, publication journal. Submodule exists
+but **empty**; not in compose. Content reads public data via Core API; drafts and
+Telegram tokens stay outside Core.
+
+## 13. PB-DATA-00 — legacy data migration
+
+**Required workstream** between plan revisions and active R1/R2 development.
+
+| | |
+|---|---|
+| **Source** | `/data/Projects/job_search` (read-only archive) |
+| **Target** | `/data/Projects/job_search_ref` (Core PostgreSQL) |
+| **Inventory** | `docs/inventory/data.md`, `migration-map.md` |
+
+**Architectural process (not implemented in rev. 2):**
+
+```text
+inventory
+  → source-target mapping
+  → dry-run
+  → backup
+  → repeatable/idempotent import where practical
+  → verification (counts, relationships)
+  → unmapped report
+```
+
+**Rules:**
+
+- migrate only entities with correct target model;
+- do not force legacy into semantically wrong fields;
+- preserve provenance / legacy IDs where useful;
+- unsupported data stays explicitly unmapped for later passes.
+
+Implementation belongs to PB-DATA-00 epic, not Gate R0 or architecture doc alone.
+
+## 14. Integration rules
+
+| Concern | Decision |
+|---|---|
+| Inter-service calls | Synchronous HTTP/JSON CLI |
+| Queues | Scoring local JSON queue only |
+| Idempotency | Core write endpoints + integration keys |
+| External IDs | `(source, external_id)` in Core |
+| Failure/retry | Owner service retries (Scoring lease/retry; HH captcha stop) |
+| AI backend | Host Ollama only (local) |
+| Event bus | **Absent** — do not introduce without ADR |
+| Security boundary | Loopback publish + trusted operator; no product auth layer |
+
+## 15. Architecture status matrix
+
+| Area | Implemented | Partial | Target / later |
+|---|---|---|---|
+| Workspace submodules + compose | ✓ | | |
+| Core domain + PostgreSQL | ✓ | | |
+| Web R0 UI + 5-section IA | ✓ | | |
+| Assessment in Vacancy context (R0) | ✓ | | |
+| HH read sync + session | ✓ | | |
+| HH production API apply | | ✓ (dual-gate code; 403 scope) | browser transport option |
+| Scoring basic pipeline | | ✓ | R2 full pipeline + policy versioning |
+| OSINT on-demand research | ✓ | | R3 outreach-integrated UX |
+| Content / Telegram | | | R? / §8 |
+| PB-DATA-00 migration | | | required before R1/R2 data work |
+| CandidateProfile / active resume | | | R1 |
+| User decision after scoring | | | R2/PB-04 |
+| Hiring / Offer / SearchCycle | | | R4–R5 |
+| Hermes integration | | | deferred |
+
+## 16. Non-blocking debt (Gate R0)
+
+Classified for tracking; **не reopen R0** unless blocker emerges:
+
+| Category | Examples |
+|---|---|
+| Architecture mismatch | `ARCHITECTURE_PLAN` rev.1 listed Content in runtime; compose has no Content |
+| Implementation debt | HH API 403 scope; no browser apply transport; duplicate demo Core rows |
+| Documentation debt | `IMPLEMENTATION_PLAN.md` still service-order oriented; volume name drift (`scoring-cache` vs `scoring-state`) |
+| Housekeeping | Untracked R0 screenshot sets; legacy CSS selectors (`#assessment-form`) |
+| Test debt | Workspace cursor-rule test vs `12-no-choice-menus.mdc` |
+
+Concrete DEBT-US items — only when product/engineering reason exists; not bulk-created here.
+
+## 17. Тестирование и readiness
+
+- Each repo installs/tests without archive `job_search` Python imports.
+- No cross-repo Python imports or foreign volume access.
+- Compose with empty volumes brings Core + consumers healthy.
+- Web mutates domain only via Core API.
+- HH dry-run does not POST apply; profile persists across restart.
+- Scoring reaches host Ollama; handles unavailable gracefully.
+- OSINT provenance local; confirmed entities idempotent to Core.
+- Contract tests on Core OpenAPI and CLI JSON schemas.
+- `make doctor` checks Docker, gitlinks, Core, Postgres, HH, Ollama as applicable.
+
+Gate R0 Web acceptance: **37 tests passed** @ `86f37cb` (2026-08-22).
+
+## 18. Безопасность
+
+- Secrets via `.env` / Docker secrets — never in git.
+- noVNC, OAuth, Core/Web on loopback or internal network.
+- HH profile isolated from other containers.
+- Logs exclude tokens, cookies, full cover letters.
+- Destructive volume delete / restore requires explicit operator command.
+- Hermes (when used) — no delete-history or bypass-limit actions.
+
+---
+
+**Next documentation step (not part of rev. 2):** revision [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) to align execution order with Roadmap (PB-DATA-00 → R1 → R2 …).
