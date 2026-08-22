@@ -25,10 +25,10 @@
 | R0 / PB-UX-00 Web redesign | **в работе** |
 
 **Главный продуктовый next:** R0 / PB-UX-00 — базовый редизайн Web.  
-**Текущий task:** T-UX-00.4 завершён → next **T-UX-00.5** (global navigation / layout).
+**Текущий task:** T-UX-00.5 завершён → next **T-UX-00.6** (migration existing screens).
 
 Артефакты направления:
-- [`DESIGN.md`](DESIGN.md) — normative visual system (+ UI primitives T-UX-00.4)
+- [`DESIGN.md`](DESIGN.md) — normative visual system (+ UI primitives T-UX-00.4, navigation T-UX-00.5)
 - [`docs/R0_DESIGN_REFERENCES.md`](docs/R0_DESIGN_REFERENCES.md) — сравнение референсов  
 - [`docs/R0_UI_AUDIT.md`](docs/R0_UI_AUDIT.md) — audit  
 - Web: `services/web/src/job_search_web/static/{index.html,styles.css,app.js}`

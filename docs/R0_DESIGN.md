@@ -2,7 +2,7 @@
 
 **Product:** Job Search  
 **Roadmap stage:** R0 — Привести Web в рабочий визуальный вид  
-**Status:** T-UX-00.4 done; next T-UX-00.5 (global navigation)  
+**Status:** T-UX-00.5 done; next T-UX-00.6 (migration existing screens)  
 **Source of product truth:** UJM v1 → Product Backlog → Roadmap v1
 
 ## 1. Цель R0
@@ -290,6 +290,17 @@ BDD: существующие функциональные сценарии до
 
 Перевести глобальную навигацию и общий layout на новую основу.
 
+**Принято (T-UX-00.5):**
+
+- persistent left nav (desktop); на узком viewport — горизонтальная сетка из DESIGN tokens (без off-canvas);
+- hash deep links: `#vacancies` (default), `#journal`, `#metrics`, `#people`, `#hypotheses`, `#assessments`;
+- unknown hash → Vacancies + `history.replaceState('#vacancies')`;
+- legacy `#applications` → `#journal` (DOM id `#applications` для списка откликов сохранён);
+- одна `.section-view` visible; inactive через HTML `hidden` + `.section-view[hidden]`;
+- active nav: `aria-current="page"` + accent inset (не только цвет);
+- browser back/forward через native `hashchange`;
+- notice глобально в начале `main`; dialogs вне section views.
+
 ### T-UX-00.6. Migration existing screens
 
 Последовательно мигрировать текущие основные экраны без изменения их продуктовой функции.
@@ -337,9 +348,9 @@ T-UX-00.3 tokens + page shell           ✓
     ↓
 T-UX-00.4 reusable primitives              ✓
     ↓
-T-UX-00.5 global navigation / layout     ← NOW
+T-UX-00.5 global navigation / layout        ✓
     ↓
-T-UX-00.6 migration existing screens
+T-UX-00.6 migration existing screens     ← NOW
     ↓
 T-UX-00.7 system states
     ↓

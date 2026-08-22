@@ -89,6 +89,8 @@ Deep links via hash (`#vacancies`, …) are allowed to select the active section
 | Orientation | User always sees which section is active |
 | Switching | Selecting a nav item shows that section in main; hides others |
 | Long page | **Retire** endless stacked scroll as the primary model |
+| Deep links | `#vacancies` (default), `#journal`, `#metrics`, `#people`, `#hypotheses`, `#assessments`; unknown hash → `#vacancies` via `history.replaceState` |
+| Legacy hash | `#applications` normalizes to `#journal` (list id `#applications` unchanged) |
 | Desktop | Nav always visible ≥ ~960px; labels readable |
 | Connection | Core online/offline stays in **header**, not as a fake nav item |
 
