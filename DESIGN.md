@@ -41,13 +41,20 @@ The interface must feel:
 ### Current reality (must respect)
 
 - Single UI route: `/`
-- Six working areas on one document: Vacancies, Journal, Metrics, People, Hypotheses, Assessments
-- Seven create/edit `<dialog>`s
+- Five top-level working areas on one document: Vacancies, Journal, Metrics, People, Hypotheses
+- Assessment / ScoringResult is **contextual to Vacancy**, not a standalone workspace (see below)
+- Six create/edit `<dialog>`s (vacancy, application, metric, person, hypothesis, hypothesis-close)
 - No global navigation / active section today
 
 ### Target model for R0
 
-Keep **one route** and the **same six areas + dialogs**. Change structure, not product scope.
+Keep **one route** and the **same five top-level areas + dialogs**. Change structure, not product scope.
+
+Assessment / ScoringResult is contextual to Vacancy. It is not a top-level workspace.
+
+Target presentation:
+
+Vacancy → score + verdict summary → scoring details → user decision
 
 ```text
 ┌──────────────────────────────────────────────────────────┐
@@ -60,7 +67,6 @@ Keep **one route** and the **same six areas + dialogs**. Change structure, not p
 │ Metrics    │                                             │
 │ People     │                                             │
 │ Hypotheses │                                             │
-│ Assessments│                                             │
 └────────────┴─────────────────────────────────────────────┘
          Dialogs overlay the shell when open
 ```
@@ -135,7 +141,7 @@ Journal create may remain contextual (from Vacancy) — header primary CTA is no
 | Rare highlight of a single summary block | Default vacancy as large shadowed card grid |
 | Dialog surface | Every entity type inventing its own chrome |
 
-**Density:** prefer **list rows** for Vacancies, Journal, People, Hypotheses, Assessments collections. Metrics = dashboard panel + history list/bars.
+**Density:** prefer **list rows** for Vacancies, Journal, People, Hypotheses collections. Metrics = dashboard panel + history list/bars. Assessment summaries live **inside Vacancy rows** (R0); full scoring-in-vacancy flow matures in R2/PB-03.
 
 ---
 
@@ -392,10 +398,13 @@ Visual presentation of **existing** objects (no domain changes).
 - Row: title, active/closed badge, sample/metric meta  
 - Close action = secondary in row; result text when closed  
 
-### Assessment
+### Assessment (contextual to Vacancy — not a top-level section)
 
-- Row or compact panel: vacancy title, **score**, verdict badge, model meta  
-- Detail: reason → risk → action hierarchy (see AI)  
+R0 shows existing normalized Assessment data **inside the Vacancy row** when Core returns it via `/api/v1/assessments` (client-side join by `vacancy_id`; no new API).
+
+- Row trailing: **score**, verdict badge  
+- Vacancy expand/detail: reason → risk → action hierarchy (see AI)  
+- Manual record UI and ranking/decision flow → **R2 / PB-03–PB-04** (deferred)
 
 ---
 
@@ -491,7 +500,7 @@ Use the audit set from [`docs/R0_UI_AUDIT.md`](docs/R0_UI_AUDIT.md) §14 for bef
 | Primitive classes | New frontend framework |
 | Migration of sections | Domain/API changes |
 
-**Implemented (T-UX-00.6):** Vacancies/Journal/People/Hypotheses/Assessments render as `.list-row` collections; Vacancies OSINT/mirrors live in `<details class="row-detail">`; Metrics use `.metric-cell` inside `.surface--panel`; all dialogs use `.dialog__form` + `.field`/`.control`. Legacy `.vacancy-card`, `.person-card`, … selectors removed from CSS. **R0 primary scheme = dark** (`color-scheme: dark`, semantic tokens in Web CSS).
+**Implemented (T-UX-00.6):** Vacancies/Journal/People/Hypotheses render as `.list-row` collections; Vacancies OSINT/mirrors and Assessment summaries live in vacancy row/detail; Metrics use `.metric-cell` inside `.surface--panel`; six dialogs use `.dialog__form` + `.field`/`.control`. Legacy `.vacancy-card`, `.person-card`, … selectors removed from CSS. **R0 primary scheme = dark** (`color-scheme: dark`, semantic tokens in Web CSS). **IA correction (T-UX-00.8):** no standalone Assessments nav/section; Assessment contextual in Vacancy.
 
 **Implemented (T-UX-00.7):** unified system states — `.state--loading|empty|error`, `.notice--*`, `.inline-state--*`; legacy `.state-card` removed.
 

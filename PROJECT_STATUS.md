@@ -1,7 +1,8 @@
 # Состояние проекта Job Search Multirepo
 
-**Дата снимка:** 2026-08-21 (UTC)  
-**Workspace HEAD:** см. `git rev-parse --short HEAD`  
+**Дата снимка:** 2026-08-22 (UTC+3)  
+**Workspace HEAD:** `5afbcd6` (docs update for T-UX-00.8 pending commit)  
+**Web submodule HEAD:** `b65522d`  
 **HH submodule HEAD:** `1ec60bf`  
 **Ветка:** `main` (workspace ahead of origin; push только по явному запросу)
 
@@ -22,16 +23,18 @@
 | HH write-path (API) | код dual-gate готов; **production API apply заблокирован scope HH-приложения** |
 | Content / Telegram §8 | не начат |
 | Сквозная сборка §9 / Hermes §10 | не закрыты |
-| R0 / PB-UX-00 Web redesign | **в работе** |
+| R0 / PB-UX-00 Web redesign | **T-UX-00.8 complete (incl. IA correction) → Gate R0 pending** |
 
-**Главный продуктовый next:** R0 / PB-UX-00 — базовый редизайн Web.  
-**Текущий task:** T-UX-00.7 complete → next **T-UX-00.8** (regression + final visual review). Gate R0 не закрыт.
+**Главный продуктовый next:** **T-UX-00.9** — Gate R0 with product owner.  
+**Текущий task:** T-UX-00.8 complete — regression, visual review, **IA correction** (Assessments removed from top-level nav; contextual in Vacancy). Gate R0 **не закрыт** агентом.
 
 Артефакты направления:
-- [`DESIGN.md`](DESIGN.md) — normative visual system (+ navigation T-UX-00.5, screen migration T-UX-00.6)
+- [`DESIGN.md`](DESIGN.md) — normative visual system
+- [`docs/R0_ACCEPTANCE.md`](docs/R0_ACCEPTANCE.md) — T-UX-00.8 acceptance (**READY FOR GATE R0**; five-section IA)
 - [`docs/R0_DESIGN_REFERENCES.md`](docs/R0_DESIGN_REFERENCES.md) — сравнение референсов  
 - [`docs/R0_UI_AUDIT.md`](docs/R0_UI_AUDIT.md) — audit  
-- Web: `services/web/src/job_search_web/static/{index.html,styles.css,app.js}`; system states: `docs/r0/screenshots/t-ux-00.7/`
+- Screenshots: `docs/r0/screenshots/t-ux-00.6-dark/`, `t-ux-00.7/`, `t-ux-00.8-ia5/`
+- Web: `services/web/src/job_search_web/static/{index.html,styles.css,app.js}` @ `b65522d` (+ IA5 uncommitted)
 
 Content/Telegram, browser HH apply, Scoring redesign и дальнейшее service-driven
 развитие по старой очереди `IMPLEMENTATION_PLAN.md` **сейчас не являются next
@@ -123,8 +126,7 @@ Runtime / секреты (без значений в git):
 
 ## Решение по «го» / blockers
 
-- **«Го»** = следующий task R0 (после audit — T-UX-00.2 visual direction +
-  `DESIGN.md`), или если скажешь явно другую задачу.
+- **«Го»** = **T-UX-00.9** Gate R0 with product owner, или если скажешь явно другую задачу.
 - Content/Telegram, browser HH apply, Scoring redesign — только по явной фразе,
   не default.
 - **«OK на HH writes» уже дан**, но API-path сейчас бессмысленен без scopes /

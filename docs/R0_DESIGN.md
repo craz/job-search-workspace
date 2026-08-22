@@ -2,7 +2,7 @@
 
 **Product:** Job Search  
 **Roadmap stage:** R0 — Привести Web в рабочий визуальный вид  
-**Status:** T-UX-00.7 complete; next T-UX-00.8 (regression + final visual review). Gate R0 — not closed.  
+**Status:** T-UX-00.8 complete; next T-UX-00.9 (Gate R0 with product owner). Gate R0 — not closed.  
 **Source of product truth:** UJM v1 → Product Backlog → Roadmap v1
 
 ## 1. Цель R0
@@ -293,7 +293,7 @@ BDD: существующие функциональные сценарии до
 **Принято (T-UX-00.5):**
 
 - persistent left nav (desktop); на узком viewport — горизонтальная сетка из DESIGN tokens (без off-canvas);
-- hash deep links: `#vacancies` (default), `#journal`, `#metrics`, `#people`, `#hypotheses`, `#assessments`;
+- hash deep links: `#vacancies` (default), `#journal`, `#metrics`, `#people`, `#hypotheses`; legacy `#assessments` → `#vacancies`;
 - unknown hash → Vacancies + `history.replaceState('#vacancies')`;
 - legacy `#applications` → `#journal` (DOM id `#applications` для списка откликов сохранён);
 - одна `.section-view` visible; inactive через HTML `hidden` + `.section-view[hidden]`;
@@ -307,10 +307,10 @@ BDD: существующие функциональные сценарии до
 
 **Принято (T-UX-00.6):**
 
-- все шесть sections — **list-first** collections (`.list-rows`, `.list-row`, `.list-row-group`);
-- Vacancies: compact row + `<details class="row-detail">` для OSINT/mirrors/evidence;
+- все **пять** top-level sections — **list-first** collections (`.list-rows`, `.list-row`, `.list-row-group`);
+- Vacancies: compact row + `<details class="row-detail">` для OSINT/mirrors/evidence + **Assessment summary in row** (IA correction T-UX-00.8);
 - Metrics: `surface--panel` + `.metric-cell` grid + compact history bars;
-- Assessments: row + expandable detail (reason/risk/action);
+- Assessments: **no standalone section**; reason/risk/action in vacancy expand; full flow → R2/PB-03;
 - все dialogs/forms — `.dialog__*`, `.field`, `.control`;
 - domain statuses через `.badge` (vacancy, person, hypothesis, assessment verdict);
 - row actions — `.btn--secondary` / `.btn--ghost`; section CTA — `.btn--primary`;
@@ -328,12 +328,16 @@ BDD: существующие функциональные сценарии до
 - Retry на section errors; optional empty CTA там, где есть section create action;
 - `.is-processing` на async submit/OSINT controls; legacy `.state-card` удалён;
 
-### T-UX-00.8. Regression + visual review
+### T-UX-00.8. Regression + visual review (+ IA correction)
 
-Выполнить:
-- функциональную регрессию существующих сценариев;
-- visual review контрольных экранов;
-- сравнение before / after.
+**Принято (T-UX-00.8):**
+
+- Web `make test` — green after review2 + IA5;
+- top-level **«Оценки» removed**; five-section nav; Assessment contextual in Vacancy row (existing `/api/v1/assessments` client join);
+- Assessment API/domain unchanged; manual record dialog removed from UI (deferred R2/PB-03);
+- system states verified (live + stub): loading/empty/error/offline/notice/inline OSINT;
+- acceptance: [`docs/R0_ACCEPTANCE.md`](R0_ACCEPTANCE.md) — **READY FOR GATE R0**;
+- screenshots: `docs/r0/screenshots/t-ux-00.8-ia5/`
 
 ### T-UX-00.9. Gate R0
 
@@ -373,9 +377,11 @@ T-UX-00.6 migration + dark scheme         ✓
     ↓
 T-UX-00.7 system states                  ✓
     ↓
-T-UX-00.8 regression + visual review      ← NOW
+T-UX-00.8 regression + visual review      ✓
+    ↓
+T-UX-00.9 Gate R0 with product owner      ← NOW
 ```
 
-Норматив: [`DESIGN.md`](../DESIGN.md). Research: [`R0_DESIGN_REFERENCES.md`](R0_DESIGN_REFERENCES.md).
+Норматив: [`DESIGN.md`](../DESIGN.md). Acceptance: [`R0_ACCEPTANCE.md`](R0_ACCEPTANCE.md). Research: [`R0_DESIGN_REFERENCES.md`](R0_DESIGN_REFERENCES.md).
 
 Content/Telegram, browser HH apply, Scoring redesign и другие следующие направления не являются текущим next step.
