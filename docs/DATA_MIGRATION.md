@@ -4,10 +4,10 @@
 
 | Field | Value |
 |---|---|
-| **Slice** | PB-DATA-00.2 — Source → target mapping |
+| **Slice** | PB-DATA-00.3 — Migration safety contract **COMPLETE** |
 | **Date** | 2026-08-22 (UTC+3) |
-| **Prior slice** | PB-DATA-00.1 @ `c860038` |
-| **Next slice** | PB-DATA-00.3 — Migration safety contract |
+| **Prior mapping** | PB-DATA-00.2 @ `b66d13d` |
+| **Next slice** | PB-DATA-00.4 — Dry-run implementation |
 
 | **Source** | `/data/Projects/job_search` (read-only) |
 | **Target** | `/data/Projects/job_search_ref` → Core PostgreSQL |
@@ -341,7 +341,7 @@ No malformed JSON observed in sampled `vacancy_scores.jsonl` lines. No orphan FK
 
 ## 11. Unknowns from DATA-00.1 — resolved in §14–§21
 
-Section 11 open questions from inventory are answered in mapping sections below. Remaining product decisions are listed in **§21 OWNER DECISION REQUIRED**.
+Section 11 open questions from inventory are answered in mapping sections below. Product decisions are **locked in §23**.
 
 ---
 
@@ -385,16 +385,16 @@ Verified against `services/core/src/job_search_core/models.py`, `schemas.py`, Al
 | Legacy source | Legacy entity | Rows | Target | Status | Identity key | Relationship strategy | Notes |
 |---|---|---:|---|---|---|---|---|
 | `job_search.db` | `companies` (referenced) | **323** | `Company` | **SUPPORTED_NOW** | `(source, external_id)` — see §17 | Created before/with Vacancy/Person | 320 linked from vacancies + 3 people-only |
-| `job_search.db` | `companies` (watch-only) | **1043** | `Company` | **MANUAL_REVIEW** | HH `employer_id` when present | N/A until decision | See §14.1 |
-| `job_search.db` | `vacancies` (with `company_id`) | **499** | `Vacancy` | **SUPPORTED_NOW** | HH id from URL or legacy fallback | FK → Company | 401 with HH `/vacancy/{id}` |
-| `job_search.db` | `vacancies` (no `company_id`) | **12** | `Vacancy` | **NEEDS_PARENT_ENTITY** | bot path or HH id | Must create/link Company first | 11× `hh_bot` `/b/` URLs; 1× HH vacancy |
-| `job_search.db` | `applications` | **407** | `Application` | **SUPPORTED_NOW** | `legacy:application:{id}` | FK → imported Vacancy | 406 with `result` NULL — valid |
-| `job_search.db` | `people` | **24** | `Person` | **SUPPORTED_NOW** | `legacy:person:{id}` | FK → Company (+ optional Vacancy) | Roles/status map directly |
-| `job_search.db` | `daily_metrics` | **81** | `DailyMetric` | **SUPPORTED_NOW** | `metric_date` | Independent | Pre-search rows need policy (§21) |
-| `job_search.db` | `hypotheses` | **2** | `Hypothesis` | **SUPPORTED_NOW** | `legacy:hypothesis:{id}` | Independent | Both `active` |
-| `job_search.db` | embedded `reason/risk/action` | **16** | `Assessment` | **SUPPORTED_NOW** | per vacancy + legacy slice | FK → Vacancy | **No JSONL overlap** (§14.4) |
-| `vacancy_scores.jsonl` | scores linked to SQLite (cat. **A**) | **20** HH / **21** lines | `Assessment` | **SUPPORTED_NOW** | `legacy-scoring:{hh_id}:{scored_at}` | FK → existing Vacancy | Pick latest per HH if duplicates |
-| `vacancy_scores.jsonl` | scores off-DB (cat. **B**) | **850** HH / **988** lines | Vacancy + `Assessment` | **MANUAL_REVIEW** | HH vacancy id | Create Vacancy from JSONL payload, then Assessment | Payload sufficient; **product decision** (§21) |
+| `job_search.db` | `companies` (watch-only) | **1043** | `Company` | **DEFERRED** | HH `employer_id` when present | N/A in first slice | §23.1 — not DROP |
+| `job_search.db` | `vacancies` (with `company_id`) | **499** | `Vacancy` | **SUPPORTED_NOW** | HH id from URL or `legacy_job_search` fallback | FK → Company | 401 with HH `/vacancy/{id}` |
+| `job_search.db` | `vacancies` (no `company_id`) | **12** | `Vacancy` | **DEFERRED** | bot path or HH id | No synthetic Company | §23.1 |
+| `job_search.db` | `applications` | **407** | `Application` | **SUPPORTED_NOW** | `application-{id}` @ `legacy_job_search` | FK → imported Vacancy | 406 with `result` NULL — valid |
+| `job_search.db` | `people` | **24** | `Person` | **SUPPORTED_NOW** | `person-{id}` @ `legacy_job_search` | FK → Company (+ optional Vacancy) | Roles/status map directly |
+| `job_search.db` | `daily_metrics` | **81** | `DailyMetric` | **SUPPORTED_NOW** | `metric_date` | Independent | All 81 incl. pre-2026-06-04 §23.1 |
+| `job_search.db` | `hypotheses` | **2** | `Hypothesis` | **SUPPORTED_NOW** | `hypothesis-{id}` @ `legacy_job_search` | Independent | Both `active` |
+| `job_search.db` | embedded `reason/risk/action` | **16** | `Assessment` | **DEFERRED** | — | — | No synthetic score/verdict §23.1 |
+| `vacancy_scores.jsonl` | scores linked to SQLite (cat. **A**) | **20** HH | `Assessment` | **SUPPORTED_NOW** | `{hh_id}` @ `legacy_job_search_scoring` | FK → existing Vacancy | Latest per HH §23.5 |
+| `vacancy_scores.jsonl` | scores off-DB (cat. **B**) | **850** HH / **988** lines | Vacancy + `Assessment` | **DEFERRED** | HH vacancy id | — | R2 / PB-02–03 §23.1 |
 | `vacancy_scores.jsonl` | insufficient (cat. **C**) | **0** | — | — | — | — | None found |
 | `data/osint/*.json` | OSINT raw harvest | **4** files | — | **REBUILDABLE** | HH vacancy id filename | Person already in SQLite | Do not stuff raw JSON into Person |
 | `resume.txt`, `resume_summary.txt` | profile text | **2** files | CandidateProfile / ResumeVersion | **NEEDS_TARGET_MODEL** | — | Used by historical scoring | R1 target concept |
@@ -412,9 +412,9 @@ Legacy `companies.track_status` (`watch` | `active` | `contacted` | `pass`) is a
 |---|---:|---|
 | **A** Linked to Vacancy | **320** distinct companies | Used in real funnel — **SUPPORTED_NOW** |
 | **B** Linked to Person only | **3** | OSINT contacts — **SUPPORTED_NOW** |
-| **C** Watch-only (no vac, no person) | **1043** (**1042** `watch`, **1022** with `employer_id`) | Employer watchlist / auto-sync candidates — **MANUAL_REVIEW** |
+| **C** Watch-only (no vac, no person) | **1043** (**1042** `watch`, **1022** with `employer_id`) | **DEFERRED** in first slice §23.1 — source preserved |
 
-**Recommendation:** first slice imports **323 referenced companies only**. Bulk import of **1043** watch-only rows is **not** auto-approved — many are exploratory HH employer tracking; migrating all would dominate Core with low funnel linkage.
+**Locked decision:** first slice imports **323 referenced companies only**. **1043** watch-only rows are **DEFERRED**, not DROP_INTENTIONALLY; legacy source unchanged.
 
 ---
 
@@ -427,10 +427,10 @@ Non-trivial mappings only. Trivial direct copies omitted.
 | Legacy field | Target field | Transform | Validation |
 |---|---|---|---|
 | `employer_id` | `external_id` | direct when non-empty | unique per `source` |
-| (no employer_id) | `external_id` | `legacy-company:{sqlite_id}` | |
+| (no employer_id) | `external_id` | `company-{sqlite_id}` | |
 | `name` | `name` | direct | max 255 |
 | `site_url` | `website_url` | direct URL | optional PUT if vacancy path skipped |
-| `source` (implicit) | `source` | `hh` if employer_id else `legacy` | matches Vacancy/Person import |
+| `source` (implicit) | `source` | `hh` if employer_id else `legacy_job_search` | §23.8 |
 | `track_status`, descriptions, HH counters | — | **omit** | no target columns |
 
 ### Vacancy (legacy `vacancies` with resolvable company)
@@ -438,22 +438,22 @@ Non-trivial mappings only. Trivial direct copies omitted.
 | Legacy field | Target field | Transform | Validation |
 |---|---|---|---|
 | URL `/vacancy/{id}` | `external_id` | capture HH id | 401 rows |
-| non-HH URL / bot link | `external_id` | `legacy-vacancy:{sqlite_id}` | 110 rows — **MANUAL_REVIEW** URL as `url` |
-| legacy `source` | `source` | map to `hh` if HH vacancy id else `legacy` | preserve provenance in external_id |
+| non-HH URL / bot link | `external_id` | `vacancy-{sqlite_id}` | 110 rows in slice |
+| legacy `source` | `source` | `hh` if HH vacancy id else `legacy_job_search` | §23.8 |
 | `company_id` | `company_id` | lookup imported Company UUID | 499 rows ready |
 | `title` | `title` | direct | |
 | `url` | `url` | direct (HttpUrl) | required |
 | description fields | `description` | none in SQLite — null or JSONL merge later | |
 | `status` | `status` | enum map §16 | |
 | `salary_*`, `cohort`, `relevance`, `notes` | — | **omit** (no target fields) | document in unmapped report |
-| `reason/risk/action` | `Assessment` | separate entity — not Vacancy columns in target | see embedded Assessment row |
+| `reason/risk/action` | — | **DEFERRED** embedded Assessment §23.1 | not Vacancy columns in target |
 
 ### Application
 
 | Legacy field | Target field | Transform | Validation |
 |---|---|---|---|
-| `id` | `external_id` | `legacy-application:{id}` | |
-| — | `source` | constant `legacy` | |
+| `id` | `external_id` | `application-{id}` | |
+| — | `source` | `legacy_job_search` | §23.8 |
 | `vacancy_id` | `vacancy_id` | map legacy → target UUID | |
 | `applied_at` | `applied_at` | parse ISO text → timestamptz | |
 | `result` | `result` | enum map §16; **NULL stays NULL** | optional outcome |
@@ -468,8 +468,8 @@ Non-trivial mappings only. Trivial direct copies omitted.
 |---|---|---|---|
 | `role` | `role` | direct enum | same values |
 | `status` | `status` | direct enum | `new`, `dropped` observed |
-| `source` | `source` | normalize slug (`company_site` → `legacy`) | max 64 |
-| `id` | `external_id` | `legacy-person:{id}` | |
+| `source` | `source` | normalize slug (`company_site` → `legacy_job_search`) | max 64 |
+| `id` | `external_id` | `person-{id}` | |
 | `hh_vacancy_id` | — | use for Vacancy lookup only | not stored on Person |
 | `confidence` | `confidence` | direct | 0–1 |
 
@@ -481,44 +481,36 @@ Non-trivial mappings only. Trivial direct copies omitted.
 | counter columns | same names | direct nullable ints | CHECK ≥ 0 |
 | `updated_at` | `updated_at` | parse timestamptz | |
 
-**Early rows (2025-08-29 …):** legacy `settings.search_start_date` = **`2026-06-04`**. Rows before that date are **resume view history**, not wrong data — include/exclude is a **product decision** (§21).
+**Early rows (2025-08-29 …):** legacy `settings.search_start_date` = **`2026-06-04`**. All **81** rows import per locked decision **§23.1** (pre-search metrics are valid historical data).
 
 ### Hypothesis
 
 | Legacy field | Target field | Transform | Validation |
 |---|---|---|---|
-| `id` | `external_id` | `legacy-hypothesis:{id}` | |
-| — | `source` | `legacy` | |
+| `id` | `external_id` | `hypothesis-{id}` | |
+| — | `source` | `legacy_job_search` | |
 | `status` | `status` | `active` → `active` | |
 | other text fields | direct | | |
 
-### Assessment (embedded columns, 16 rows)
+### Assessment (embedded columns, 16 rows) — DEFERRED §23.1
 
-| Legacy field | Target field | Transform | Validation |
-|---|---|---|---|
-| vacancy row | `vacancy_id` | mapped UUID | |
-| — | `source` | `legacy-board` | |
-| — | `external_id` | `legacy-board:vacancy:{sqlite_id}` | |
-| — | `relevance_score` | **MANUAL_REVIEW** — not stored in columns | need default or skip |
-| `reason`, `risk`, `action` | same | direct text | |
-| — | `verdict` | **MANUAL_REVIEW** — not in columns | derive from action text or default `maybe` |
-| — | `model`, `prompt_version` | constants in migration contract | DATA-00.3 |
+Not imported in first slice. No synthetic score, verdict, reason, action, or model metadata. Source SQLite columns remain authoritative until a future slice.
 
-**Note:** embedded rows lack score/verdict — **MANUAL_REVIEW** for minimal AssessmentCreate compliance unless DATA-00.3 allows synthetic defaults.
-
-### Assessment (JSONL category A, 20 HH ids)
+### Assessment (JSONL category A, ≤20 HH ids) — first slice only
 
 | Legacy JSONL | Target field | Transform | Validation |
 |---|---|---|---|
+| vacancy row | `vacancy_id` | mapped UUID via HH id | parent must exist |
+| — | `source` | `legacy_job_search_scoring` | §23.8 |
+| HH id | `external_id` | `{hh_vacancy_id}` | latest-only per HH §23.14 |
 | `score.score` | `relevance_score` | direct int 0–100 | |
 | `score.verdict` | `verdict` | direct | apply/maybe/skip |
 | `score.reasons[]` | `reason` | join bullets / newline | required |
-| `score.mismatches[]`, `strengths[]` | `risk` or append to `reason` | concat | rich text lossy |
+| `score.mismatches[]`, `strengths[]` | `risk` or append to `reason` | concat | rich text lossy → WARNING |
 | — | `action` | derive from verdict (§16) | required field |
 | `score.method` | `model` | `legacy:{method}` | JSONL has no `model` |
-| — | `prompt_version` | `legacy-import-v1` (contract) | not in source |
-| `score.scored_at` | `assessed_at` | parse ISO | |
-| HH id | `external_id` | `{hh_id}:{scored_at}` or latest-only | dedupe §17 |
+| — | `prompt_version` | `legacy_job_search:import` | honest provenance §23.14 |
+| `score.scored_at` | `assessed_at` | parse ISO | pick latest per HH |
 
 ---
 
@@ -543,7 +535,7 @@ Non-trivial mappings only. Trivial direct copies omitted.
 | Legacy | Target | Notes |
 |---|---|---|
 | `NULL` | `NULL` | **expected** — no outcome yet |
-| `автоответ` | **MANUAL_REVIEW** | closest: `reply`? | single row |
+| `автоответ` | `NULL` | **Owner locked §23.1.8** — not mapped to `reply`; report as legacy anomaly |
 
 ### Assessment verdict
 
@@ -557,7 +549,7 @@ JSONL / target: **direct** `apply` | `maybe` | `skip`.
 | `maybe` | `review` |
 | `skip` | `skip` |
 
-Finalize in DATA-00.3 safety contract.
+Finalize in **§23** (Assessment policy).
 
 ---
 
@@ -565,73 +557,63 @@ Finalize in DATA-00.3 safety contract.
 
 Uses **actual** Core constraints `(source, external_id)` and API idempotency headers.
 
-| Entity | Proposed `source` | Proposed `external_id` | Idempotency key prefix |
+**Namespace convention (locked §23.6):**
+
+| Case | `source` value |
+|---|---|
+| Real HH employer / vacancy ID | `hh` |
+| Legacy SQLite entities without HH ID | `legacy_job_search` |
+| JSONL assessments (cat. A) | `legacy_job_search_scoring` |
+
+| Entity | `source` | `external_id` | Idempotency key |
 |---|---|---|---|
-| Company (HH) | `hh` | `{employer_id}` | `migrate-company-hh-{employer_id}` |
-| Company (no employer) | `legacy` | `company-{sqlite_id}` | `migrate-company-{sqlite_id}` |
-| Vacancy (HH URL) | `hh` | `{hh_vacancy_id}` | `migrate-vacancy-hh-{hh_id}` |
-| Vacancy (other) | `legacy` | `vacancy-{sqlite_id}` | `migrate-vacancy-{sqlite_id}` |
-| Application | `legacy` | `application-{sqlite_id}` | `migrate-application-{sqlite_id}` |
-| Person | `legacy` | `person-{sqlite_id}` | `migrate-person-{sqlite_id}` |
-| Hypothesis | `legacy` | `hypothesis-{sqlite_id}` | `migrate-hypothesis-{sqlite_id}` |
-| Assessment (JSONL) | `legacy-scoring` | `{hh_vacancy_id}:{scored_at}` | same |
-| Assessment (embedded) | `legacy-board` | `vacancy-{sqlite_id}` | same |
-| DailyMetric | n/a (date PK) | date string | `migrate-metric-{date}` |
+| Company (HH) | `hh` | `{employer_id}` | `migrate-{run_id}-company-hh-{employer_id}` |
+| Company (no employer) | `legacy_job_search` | `company-{sqlite_id}` | `migrate-{run_id}-company-{sqlite_id}` |
+| Vacancy (HH URL) | `hh` | `{hh_vacancy_id}` | `migrate-{run_id}-vacancy-hh-{hh_id}` |
+| Vacancy (non-HH in slice) | `legacy_job_search` | `vacancy-{sqlite_id}` | `migrate-{run_id}-vacancy-{sqlite_id}` |
+| Application | `legacy_job_search` | `application-{sqlite_id}` | `migrate-{run_id}-application-{sqlite_id}` |
+| Person | `legacy_job_search` | `person-{sqlite_id}` | `migrate-{run_id}-person-{sqlite_id}` |
+| Hypothesis | `legacy_job_search` | `hypothesis-{sqlite_id}` | `migrate-{run_id}-hypothesis-{sqlite_id}` |
+| Assessment (JSONL cat. A, latest) | `legacy_job_search_scoring` | `{hh_vacancy_id}` | `migrate-{run_id}-assessment-hh-{hh_id}` |
+| DailyMetric | n/a | `metric_date` PK | `migrate-{run_id}-metric-{date}` |
 
-**Multi-score JSONL:** **134** HH ids have 2–4 score lines (**139** extra lines). Rule: import **latest `scored_at` per HH id** unless OWNER decides to keep history (would need distinct `external_id`s).
-
-**Legacy SQLite integer IDs:** encode in `external_id` — Core has no separate provenance column.
+**Multi-score JSONL:** first slice imports **latest `scored_at` only** per linked HH id; older rows = **DEFERRED HISTORICAL SCORING DATA** (§23.5), not DROP.
 
 ---
 
 ## 18. Migration dependency order
 
-Based on **target FK requirements**:
+Based on **target FK requirements** and locked first slice:
 
 ```text
-1. Companies (referenced subset: 323)
-2. Vacancies (499 with company_id; +12 after parent resolution)
-3. Applications (407)
-4. People (24)
-5. Assessments — embedded 16 + JSONL category A (after vacancies exist)
-6. Daily metrics (81) — independent, can parallelize after step 1
-7. Hypotheses (2) — independent
+Phase 1: Companies (323)
+Phase 2: Vacancies (499 with company_id)
+Phase 3: Applications (407), People (24)
+Phase 4: Assessments — JSONL cat. A latest only (≤20)
+Parallel-safe: DailyMetrics (81), Hypotheses (2)
 ```
 
-**Deferred / separate passes:**
-
-- Watch-only companies (1043) — after OWNER decision
-- JSONL category B vacancies + assessments (850) — after OWNER decision
-- Resume files — after CandidateProfile exists (R1)
-- Content / Telegram — after Content service
+**Deferred:** watch-only companies, 12 orphan vacancies, 850 off-DB scores, embedded 16, resume, Content/Telegram, historical score versions.
 
 ---
 
-## 19. First supported migration slice
+## 19. First supported migration slice — LOCKED
 
-Minimal **semantically coherent** import **without target schema changes**:
+Owner decisions locked in **§23**. Exact first-slice scope:
 
-| Step | Data | Count | Status |
-|---|---|---:|---|
-| 1 | Companies referenced by vacancies + people | **323** | SUPPORTED_NOW |
-| 2 | Vacancies with `company_id` | **499** | SUPPORTED_NOW |
-| 3 | Applications | **407** | SUPPORTED_NOW |
-| 4 | People | **24** | SUPPORTED_NOW |
-| 5 | Daily metrics | **81** (or subset per §21) | SUPPORTED_NOW |
-| 6 | Hypotheses | **2** | SUPPORTED_NOW |
-| 7a | Assessments from JSONL cat. **A** | **20** HH (latest line each) | SUPPORTED_NOW |
-| 7b | Assessments from embedded columns | **16** | SUPPORTED_NOW* |
+| Entity | Count | Notes |
+|---|---:|---|
+| Companies (referenced) | **323** | Parents for funnel + people |
+| Vacancies (with `company_id`) | **499** | No synthetic Company for orphans |
+| Applications | **407** | `автоответ` → `result=NULL` + report |
+| People | **24** | |
+| Assessments (JSONL cat. A, latest only) | **≤20** | One per linked HH vacancy |
+| Daily metrics | **81** | Includes 17 pre-2026-06-04 rows |
+| Hypotheses | **2** | |
 
-\*Embedded assessments need score/verdict defaults — **MANUAL_REVIEW** within slice (§15).
+**Excluded from first slice (DEFERRED, not DROP):** 1043 watch-only companies; 850 off-DB scored vacancies/assessments; 12 orphan vacancies; 16 embedded incomplete assessments; 139+ historical score lines; resume files; content_logs; telegram JSONL; OSINT raw; secrets/runtime; rebuildable queues.
 
-**Explicitly deferred from first slice:**
-
-- **1043** watch-only companies
-- **850** JSONL category B (off-DB vacancies + scores)
-- **12** vacancies without `company_id` (until parent strategy approved)
-- Resume files, Content logs, Telegram JSONL, OSINT raw JSON, settings, queues
-
-**Gate intent (preview):** funnel history (vacancies, applications, people, metrics, hypotheses) + linked assessments importable; unmapped report lists watchlist, off-DB scores, deferred models.
+**Gate intent (preview):** funnel history importable without schema changes; deferred datasets explicitly reported.
 
 ---
 
@@ -639,43 +621,334 @@ Minimal **semantically coherent** import **without target schema changes**:
 
 | Dataset | Status | Blocker |
 |---|---|---|
-| `resume.txt`, `resume_summary.txt` | NEEDS_TARGET_MODEL | CandidateProfile / ResumeVersion (R1) |
-| `content_logs`, Telegram artifacts | NEEDS_TARGET_MODEL | Content service not implemented |
-| Watch-only companies (1043) | MANUAL_REVIEW | Product scope |
-| JSONL category B (850 HH) | MANUAL_REVIEW | Product scope + import order |
-| 12 orphan vacancies | NEEDS_PARENT_ENTITY | Company required on Vacancy |
-| Embedded assessment score/verdict | MANUAL_REVIEW | Incomplete source fields |
+| `resume.txt`, `resume_summary.txt` | DEFERRED | CandidateProfile / ResumeVersion (R1) |
+| `content_logs`, Telegram artifacts | DEFERRED | Content service not implemented |
+| Watch-only companies (1043) | DEFERRED | §23.1 — not first slice |
+| JSONL category B (850 HH) | DEFERRED | R2 / PB-02–03 |
+| 12 orphan vacancies | DEFERRED | NEEDS_PARENT_ENTITY — no synthetic Company |
+| Embedded assessment (16 rows) | DEFERRED | §23.1 — incomplete fields |
+| Historical score lines (non-latest) | DEFERRED | §23.5 — scoring history |
 | Legacy `settings` | DROP_INTENTIONALLY | Not history |
 | Fetch queues, snapshots, secrets | REBUILDABLE / DROP | — |
 
 ---
 
-## 21. Decisions required before DATA-00.3
+## 21. Decisions — LOCKED in §23
 
-### OWNER DECISION REQUIRED
-
-1. **Watch-only companies (1043):** import all, import subset (e.g. `active` + relevance graded), or skip in first migration?
-2. **JSONL category B (850 HH vacancies with full payload):** import as new Vacancies + Assessments, or keep scores unmapped until user re-fetches?
-3. **12 vacancies without `company_id`:** synthesize Company from `company` text + bot URL, or skip?
-4. **Daily metrics before `2026-06-04`:** include 17 pre-search rows or trim to search window?
-5. **Multi-score JSONL (134 HH ids):** latest-only vs retain all score history?
-6. **Embedded 16 assessments:** acceptable default score/verdict for incomplete rows, or skip?
-7. **Content history (28 logs + Telegram):** defer entirely until Content service?
-
-### Resolved by inspection (no OWNER needed)
-
-- Application `result` NULL — valid optional field
-- Target Assessment exists — JSONL maps with lossy reason merge
-- Vacancy **cannot** exist without Company in target — confirmed NOT NULL FK
-- Category C scoring rows — **0** insufficient payloads
+Product-owner decisions required before DATA-00.3 are **locked** in **§23.1–§23.8** and **§23 Migration safety contract**. Section 21 historical questions are superseded.
 
 ---
 
-## 22. Next step
+## 22. Next step (historical)
 
-**PB-DATA-00.3 — Migration safety contract**
+Superseded by **§25**.
 
-Document: read-only source, backup, dry-run, idempotency, provenance encoding, failure/rerun, verification, unmapped report — before any importer code.
+---
+
+## 23. Migration safety contract
+
+Binding rules for DATA-00.4+ (dry-run / apply). **No importer code in DATA-00.3.**
+
+### 23.1 Locked owner decisions
+
+| # | Topic | Decision |
+|---|---|---|
+| 1 | **1043 watch-only companies** | **DEFER** — not in first slice; not DROP; source preserved |
+| 2 | **850 off-DB JSONL scores** | **DEFER** — no phantom Vacancies; JSONL remains authoritative; revisit R2/PB-02–03 |
+| 3 | **12 vacancies without Company** | **DEFER** — no synthetic/Unknown/Legacy Company for FK |
+| 4 | **Pre-search metrics** | **IMPORT all 81** DailyMetric rows |
+| 5 | **Multi-score history** | First slice: **latest valid score only**; older rows = **DEFERRED HISTORICAL SCORING DATA** |
+| 6 | **16 embedded assessments** | **DEFER** — no default score/verdict |
+| 7 | **Content / Telegram** | **DEFER** — NEEDS_TARGET_MODEL; no Content schema for migration |
+| 8 | **`автоответ` application result** | Import Application with **`result=NULL`**; anomaly in report; no schema dump field |
+
+### 23.2 First-slice scope (exact)
+
+```text
+323 Companies + 499 Vacancies + 407 Applications + 24 People
++ ≤20 Assessments (JSONL cat. A latest) + 81 DailyMetrics + 2 Hypotheses
+```
+
+Max planned Core rows (order of magnitude): **~1360** entity inserts (excluding idempotency replay).
+
+### 23.3 Source immutability
+
+**Legacy root:** `/data/Projects/job_search` — **READ-ONLY** for all migration modes.
+
+**Prohibited:**
+
+- SQLite writes, `PRAGMA` that mutates, legacy migrations, cleanup scripts
+- Writes to JSONL/artifacts; running legacy app paths that mutate `data/`
+- Browser/HH/scoring jobs against archive paths
+
+**Required access:** SQLite URI `file:…?mode=ro`; read-only file opens for artifacts.
+
+**Source fingerprint (mandatory per run):**
+
+| Artifact | Fingerprint |
+|---|---|
+| `data/job_search.db` | size + mtime + **SHA-256** |
+| `data/vacancy_scores.jsonl` | size + SHA-256 |
+| `docs/DATA_MIGRATION.md` | git commit SHA at run time (`mapping_version`) |
+
+**Integrity gate:** APPLY forbidden if source fingerprint ≠ dry-run fingerprint.
+
+Record fingerprints in run artifacts under workspace `backups/migration-runs/{run_id}/` (path convention; directory created at DATA-00.4).
+
+### 23.4 Target backup (before APPLY only)
+
+Workspace `make backup` is **not implemented yet** (README / ARCHITECTURE_PLAN). Until added, **mandatory manual backup** before APPLY:
+
+```bash
+docker compose exec -T postgres pg_dump -U job_search -d job_search -Fc \
+  > backups/migration-runs/{run_id}/target-pre-apply.dump
+```
+
+**Backed up:** PostgreSQL database `job_search` in volume `postgres-data` (all Core tables).
+
+**Success criteria:** non-zero dump file; `pg_restore --list` succeeds; operator records path in run manifest.
+
+**Not backed up in first slice:** scoring-state, hh volumes (unchanged by migration).
+
+**Rollback after successful commit:** restore this dump to a clean Postgres volume (documented procedure in DATA-00.6; not per-row undo).
+
+### 23.5 Migration run identity
+
+**Run ID format:** `migrate-YYYYMMDD-HHMMSS-{short_git}` (importer commit short SHA).
+
+Each run produces artifacts:
+
+```text
+backups/migration-runs/{run_id}/
+  manifest.json          # run metadata
+  source-fingerprint.json
+  dry-run-report.json    # required before apply
+  apply-report.json      # apply only
+  target-pre-apply.dump  # apply only
+```
+
+**Manifest links:** run_id, mode, mapping_version (DATA_MIGRATION git SHA), importer_version (git SHA), source fingerprint, target backup path (apply), started/finished timestamps.
+
+No new Core DB entity for run tracking.
+
+### 23.6 Dry-run is mandatory
+
+**Mutation** = any INSERT/UPDATE/DELETE/TRUNCATE on target PostgreSQL, Alembic upgrade, or Core API write that persists domain data.
+
+**Dry-run:** read source → transform → validate → resolve parents → emit planned operations report. **Zero target mutation.**
+
+Forbidden as “dry-run”: temporary test rows, rollback-by-hand experiments on production target DB.
+
+**APPLY preconditions:**
+
+1. Successful dry-run for same `{run_id}` scope config
+2. Identical source fingerprint
+3. Identical `mapping_version` + `importer_version`
+4. Target backup completed and verified
+5. Preflight validation pass (§23.15)
+
+### 23.7 Idempotency
+
+Identity = Core `(source, external_id)` — **not** target UUID.
+
+| Entity | Re-run behavior |
+|---|---|
+| Company, Vacancy, Application, Person, Hypothesis, Assessment | If `(source, external_id)` exists and payload **equivalent** → **NO-OP** (report `existing_equivalent`) |
+| Same key, different payload | **CONFLICT / FATAL** — stop slice |
+| DailyMetric | Same `metric_date` → **VERIFY equivalent**; non-equivalent → **CONFLICT** |
+| Idempotency-Key header equivalent | Importer uses deterministic `migrate-{run_id}-…` keys; **re-run with new run_id** must still dedupe via `(source, external_id)` |
+
+No blind upsert. No last-write-wins.
+
+### 23.8 Legacy identity namespace
+
+| `source` | When |
+|---|---|
+| `hh` | Canonical HH employer_id or HH vacancy_id |
+| `legacy_job_search` | SQLite-backed entities without HH external id |
+| `legacy_job_search_scoring` | Latest JSONL assessment per HH vacancy (cat. A) |
+
+`external_id` carries sqlite id or HH id — **not** ambiguous `legacy` alone.
+
+Future HH service sync must not collide: HH-native ids use `source=hh`; migration uses `legacy_job_search*` only for non-HH keys.
+
+### 23.9 FK / dependency contract
+
+**Import order (first slice):**
+
+```text
+Phase 1: Companies (323)
+Phase 2: Vacancies (499)
+Phase 3: Applications (407), People (24)
+Phase 4: Assessments (≤20, cat. A latest)
+Parallel-safe: DailyMetrics (81), Hypotheses (2)
+```
+
+If parent not in approved slice → **child skipped with FATAL** (should not occur after preflight).
+
+**Forbidden:** synthetic parent Company; NULL required FK; silent relink to “closest” company.
+
+### 23.10 Transaction boundaries
+
+First slice ≈ **1.3k rows** — fits single PostgreSQL transaction.
+
+**Recommendation:** one **Core SQLAlchemy Session**, one `session.commit()` at end of APPLY for phases 1–4 + metrics + hypotheses.
+
+**On any FATAL in APPLY:** `session.rollback()` — no partial funnel.
+
+DailyMetric/Hypothesis writes in same transaction to avoid half-migrated state.
+
+If importer later exceeds practical lock duration, split only at documented phase boundaries with explicit verification between commits (not needed for first slice).
+
+### 23.11 Target write path (recommendation)
+
+**Chosen:** dedicated **migration adapter** in workspace calling **Core application services** (`create_vacancy`, `create_application`, `create_person`, `create_assessment`, `set_daily_metric`, `create_hypothesis`) via shared SQLAlchemy `Session`.
+
+**Not chosen:**
+
+| Path | Reason |
+|---|---|
+| HTTP Core API | Harder to hold single transaction; slower; unnecessary network |
+| Raw PostgreSQL | Bypasses enum validation, fingerprints, domain invariants |
+| Direct ORM bypass everywhere | Duplicates service logic |
+
+**Company-only rows (3 people-parent companies):** use same upsert logic as `create_vacancy` Company branch (insert Company if missing) — **not** a new public API.
+
+Implementation location: future `scripts/migrate_legacy.py` or `services/core` migration CLI module (DATA-00.4 decision).
+
+### 23.12 Insert / update / conflict policy
+
+| Situation | Policy |
+|---|---|
+| `(source, external_id)` absent | Planned **INSERT** |
+| Present, byte-equivalent normalized payload | **NO-OP** |
+| Present, different normalized payload | **CONFLICT → FATAL** (stop run) |
+| Vacancy status on replay | **NO-OP** if already imported (do not mutate status on re-run unless explicit future rule) |
+
+Historical migration: **never silent UPDATE** of existing non-equivalent records.
+
+### 23.13 Enum / status failure policy
+
+**Complete known mappings:** §16 (Vacancy status, Person role/status, Assessment verdict, Hypothesis status).
+
+**Application result:** only `NULL` or mapped enum values; **`автоответ` → NULL** with `legacy_anomaly` report entry.
+
+**Unknown legacy enum/value:** **FATAL** for that entity; no silent coercion; no default enum.
+
+Preflight must validate 100% of slice rows map to known enums or explicit NULL rules before APPLY.
+
+### 23.14 Assessment migration policy (first slice)
+
+- **Only** JSONL category **A** (HH ids linked to imported Vacancies)
+- **One** assessment per HH id: **latest valid** by `scored_at`
+- **Exclude:** embedded 16; cat. B (850); historical non-latest score lines
+- **Fields:** `relevance_score`, `verdict`, joined `reasons[]`, optional `risk` from mismatches, `action` derived from verdict (§16)
+- **`model`:** `legacy:{method}` (honest provenance)
+- **`prompt_version`:** `legacy_job_search:import` — marks import provenance, **not** a real historical prompt version
+- **`external_id`:** `{hh_vacancy_id}` under `source=legacy_job_search_scoring`
+
+### 23.15 Preflight validation (before APPLY)
+
+All must pass:
+
+- Expected slice counts (323/499/407/24/81/2/≤20)
+- Unique `(source, external_id)` per entity type in plan
+- All parent UUIDs resolved
+- Enum mapping coverage
+- Required fields non-empty
+- Timestamps parse to UTC
+- Assessment score 0–100, verdict valid
+- No duplicate HH vacancy mapping ambiguity
+- Deferred datasets excluded from write plan
+- Source fingerprint match
+
+Failure → APPLY **does not start**.
+
+### 23.16 Error severity
+
+| Severity | When | Action |
+|---|---|---|
+| **FATAL** | Source fingerprint mismatch; backup failure; duplicate identity ambiguity; missing required parent in slice; unknown required enum; CONFLICT on existing non-equivalent row | Abort run; rollback if mid-APPLY |
+| **SKIP_WITH_REPORT** | Row outside first slice (deferred by design); already recorded in deferred inventory | No write; count in report |
+| **WARNING** | `автоответ` nulled; lossy merge of reasons/mismatches into Assessment text; nullable field absent | Proceed if preflight OK; must appear in report |
+
+Mapping failures are **never** WARNING-only.
+
+### 23.17 Migration report contract (DATA-00.4+)
+
+Each dry-run / apply produces **JSON** + short **Markdown summary**.
+
+Minimum fields:
+
+- `run_id`, `mode` (`DRY_RUN` | `APPLY`)
+- `source_fingerprint`, `mapping_version`, `importer_version`
+- `started_at`, `finished_at`, `status`
+- Per entity: `source_rows`, `eligible`, `planned_insert`, `existing_equivalent`, `conflict`, `deferred`, `skipped`, `applied`
+- `validation_errors[]`, `legacy_anomalies[]` (incl. `автоответ`)
+- `deferred_summary` (counts + reasons)
+- `target_backup_path` (apply only)
+
+### 23.18 Verification contract (DATA-00.6 preview)
+
+After APPLY:
+
+- Target counts match plan (`applied` totals)
+- Every planned `(source, external_id)` exists
+- FK samples: application→vacancy, vacancy→company, person→company/vacancy, assessment→vacancy
+- No duplicate `(source, external_id)` violations
+- Metrics: 81 dates present; hypotheses: 2
+- **Absence checks:** zero imported watch-only-only companies beyond 323; zero cat. B assessments; zero orphan vacancies
+- Representative record spot-checks (not only counts)
+
+### 23.19 Rollback policy
+
+| Phase | Policy |
+|---|---|
+| Before commit | SQLAlchemy `rollback()` — empty mutation |
+| After successful commit | Restore `target-pre-apply.dump` to Postgres volume |
+| Per-row reverse migration | **Not required** |
+
+Failed APPLY mid-transaction → automatic rollback; target unchanged.
+
+### 23.20 Deferred-data guarantee
+
+**DEFERRED ≠ DROPPED.**
+
+| Dataset | Source location | Count | Future milestone |
+|---|---|---:|---|
+| Watch-only companies | SQLite `companies` | 1043 | Optional later increment |
+| Off-DB JSONL vacancies/scores | `vacancy_scores.jsonl` | 850 HH | R2 / PB-02–03 |
+| Orphan vacancies | SQLite `vacancies` | 12 | After HH parent recovery |
+| Historical score lines | JSONL | 139+ extra lines | R2 scoring history |
+| Embedded incomplete assessments | SQLite columns | 16 | MANUAL_REVIEW / future |
+| Resume files | `data/resume*.txt` | 2 | R1 CandidateProfile |
+| Content / Telegram | SQLite + JSONL | 28 + 29 | Content service |
+
+Legacy source remains authoritative for all deferred data.
+
+---
+
+## 24. DATA-00.3 decisions
+
+| Decision | Outcome |
+|---|---|
+| Write path | Core application services via migration adapter + single Session |
+| Transaction | Single commit for first slice |
+| Source namespace | `hh` + `legacy_job_search` + `legacy_job_search_scoring` |
+| Dry-run | Mandatory; zero target mutation |
+| Backup | `pg_dump` to `backups/migration-runs/{run_id}/` before APPLY |
+| Idempotency | `(source, external_id)` equivalence NO-OP; conflict = FATAL |
+| Re-run safety | Same data + new run_id → NO-OP on existing equivalents |
+| Assessment history | Latest only in slice; rest DEFERRED |
+| Embedded assessments | Excluded from slice |
+
+---
+
+## 25. Next step
+
+**PB-DATA-00.4 — Dry-run implementation**
+
+Implement read-only importer producing `dry-run-report.json` per §23.17 without target mutation.
 
 ---
 
@@ -684,7 +957,7 @@ Document: read-only source, backup, dry-run, idempotency, provenance encoding, f
 | Category | HH ids | Score lines | Description | Mapping status |
 |---|---:|---:|---|---|
 | **A** Linked to SQLite vacancy | **20** | **21** | HH id exists in DB URL | Assessment **SUPPORTED_NOW** after Vacancy import |
-| **B** Off-DB, reconstructable payload | **850** | **988** | JSONL `vacancy` has title + description/URL | Vacancy + Assessment — **MANUAL_REVIEW** (product) |
+| **B** Off-DB, reconstructable payload | **850** | **988** | JSONL `vacancy` has title + description/URL | **DEFERRED** — R2 / PB-02–03 §23.1 |
 | **C** HH id only / insufficient | **0** | **0** | — | — |
 | **D** Malformed | **0** | **0** | — | — |
 
@@ -696,7 +969,7 @@ Document: read-only source, backup, dry-run, idempotency, provenance encoding, f
 |---|---|
 | Overlap same HH id in JSONL | **0 / 16** |
 | Interpretation | Separate **legacy board column** scoring generation, not duplicate of JSONL |
-| Precedence rule | **Do not merge silently** — embedded rows stand alone; JSONL separate |
+| Precedence rule | JSONL cat. A only in first slice; embedded 16 **DEFERRED** §23.1 |
 | If both existed for same vacancy | would be **MANUAL_REVIEW** — not observed |
 
 ---
