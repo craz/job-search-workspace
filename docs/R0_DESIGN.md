@@ -2,7 +2,7 @@
 
 **Product:** Job Search  
 **Roadmap stage:** R0 — Привести Web в рабочий визуальный вид  
-**Status:** T-UX-00.8 complete; next T-UX-00.9 (Gate R0 with product owner). Gate R0 — not closed.  
+**Status:** **PB-UX-00 CLOSED** — Gate R0 **ACCEPTED WITH NON-BLOCKING DEBT** (2026-08-22). R0 is no longer current implementation work.  
 **Source of product truth:** UJM v1 → Product Backlog → Roadmap v1
 
 ## 1. Цель R0
@@ -339,11 +339,15 @@ BDD: существующие функциональные сценарии до
 - acceptance: [`docs/R0_ACCEPTANCE.md`](R0_ACCEPTANCE.md) — **READY FOR GATE R0**;
 - screenshots: `docs/r0/screenshots/t-ux-00.8-ia5/`
 
-### T-UX-00.9. Gate R0
+### T-UX-00.9. Gate R0 — COMPLETE
 
-Закрыть Gate R0 с владельцем продукта.
+**2026-08-22:** Gate R0 **ACCEPTED WITH NON-BLOCKING DEBT** with product owner.
 
-Незакрытый конкретный legacy оформить отдельным DEBT-US только если он не блокирует R1.
+Accepted: Calm Dense Productivity, dark primary scheme, five-section IA, Assessment contextual to Vacancy, Web tests 37 passed @ `86f37cb`.
+
+Non-blocking debt (cursor-rule test, legacy naming, demo duplicates, housekeeping) — не reopen R0 без architecture blocker.
+
+Record: [`docs/R0_ACCEPTANCE.md`](R0_ACCEPTANCE.md).
 
 ## 7. Definition of Done / Gate R0
 
@@ -379,9 +383,13 @@ T-UX-00.7 system states                  ✓
     ↓
 T-UX-00.8 regression + visual review      ✓
     ↓
-T-UX-00.9 Gate R0 with product owner      ← NOW
+T-UX-00.9 Gate R0 with product owner      ✓
+    ↓
+revision ARCHITECTURE_PLAN.md + IMPLEMENTATION_PLAN.md
+    ↓
+PB-DATA-00 (legacy migration)             ← product next after plan revision
 ```
 
 Норматив: [`DESIGN.md`](../DESIGN.md). Acceptance: [`R0_ACCEPTANCE.md`](R0_ACCEPTANCE.md). Research: [`R0_DESIGN_REFERENCES.md`](R0_DESIGN_REFERENCES.md).
 
-Content/Telegram, browser HH apply, Scoring redesign и другие следующие направления не являются текущим next step.
+R0 closed. Следующая реализационная работа — не R0; см. Roadmap и revision планов.

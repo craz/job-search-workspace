@@ -1,8 +1,8 @@
 # Состояние проекта Job Search Multirepo
 
 **Дата снимка:** 2026-08-22 (UTC+3)  
-**Workspace HEAD:** `5afbcd6` (docs update for T-UX-00.8 pending commit)  
-**Web submodule HEAD:** `b65522d`  
+**Workspace HEAD:** `4148599b19412d49aa5328ec9ddfd19306b7c491`  
+**Web submodule HEAD:** `86f37cb2647a49eababba0189ba8df24565b51bc`  
 **HH submodule HEAD:** `1ec60bf`  
 **Ветка:** `main` (workspace ahead of origin; push только по явному запросу)
 
@@ -21,96 +21,79 @@
 | OSINT (website / people → Core) | в основном готово |
 | HH read-path | **read-ready** |
 | HH write-path (API) | код dual-gate готов; **production API apply заблокирован scope HH-приложения** |
-| Content / Telegram §8 | не начат |
+| Content / Telegram §8 | не начат (submodule stub) |
 | Сквозная сборка §9 / Hermes §10 | не закрыты |
-| R0 / PB-UX-00 Web redesign | **T-UX-00.8 complete (incl. IA correction) → Gate R0 pending** |
+| **R0 / PB-UX-00 Web redesign** | **CLOSED — Gate R0 ACCEPTED WITH NON-BLOCKING DEBT (2026-08-22)** |
 
-**Главный продуктовый next:** **T-UX-00.9** — Gate R0 with product owner.  
-**Текущий task:** T-UX-00.8 complete — regression, visual review, **IA correction** (Assessments removed from top-level nav; contextual in Vacancy). Gate R0 **не закрыт** агентом.
+**Gate R0:** **ACCEPTED WITH NON-BLOCKING DEBT** (product owner, 2026-08-22).  
+**PB-UX-00:** **CLOSED** (T-UX-00.1 … T-UX-00.9 complete).  
+**R0** больше не является текущей реализационной работой.
 
-Артефакты направления:
-- [`DESIGN.md`](DESIGN.md) — normative visual system
-- [`docs/R0_ACCEPTANCE.md`](docs/R0_ACCEPTANCE.md) — T-UX-00.8 acceptance (**READY FOR GATE R0**; five-section IA)
-- [`docs/R0_DESIGN_REFERENCES.md`](docs/R0_DESIGN_REFERENCES.md) — сравнение референсов  
-- [`docs/R0_UI_AUDIT.md`](docs/R0_UI_AUDIT.md) — audit  
-- Screenshots: `docs/r0/screenshots/t-ux-00.6-dark/`, `t-ux-00.7/`, `t-ux-00.8-ia5/`
-- Web: `services/web/src/job_search_web/static/{index.html,styles.css,app.js}` @ `b65522d` (+ IA5 uncommitted)
+**Главный продуктовый next (после revision планов):** **PB-DATA-00** — миграция
+данных `job_search` → `job_search_ref`, затем **R1** (HH connection + active resume).
 
-Content/Telegram, browser HH apply, Scoring redesign и дальнейшее service-driven
-развитие по старой очереди `IMPLEMENTATION_PLAN.md` **сейчас не являются next
-step**.
+Артефакты R0:
+- [`DESIGN.md`](DESIGN.md) — normative visual system (Calm Dense Productivity, dark primary)
+- [`docs/R0_ACCEPTANCE.md`](docs/R0_ACCEPTANCE.md) — Gate R0 acceptance record
+- [`docs/R0_DESIGN.md`](docs/R0_DESIGN.md) — PB-UX-00 closed
+- Screenshots: `docs/r0/screenshots/t-ux-00.8-ia5/`
+- Web: `services/web/.../static/` @ `86f37cb`
+
+Content/Telegram, browser HH apply, Scoring redesign и service-driven развитие по
+старой очереди `IMPLEMENTATION_PLAN.md` **не являются immediate next** до revision
+планов и PB-DATA-00.
+
+## Gate R0 — accepted state (2026-08-22)
+
+- Calm Dense Productivity; primary R0 scheme: **dark**
+- **5 top-level workspaces:** Vacancies, Journal, Metrics, People, Hypotheses
+- Assessment / ScoringResult — **contextual to Vacancy**, not standalone workspace
+- Web tests: **37 passed** @ Web `86f37cb`
+- Gate has **no blockers**
+
+**Known non-blocking debt** (не reopen R0 без architecture blocker):
+- workspace cursor-rule test involving `12-no-choice-menus.mdc`;
+- legacy naming (`panel-eyebrow`, metrics class naming);
+- duplicate smoke/demo Core data;
+- repository housekeeping / old untracked R0 artifacts (`t-ux-00.8-final/`, `review2/`, prompts).
+
 ## По этапам плана
 
 ### 0–2. Workspace, inventory, каркасы
 
 - Multirepo + submodules + bootstrap/doctor — работают.
 - Inventory исходного `/data/Projects/job_search` зафиксирован.
-- Продуктовые репозитории существуют; эталон качества — Core.
+- Продуктовые реpositories существуют; эталон качества — Core.
 
 ### 3. Core
 
-- PostgreSQL/Alembic, Company/Vacancy/Application/metrics/people — в работе как
-  публичный HTTP/JSON API.
+- PostgreSQL/Alembic, Company/Vacancy/Application/metrics/people/hypotheses/assessments — публичный HTTP/JSON API.
 - Consumers ходят только через контракты, без shared DB.
 
 ### 4. Web
 
-- HTTP-only Core consumer, UI подтверждений OSINT/people — готово как MVP.
+- HTTP-only Core consumer; OSINT research view; R0 IA и visual system приняты Gate R0.
 
 ### 5. HH — подробно
 
-**Read-ready (подтверждено recreate-gate):**  
-`docs` → `services/hh/docs/runbooks/hh-read-gate.md`.
+**Read-ready:** `services/hh/docs/runbooks/hh-read-gate.md`.
 
-Сделано:
-
-1. Chromium / Playwright / noVNC в HH image; Compose loopback noVNC `127.0.0.1:6080`.
-2. Volumes `hh-state` / `hh-profile` + profile lock.
-3. Operator login: `auth open-login` / `confirm` / `clear`; `login_ready`.
-4. Vacancies sync (public API или fixture) → Core.
-5. Applications/metrics: fixture + live GET `/negotiations`; metrics +=
-   `/resumes/mine` (403 → fallback).
-6. OAuth: `oauth-url` / `exchange-code` / `set-token` / `token-status` /
-   `oauth-acquire` (loopback; default publish `127.0.0.1:8767`, зарегистрированный
-   в архиве redirect — `http://127.0.0.1:8765/callback`).
-7. Dry-run apply без HH write.
-8. Limited apply: dual-gate
-   (`JOB_SEARCH_HH_EXTERNAL_WRITES_ENABLED` + `--i-authorize-hh-writes`) +
-   `login_ready`/token → `HttpApplyTransport` POST `/negotiations`;
-   captcha/403/429 → `stopped_captcha`. Compose default: writes **off**.
-
-Runtime / секреты (без значений в git):
-
-- Приватный `services/hh/.env` импортирован из архива `job_search/.env`
-  (client id/secret, UA email, redirect, proxy).
-- Токен обновлён с хоста через proxy `127.0.0.1:2080`; в контейнере proxy
-  должен идти на `host.docker.internal:2080` (`extra_hosts` в Compose).
-- Compose: `env_file: ./services/hh/.env`.
-
-Блокер production API apply (факт проверки 2026-08-21):
-
-- `GET /me` → 200 (applicant token живой).
-- `GET /negotiations`, `GET /resumes/mine` → **403 forbidden** для текущего
-  HH-приложения (не хватает applicant API scope).
-- В архиве отклики/просмотры шли через browser scrape именно поэтому.
-- Значит dual-gated API POST тоже упрётся в scope, пока приложение не расширят
-  на dev.hh.ru **или** не появится browser apply transport.
+**Production API apply blocker:** `GET /negotiations`, `GET /resumes/mine` → **403**
+для текущего HH-приложения; browser apply transport не реализован.
 
 ### 6. Scoring
 
-- Очередь, host Ollama, Assessment → Core, model CLI — базовый pipeline есть.
+- JSON queue, host Ollama, Assessment → Core — базовый pipeline есть; R2 redesign deferred.
 
 ### 7. OSINT
 
-- Website / mirrors / people research / confirm → Core — сделано; provenance
-  confidence — частично.
+- Website / mirrors / people research / confirm → Core; manual/on-demand triggers.
 
 ### 8–11. Ещё впереди
 
-- §8 Content + Telegram (draft/preview/fake → real publish с OK).
+- §8 Content + Telegram — stub submodule, не в compose.
 - §9 Compose E2E / backup / doctor расширения.
-- §10 Hermes compatibility (CLI contracts only).
-- §11 отдельный `job-search-hermes` — отложен.
+- §10 Hermes compatibility — отложен.
 
 ## Локальный runtime (ориентир)
 
@@ -119,18 +102,15 @@ Runtime / секреты (без значений в git):
 | Core | `127.0.0.1:18000` |
 | Web | `127.0.0.1:18080` |
 | HH noVNC | `127.0.0.1:6080` |
-| HH OAuth publish | `127.0.0.1:8767` (контейнер); архивный redirect app — `:8765/callback` |
-| Host HH proxy | `127.0.0.1:2080` (нужен для API с этой сети) |
+| HH OAuth publish | `127.0.0.1:8767` |
+| Host Ollama | `127.0.0.1:11434` |
 
 Не коммитить: `services/hh/.env`, `services/hh/.local/**`, токены, cookies, profile.
 
 ## Решение по «го» / blockers
 
-- **«Го»** = **T-UX-00.9** Gate R0 with product owner, или если скажешь явно другую задачу.
-- Content/Telegram, browser HH apply, Scoring redesign — только по явной фразе,
-  не default.
-- **«OK на HH writes» уже дан**, но API-path сейчас бессмысленен без scopes /
-  browser transport (не текущий next).
+- **«Го»** после revision планов = **PB-DATA-00** (миграция legacy data), или явная альтернатива пользователя.
+- R1/R2+ — только после PB-DATA-00 и revision `IMPLEMENTATION_PLAN.md`.
 - Push/PR — только по явной просьбе.
 
 ## Как обновлять этот файл
@@ -139,5 +119,4 @@ Runtime / секреты (без значений в git):
 
 1. Обновить дату и HEAD SHA.
 2. Поправить таблицу вердикта и блок HH/блокеров по факту.
-3. Держать блок «Главный продуктовый next» / текущий task согласованным с
-   [`docs/R0_DESIGN.md`](docs/R0_DESIGN.md), пока активен R0.
+3. Держать «Главный продуктовый next» согласованным с Roadmap и `ARCHITECTURE_PLAN.md`.
