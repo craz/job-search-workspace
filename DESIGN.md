@@ -240,6 +240,10 @@ States:
 | Disabled | Reduced opacity + `not-allowed`; not look like ready primary |
 | Processing | Disabled + progress cue (spinner or «…» label); keep width stable |
 
+**Implementation (T-UX-00.4):** Web static CSS defines `.btn` (+ `--primary|secondary|ghost|destructive`),
+`.field` / `.control`, `.badge` (+ semantic variants), `.surface`, `.list-row`, `.dialog__*`.
+Legacy class names remain as aliases until screen migration (T-UX-00.6).
+
 Row actions (apply, research, confirm) use **secondary/ghost**, not a second «primary» look. Hypothesis «close» in-row = secondary, not header primary styling.
 
 ---
