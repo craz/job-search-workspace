@@ -109,7 +109,7 @@ Content/Telegram, browser HH apply и Scoring foundation **не являются
 
 ## Решение по «го» / blockers
 
-- **«Го»** = **PB-DATA-00.5** backup + APPLY, или явная альтернатива пользователя.
+- **«Го»** = **PB-DATA-00.6** final migration verification, или явная альтернатива пользователя.
 - R1+ — после Gate PB-DATA-00 (или documented PO waiver).
 
 ## Как обновлять этот файл
