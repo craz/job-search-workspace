@@ -2,7 +2,7 @@
 
 **Product:** Job Search  
 **Roadmap stage:** R0 — Привести Web в рабочий визуальный вид  
-**Status:** T-UX-00.6 done; next T-UX-00.7 (system states)  
+**Status:** T-UX-00.6 implementation complete; visual review corrections applied (review2 screenshots). Next T-UX-00.7 (system states). Gate visual acceptance — not declared.  
 **Source of product truth:** UJM v1 → Product Backlog → Roadmap v1
 
 ## 1. Цель R0
@@ -315,6 +315,7 @@ BDD: существующие функциональные сценарии до
 - domain statuses через `.badge` (vacancy, person, hypothesis, assessment verdict);
 - row actions — `.btn--secondary` / `.btn--ghost`; section CTA — `.btn--primary`;
 - удалены legacy card/grid CSS и unused button aliases;
+- **visual review (post-migration):** исправлены proportions `.list-row` (primary flexible + trailing auto); section counts отделены от заголовков; убрана prototype numbering в toolbars; Journal date compact; Assessments disclosure inline в trailing row;
 - **остаётся legacy:** `.state-card`, `.notice`, `.loader` (T-UX-00.7).
 
 ### T-UX-00.7. System states

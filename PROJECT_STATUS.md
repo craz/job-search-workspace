@@ -25,7 +25,7 @@
 | R0 / PB-UX-00 Web redesign | **в работе** |
 
 **Главный продуктовый next:** R0 / PB-UX-00 — базовый редизайн Web.  
-**Текущий task:** T-UX-00.6 завершён → next **T-UX-00.7** (system states).
+**Текущий task:** T-UX-00.6 — implementation complete, visual review corrections applied → next **T-UX-00.7** (system states). Gate visual acceptance не объявлен.
 
 Артефакты направления:
 - [`DESIGN.md`](DESIGN.md) — normative visual system (+ navigation T-UX-00.5, screen migration T-UX-00.6)

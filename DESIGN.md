@@ -306,6 +306,7 @@ Default collection UI.
 | Primary info | Left: title (vacancy/person/…) |
 | Secondary | Under or beside: company, next action, metric |
 | Metadata | Right or trailing: source, dates, badges, score |
+| Row grid | Default **two columns**: flexible primary (`minmax(0, 1fr)`) + content-sized trailing (`auto`); optional leading column only when needed (e.g. Journal date via `.list-row--with-leading`). Avoid fixed middle columns that leave empty space between identity and actions. |
 | Actions | Trailing ghost/secondary; selects stay compact |
 | Hover | Subtle surface change |
 | Selected | Optional stronger border/bg when multi-select appears later; R0 may skip selection |
