@@ -31,12 +31,72 @@ def extract_hh_vacancy_id(url: str | None) -> str | None:
 
 
 def vacancy_has_importable_url(row: dict[str, Any], *, people_hh_vacancy_id: str | None = None) -> bool:
-    """Return True when a real or reconstructable vacancy URL exists in source."""
-    if _blank_to_none(row.get("url")):
+    """Return True when a real or reconstructable vacancy URL exists in source.
+
+    Policy:
+    - vacancy URL is valid only if it is a vacancy/listing URL (not employer/company profile pages),
+      and not the legacy synthetic placeholder domain.
+    - If a trusted HH vacancy id exists in `people.hh_vacancy_id`, we accept reconstruction.
+    """
+    return vacancy_has_importable_url_strict(
+        row,
+        people_hh_vacancy_id=people_hh_vacancy_id,
+        company_hh_url=None,
+    )
+
+
+def _normalize_url(url: str) -> str:
+    value = url.strip()
+    scheme, rest = value.split("://", 1) if "://" in value else ("", value)
+    scheme = scheme.lower()
+    host_path = rest
+    if scheme:
+        host_path = rest
+    else:
+        host_path = rest
+    if "/" in host_path:
+        host, path = host_path.split("/", 1)
+        path = "/" + path
+    else:
+        host, path = host_path, ""
+    host = host.lower()
+    path = path.rstrip("/")
+    return f"{scheme + '://' if scheme else ''}{host}{path}"
+
+
+_PLACEHOLDER_DOMAIN = "legacy.job-search.invalid"
+_HH_EMPLOYER_URL_RE = re.compile(r"^https?://[^/]*hh\.ru/employer/\d+/?$", re.IGNORECASE)
+
+
+def vacancy_has_importable_url_strict(
+    row: dict[str, Any],
+    *,
+    people_hh_vacancy_id: str | None = None,
+    company_hh_url: str | None = None,
+) -> bool:
+    """Strict vacancy URL importability check (used by DATA-00.6 remediation)."""
+    trusted_hh_id = _blank_to_none(people_hh_vacancy_id)
+    if trusted_hh_id:
         return True
-    if people_hh_vacancy_id:
-        return True
-    return False
+
+    direct = _blank_to_none(row.get("url"))
+    if not direct:
+        return False
+
+    norm_direct = _normalize_url(direct)
+
+    if _PLACEHOLDER_DOMAIN in norm_direct:
+        return False
+
+    if _HH_EMPLOYER_URL_RE.match(norm_direct):
+        return False
+
+    if company_hh_url:
+        norm_company = _normalize_url(company_hh_url)
+        if norm_company == norm_direct:
+            return False
+
+    return True
 
 
 def _blank_to_none(value: str | None) -> str | None:
@@ -78,6 +138,8 @@ def load_legacy_snapshot(legacy_root: Path) -> LegacySnapshot:
     with _connect_readonly(db_path) as connection:
         tables = _load_sqlite_tables(connection)
 
+    company_by_id = {row["id"]: row for row in tables["companies"]}
+
     referenced_company_ids = {
         row["company_id"]
         for row in tables["vacancies"]
@@ -97,17 +159,19 @@ def load_legacy_snapshot(legacy_root: Path) -> LegacySnapshot:
     vacancies = [
         row
         for row in with_company
-        if vacancy_has_importable_url(
+        if vacancy_has_importable_url_strict(
             row,
             people_hh_vacancy_id=people_hh_by_vacancy_id.get(int(row["id"])),
+            company_hh_url=_blank_to_none(company_by_id[int(row["company_id"])].get("hh_url")),
         )
     ]
     vacancies_missing_url = [
         row
         for row in with_company
-        if not vacancy_has_importable_url(
+        if not vacancy_has_importable_url_strict(
             row,
             people_hh_vacancy_id=people_hh_by_vacancy_id.get(int(row["id"])),
+            company_hh_url=_blank_to_none(company_by_id[int(row["company_id"])].get("hh_url")),
         )
     ]
     orphan_vacancies = [row for row in tables["vacancies"] if row.get("company_id") is None]

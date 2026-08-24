@@ -69,7 +69,11 @@ def transform_vacancies(snapshot: LegacySnapshot) -> list[PlannedRecord]:
         status = row.get("status") or "found"
         if status not in VACANCY_STATUS_MAP:
             raise ValueError(f"unknown vacancy status: {status}")
-        url, url_warnings = resolve_vacancy_url(row, people_hh_vacancy_id=people_hh)
+        url, url_warnings = resolve_vacancy_url(
+            row,
+            people_hh_vacancy_id=people_hh,
+            company_hh_url=_blank_to_none(company_row.get("hh_url")),
+        )
         if url is None:
             raise ValueError(f"vacancy {row['id']} reached transform without reconstructable URL")
         records.append(
@@ -137,7 +141,10 @@ def transform_applications(
     vacancy_by_id = {row["id"]: row for row in snapshot.vacancies}
     records: list[PlannedRecord] = []
     for row in snapshot.applications:
-        vacancy_row = vacancy_by_id[row["vacancy_id"]]
+        vacancy_row = vacancy_by_id.get(row["vacancy_id"])
+        if vacancy_row is None:
+            # Vacancy URL becomes deferred (missing/invalid vacancy URL semantics) -> application cannot be imported.
+            continue
         people_hh = snapshot.people_hh_by_vacancy_id.get(int(vacancy_row["id"]))
         parent = vacancy_identity(vacancy_row, people_hh_vacancy_id=people_hh)
         identity = SourceIdentity(
@@ -217,10 +224,12 @@ def transform_people(snapshot: LegacySnapshot) -> list[PlannedRecord]:
         vacancy_parent = None
         if row.get("vacancy_id") is not None:
             vacancy_row = vacancy_by_id.get(row["vacancy_id"])
-            if vacancy_row is not None:
-                people_hh = snapshot.people_hh_by_vacancy_id.get(int(vacancy_row["id"]))
-                vac = vacancy_identity(vacancy_row, people_hh_vacancy_id=people_hh)
-                vacancy_parent = ParentIdentity("vacancies", vac.source or SOURCE_LEGACY, vac.external_id)
+            if vacancy_row is None:
+                # Vacancy became deferred/invalid under DATA-00.6 policy -> do not import vacancy-linked person.
+                continue
+            people_hh = snapshot.people_hh_by_vacancy_id.get(int(vacancy_row["id"]))
+            vac = vacancy_identity(vacancy_row, people_hh_vacancy_id=people_hh)
+            vacancy_parent = ParentIdentity("vacancies", vac.source or SOURCE_LEGACY, vac.external_id)
         records.append(
             PlannedRecord(
                 entity_type="people",

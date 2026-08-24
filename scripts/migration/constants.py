@@ -24,12 +24,12 @@ LOCKED_SOURCE_FINGERPRINTS: dict[str, str] = {
     "vacancy_scores_jsonl": "e21e18f96dff58c9817a8826c7d477837fa255cf0b9022a48992295c3f3922b2",
 }
 
-EXPECTED_PLANNED_INSERTS_TOTAL = 1308
+EXPECTED_PLANNED_INSERTS_TOTAL = 1263
 
 EXPECTED_ELIGIBLE_COUNTS: dict[str, int] = {
     "companies": 323,
-    "vacancies": 452,  # 499 with company_id minus 47 company_track rows without reconstructable vacancy URL
-    "applications": 407,
+    "vacancies": 408,  # 499 with company_id minus 91 vacancies_missing_url under DATA-00.6 policy
+    "applications": 406,
     "people": 24,
     "daily_metrics": 81,
     "hypotheses": 2,
@@ -38,7 +38,7 @@ EXPECTED_ELIGIBLE_COUNTS: dict[str, int] = {
 EXPECTED_DEFERRED_COUNTS: dict[str, int] = {
     "watch_only_companies": 1043,
     "orphan_vacancies": 12,
-    "vacancies_missing_url": 47,
+    "vacancies_missing_url": 91,
     "embedded_assessments": 16,
     "off_db_scored_vacancies": 850,
 }

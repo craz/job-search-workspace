@@ -94,8 +94,8 @@ class LegacySourceIntegrationTests(unittest.TestCase):
         snapshot = load_legacy_snapshot(LEGACY_ROOT)
         self.assertEqual(snapshot.source_counts["companies_referenced"], 323)
         self.assertEqual(snapshot.source_counts["vacancies_with_company"], 499)
-        self.assertEqual(snapshot.source_counts["vacancies_eligible"], 452)
-        self.assertEqual(len(snapshot.vacancies_missing_url), 47)
+        self.assertEqual(snapshot.source_counts["vacancies_eligible"], 408)
+        self.assertEqual(len(snapshot.vacancies_missing_url), 91)
         self.assertEqual(snapshot.source_counts["vacancies_without_company"], 12)
         self.assertEqual(snapshot.source_counts["applications"], 407)
         self.assertEqual(len(snapshot.watch_only_companies), 1043)
@@ -108,7 +108,7 @@ class LegacySourceIntegrationTests(unittest.TestCase):
         companies = transform_companies(snapshot)
         vacancies = transform_vacancies(snapshot)
         self.assertEqual(len(companies), 323)
-        self.assertEqual(len(vacancies), 452)
+        self.assertEqual(len(vacancies), 408)
         self.assertTrue(any(item.identity.source == "hh" for item in companies))
         self.assertTrue(any(item.identity.source == SOURCE_LEGACY for item in vacancies))
 
@@ -160,7 +160,7 @@ class LegacySourceIntegrationTests(unittest.TestCase):
         planned_ids = {item.identity.legacy_key for item in planned}
         for row in snapshot.vacancies_missing_url:
             self.assertNotIn(f"vacancy:{row['id']}", planned_ids)
-        self.assertEqual(len(snapshot.vacancies_missing_url), 47)
+        self.assertEqual(len(snapshot.vacancies_missing_url), 91)
 
 
 @unittest.skipUnless(LEGACY_ROOT.joinpath("data/job_search.db").exists(), "legacy source unavailable")
@@ -185,6 +185,24 @@ class VacancyUrlPolicyTests(unittest.TestCase):
         url, warnings = resolve_vacancy_url(row, people_hh_vacancy_id="134532490")
         self.assertEqual(url, "https://hh.ru/vacancy/134532490")
         self.assertEqual(warnings, ["reconstructed_from_hh_vacancy_id"])
+
+    def test_vacancy_url_equals_company_hh_url_is_deferred(self) -> None:
+        # Short company profile links (my.hh.ru/b/...) are employer/company pages, not vacancy URLs.
+        company_hh_url = "https://my.hh.ru/b/1kic4ke/"
+        row = {"id": 1, "url": "https://my.hh.ru/b/1kic4ke"}
+        url, warnings = resolve_vacancy_url(
+            row,
+            people_hh_vacancy_id=None,
+            company_hh_url=company_hh_url,
+        )
+        self.assertIsNone(url)
+        self.assertEqual(warnings, ["vacancy_url_equals_company_hh_url"])
+
+    def test_hh_employer_page_is_not_vacancy_url(self) -> None:
+        row = {"id": 2, "url": "https://hh.ru/employer/12345"}
+        url, warnings = resolve_vacancy_url(row, people_hh_vacancy_id=None, company_hh_url=None)
+        self.assertIsNone(url)
+        self.assertEqual(warnings, ["employer_page_rejected"])
 
     def test_existing_vacancy_url_is_preserved(self) -> None:
         row = {"id": 1, "url": "https://hh.ru/vacancy/12345"}
@@ -264,7 +282,7 @@ class MigrationDryRunBehaviorTests(unittest.TestCase):
             report = json.loads((run_dir / "dry-run-report.json").read_text(encoding="utf-8"))
             self.assertEqual(report["mode"], "DRY_RUN")
             self.assertEqual(report["counts"]["companies"]["eligible"], 323)
-            self.assertEqual(report["counts"]["vacancies"]["eligible"], 452)
+            self.assertEqual(report["counts"]["vacancies"]["eligible"], 408)
             self.assertEqual(report["counts"]["assessments"]["eligible"], 19)
             self.assertIn(PROMPT_VERSION_SENTINEL, "\n".join(report["notes"]))
             self.assertTrue(success)
@@ -298,7 +316,7 @@ class MigrationApplyBehaviorTests(unittest.TestCase):
             report = json.loads((run_dir / "apply-report.json").read_text(encoding="utf-8"))
             self.assertEqual(report["transaction_result"], "committed")
             inserted_total = sum(values["inserted"] for values in report["applied"].values())
-            self.assertEqual(inserted_total, 1308)
+            self.assertEqual(inserted_total, 1263)
 
     def test_post_apply_dry_run_is_idempotent(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -331,7 +349,7 @@ class MigrationApplyBehaviorTests(unittest.TestCase):
             report = json.loads(list((output / "post").glob("*/dry-run-report.json"))[0].read_text(encoding="utf-8"))
             ops = report["operations_summary"]
             self.assertEqual(ops.get("PLANNED_INSERT", 0), 0)
-            self.assertEqual(ops.get("EXISTING_EQUIVALENT", 0), 1308)
+            self.assertEqual(ops.get("EXISTING_EQUIVALENT", 0), 1263)
             self.assertEqual(ops.get("CONFLICT", 0), 0)
 
 
