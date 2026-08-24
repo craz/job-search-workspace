@@ -1,7 +1,7 @@
 # Состояние проекта Job Search Multirepo
 
 **Дата снимка:** 2026-08-24 (UTC+3)  
-**Workspace HEAD:** (см. git)  
+**Workspace HEAD:** `9a5df0b` (DATA-00.7 close; isolation `006303c`)  
 **Web submodule HEAD:** `86f37cb2647a49eababba0189ba8df24565b51bc`  
 **HH submodule HEAD:** `1ec60bf`  
 **Ветка:** `main`
@@ -24,14 +24,15 @@
 | Content / Telegram §8 | не начат (submodule stub) |
 | Сквозная сборка §9 / Hermes §10 | не закрыты |
 | **Plan revisions** | **ARCHITECTURE_PLAN rev. 2** · **IMPLEMENTATION_PLAN rev. 2** |
-| **PB-DATA-00** | **DATA-00.6 PASS · DATA-00.7 IN PROGRESS · GATE OPEN** |
+| **PB-DATA-00** | **COMPLETE — Gate CLOSED** (one-time owner bootstrap isolated) |
 | **R0 / PB-UX-00 Web redesign** | **CLOSED — Gate R0 ACCEPTED WITH NON-BLOCKING DEBT (2026-08-22)** |
 
 **Gate R0:** **ACCEPTED WITH NON-BLOCKING DEBT** (product owner, 2026-08-22).  
 **PB-UX-00:** **CLOSED** (T-UX-00.1 … T-UX-00.9 complete).  
+**Gate PB-DATA-00:** **CLOSED** (DATA-00.1–00.7).  
 **R0** больше не является текущей реализационной работой.
 
-**Главный продуктовый next:** **DATA-00.7** isolation + clean-clone acceptance.  
+**Главный продуктовый next:** **R1 / PB-00** — HH connection/session, profile, resume list, active resume, local linkage, recovery states → Gate R1.  
 Initial owner legacy data bootstrap completed before R1; it is not a product feature.
 
 Артефакты R0:
@@ -109,8 +110,7 @@ Content/Telegram, browser HH apply и Scoring foundation **не являются
 
 ## Решение по «го» / blockers
 
-- **«Го»** = завершение DATA-00.7 (isolation + clean-clone), или явная альтернатива пользователя.
-- R1 / PB-00 — после Gate PB-DATA-00.
+- **«Го»** = **R1 / PB-00** decomposition (HH connection → active resume → Gate R1), или явная альтернатива пользователя.
 
 ## Как обновлять этот файл
 
