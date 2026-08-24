@@ -387,7 +387,7 @@ T-UX-00.9 Gate R0 with product owner      ✓
     ↓
 revision ARCHITECTURE_PLAN.md + IMPLEMENTATION_PLAN.md
     ↓
-PB-DATA-00 (legacy migration)             ← product next after plan revision
+PB-DATA-00 (one-time owner bootstrap; completed and isolated)
 ```
 
 Норматив: [`DESIGN.md`](../DESIGN.md). Acceptance: [`R0_ACCEPTANCE.md`](R0_ACCEPTANCE.md). Research: [`R0_DESIGN_REFERENCES.md`](R0_DESIGN_REFERENCES.md).

@@ -1,7 +1,7 @@
 # Состояние проекта Job Search Multirepo
 
-**Дата снимка:** 2026-08-22 (UTC+3)  
-**Workspace HEAD:** `69f8a10` (pre-APPLY push) · post-DATA-00.5 commits local only  
+**Дата снимка:** 2026-08-24 (UTC+3)  
+**Workspace HEAD:** (см. git)  
 **Web submodule HEAD:** `86f37cb2647a49eababba0189ba8df24565b51bc`  
 **HH submodule HEAD:** `1ec60bf`  
 **Ветка:** `main`
@@ -24,15 +24,15 @@
 | Content / Telegram §8 | не начат (submodule stub) |
 | Сквозная сборка §9 / Hermes §10 | не закрыты |
 | **Plan revisions** | **ARCHITECTURE_PLAN rev. 2** · **IMPLEMENTATION_PLAN rev. 2** |
-| **PB-DATA-00** | **DATA-00.1 ✓ · DATA-00.2 ✓ · DATA-00.3 ✓ · DATA-00.4 ✓ · DATA-00.5 ✓ · DATA-00.6 ✓** — [`docs/DATA_MIGRATION.md`](docs/DATA_MIGRATION.md) §28 |
+| **PB-DATA-00** | **DATA-00.6 PASS · DATA-00.7 IN PROGRESS · GATE OPEN** |
 | **R0 / PB-UX-00 Web redesign** | **CLOSED — Gate R0 ACCEPTED WITH NON-BLOCKING DEBT (2026-08-22)** |
 
 **Gate R0:** **ACCEPTED WITH NON-BLOCKING DEBT** (product owner, 2026-08-22).  
 **PB-UX-00:** **CLOSED** (T-UX-00.1 … T-UX-00.9 complete).  
 **R0** больше не является текущей реализационной работой.
 
-**Главный продуктовый next:** **PB-DATA-00.7** — Legacy migration isolation + clean-clone acceptance.  
-См. [`docs/DATA_MIGRATION.md`](docs/DATA_MIGRATION.md) §28, [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) rev. 2.
+**Главный продуктовый next:** **DATA-00.7** isolation + clean-clone acceptance.  
+Initial owner legacy data bootstrap completed before R1; it is not a product feature.
 
 Артефакты R0:
 - [`DESIGN.md`](DESIGN.md) — normative visual system (Calm Dense Productivity, dark primary)
@@ -62,7 +62,7 @@ Content/Telegram, browser HH apply и Scoring foundation **не являются
 ### 0–2. Workspace, inventory, каркасы
 
 - Multirepo + submodules + bootstrap/doctor — работают.
-- Inventory исходного `/data/Projects/job_search` зафиксирован.
+- Исторический code inventory монолита зафиксирован в `docs/inventory/*`.
 - Продуктовые реpositories существуют; эталон качества — Core.
 
 ### 3. Core
@@ -109,8 +109,8 @@ Content/Telegram, browser HH apply и Scoring foundation **не являются
 
 ## Решение по «го» / blockers
 
-- **«Го»** = **PB-DATA-00.7** legacy isolation + clean-clone acceptance, или явная альтернатива пользователя.
-- R1+ — после Gate PB-DATA-00 (или documented PO waiver).
+- **«Го»** = завершение DATA-00.7 (isolation + clean-clone), или явная альтернатива пользователя.
+- R1 / PB-00 — после Gate PB-DATA-00.
 
 ## Как обновлять этот файл
 

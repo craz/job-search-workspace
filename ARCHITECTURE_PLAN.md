@@ -5,10 +5,8 @@
 **Updated:** 2026-08-22  
 **Previous revision:** 1 (initial multirepo split plan, workspace bootstrap era)
 
-Исходный проект `/data/Projects/job_search` остаётся **read-only архивом** и
-источником миграции. Новая система живёт в отдельных Git-репозиториях workspace
-`job_search_ref`. Репозитории не импортируют Python-код друг друга и не получают
-прямой доступ к чужим хранилищам.
+Продуктовый workspace `job_search_ref` самодостаточен. Репозитории не
+импортируют Python-код друг друга и не получают прямой доступ к чужим хранилищам.
 
 Нормативный визуальный слой Web — [`DESIGN.md`](DESIGN.md). Операционный статус —
 [`PROJECT_STATUS.md`](PROJECT_STATUS.md). Gate R0 — [`docs/R0_ACCEPTANCE.md`](docs/R0_ACCEPTANCE.md).
@@ -58,7 +56,7 @@ revision ARCHITECTURE_PLAN.md (this document, rev. 2)
   ↓
 revision IMPLEMENTATION_PLAN.md
   ↓
-PB-DATA-00 — job_search → job_search_ref migration
+PB-DATA-00 — COMPLETE (one-time owner bootstrap; isolated)
   ↓
 R1 — HH connection + active resume / profile context
   ↓
@@ -169,7 +167,6 @@ PostgreSQL 17, SQLAlchemy 2.x, Alembic. **Только Core** имеет credent
 | Scoring queue, raw LLM output | Scoring state volume | Normalized result → Core only |
 | OSINT raw/proposed findings | OSINT cache | Confirmed → Core HTTP |
 | Content drafts, Telegram IDs | Content (future) | Not in Core |
-| Legacy SQLite archive | `/data/Projects/job_search` | Read-only migration source |
 
 **Implemented Core schema** (Alembic, 7 revisions): `Company`, `Vacancy`,
 `Application`, `DailyMetric`, `Person`, `Hypothesis`, `Assessment` — см.
@@ -186,8 +183,8 @@ PostgreSQL 17, SQLAlchemy 2.x, Alembic. **Только Core** имеет credent
 ownership и семантические связи. Core остаётся каноническим store нормализованных
 domain entities, если иное не будет принято отдельным ADR.
 
-**Greenfield note:** новая PostgreSQL создавалась пустой. Legacy SQLite **не**
-импортируется автоматически — см. §13 PB-DATA-00.
+**Greenfield note:** a new PostgreSQL is created empty via Alembic. Owner history
+was bootstrapped once before R1; it is not an install or runtime step.
 
 ## 6. Публичные контракты
 
@@ -338,36 +335,10 @@ Planned: drafts, Telegram preview/publish, publication journal. Submodule exists
 but **empty**; not in compose. Content reads public data via Core API; drafts and
 Telegram tokens stay outside Core.
 
-## 13. PB-DATA-00 — legacy data migration
+## 13. Historical bootstrap
 
-**Required workstream** between plan revisions and active R1/R2 development.
-
-| | |
-|---|---|
-| **Source** | `/data/Projects/job_search` (read-only archive) |
-| **Target** | `/data/Projects/job_search_ref` (Core PostgreSQL) |
-| **Inventory** | `docs/inventory/data.md`, `migration-map.md` |
-
-**Architectural process (not implemented in rev. 2):**
-
-```text
-inventory
-  → source-target mapping
-  → dry-run
-  → backup
-  → repeatable/idempotent import where practical
-  → verification (counts, relationships)
-  → unmapped report
-```
-
-**Rules:**
-
-- migrate only entities with correct target model;
-- do not force legacy into semantically wrong fields;
-- preserve provenance / legacy IDs where useful;
-- unsupported data stays explicitly unmapped for later passes.
-
-Implementation belongs to PB-DATA-00 epic, not Gate R0 or architecture doc alone.
+Initial owner legacy data bootstrap completed before R1. Canonical architecture
+has **no** runtime or setup dependency on a sibling monolith or SQLite archive.
 
 ## 14. Integration rules
 
@@ -395,7 +366,7 @@ Implementation belongs to PB-DATA-00 epic, not Gate R0 or architecture doc alone
 | Scoring basic pipeline | | ✓ | R2 full pipeline + policy versioning |
 | OSINT on-demand research | ✓ | | R3 outreach-integrated UX |
 | Content / Telegram | | | R? / §8 |
-| PB-DATA-00 migration | | | required before R1/R2 data work |
+| PB-DATA-00 bootstrap | ✓ isolated | | one-time; not a product feature |
 | CandidateProfile / active resume | | | R1 |
 | User decision after scoring | | | R2/PB-04 |
 | Hiring / Offer / SearchCycle | | | R4–R5 |
@@ -440,4 +411,4 @@ Gate R0 Web acceptance: **37 tests passed** @ `86f37cb` (2026-08-22).
 
 ---
 
-**Next documentation step (not part of rev. 2):** revision [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) to align execution order with Roadmap (PB-DATA-00 → R1 → R2 …).
+**Next documentation step (not part of rev. 2):** keep [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) aligned with Roadmap (R1 → R2 …).

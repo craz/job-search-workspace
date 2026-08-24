@@ -31,7 +31,7 @@ Core → Web → HH → Scoring → OSINT → Content → Hermes
 Это была очередь **переноса кода** из архива (rev. 1). Bootstrap largely
 выполнен; продуктовый приоритет теперь Roadmap-driven.
 
-**Декомпозиция сейчас:** только ближайший execution slice (**PB-DATA-00**).
+**Декомпозиция сейчас:** ближайший execution slice — **R1 / PB-00**.
 R1–R5 — execution sequence и Gate outcomes; детальные Tasks — при входе в stage.
 
 ---
@@ -43,7 +43,7 @@ R0 — CLOSED (PB-UX-00, Gate 2026-08-22)
   ↓
 Plan revisions (ARCHITECTURE_PLAN rev. 2, IMPLEMENTATION_PLAN rev. 2)  ← this revision
   ↓
-PB-DATA-00 — job_search → job_search_ref migration
+PB-DATA-00 — COMPLETE (one-time owner bootstrap; isolated from product flow)
   ↓
 R1 — HH connection + active resume / profile context (PB-00 + minimal PB-01)
   ↓
@@ -84,7 +84,7 @@ R5 — offer + finish search (PB-09, PB-10, final PB-11)
 - Entities + `/api/v1`: Company, Vacancy, Application, DailyMetric, Person,
   Hypothesis, Assessment
 - Idempotent writes, OpenAPI, JSON CLI, contract/BDD tests
-- **Not migrated:** legacy SQLite data from archive (see PB-DATA-00)
+- Initial owner history was bootstrapped once; a clean install starts empty
 
 ### Web
 
@@ -142,8 +142,8 @@ R5 — offer + finish search (PB-09, PB-10, final PB-11)
 | §11 job-search-hermes project | **DEFERRED** | |
 | «Core→Web→HH→…» sequence | **SUPERSEDED** | replaced by Roadmap sequence |
 | «OSINT enriches company after scoring» | **SUPERSEDED** | manual OSINT after user decision (R3) |
-| «Next: Content §8» | **SUPERSEDED** | next = PB-DATA-00 |
-| Legacy SQLite auto-import | **STILL NEEDED** | → PB-DATA-00 |
+| «Next: Content §8» | **SUPERSEDED** | next = R1 / PB-00 |
+| Legacy SQLite auto-import | **DONE** | one-time owner bootstrap; isolated |
 | Standalone Assessments Web workspace | **SUPERSEDED** | IA correction R0; contextual in Vacancy |
 
 ---
@@ -152,128 +152,24 @@ R5 — offer + finish search (PB-09, PB-10, final PB-11)
 
 **После этой revision — буквальный порядок работ:**
 
-1. **DATA-00.1** — legacy entity/storage inventory (`job_search`)
-2. **DATA-00.2** — source → target mapping
-3. **DATA-00.3** — migration safety contract
-4. **DATA-00.4** — dry-run implementation
-5. **DATA-00.5** — backup + real migration (first supported slice)
-6. **DATA-00.6** — verification + unmapped report → **Gate PB-DATA-00**
-7. **DATA-00.7** — Legacy migration isolation + clean-clone acceptance
-8. **R1** decomposition of PB-00 (+ minimal PB-01) → R1 implementation → **Gate R1**
-9. **R2** (after R1 Gate) — see § R2 below
+1. **R1** decomposition of PB-00 (+ minimal PB-01) → R1 implementation → **Gate R1**
+2. **R2** (after R1 Gate) — see § R2 below
 
 **Не в очереди:** Content next · Scoring foundation before R2 · Hermes next.
 
 ---
 
-## PB-DATA-00 — Legacy data migration
+## PB-DATA-00 — historical result
 
-**Обязательный переход перед активным R1/R2.**
-
-| | |
-|---|---|
-| Source (read-only) | `/data/Projects/job_search` |
-| Target | `/data/Projects/job_search_ref` → Core PostgreSQL |
-| Code inventory (done) | `docs/inventory/data.md`, `migration-map.md` |
-| Migration canon (to create) | **`docs/DATA_MIGRATION.md`** — single migration document |
-
-### DATA-00.1 — Legacy inventory
-
-**Goal:** понять, *что* переносить, не *как* импортировать.
-
-Inspect read-only archive:
-
-- storage locations (SQLite `data/job_search.db`, files, attachments if any)
-- tables/entities, counts, relationships
-- external IDs, historical data worth preserving
-
-**Deliverable:** `docs/DATA_MIGRATION.md` § Inventory (or initial doc created here).
-
-**Gate slice:** inventory complete enough to drive mapping; no target writes.
-
-### DATA-00.2 — Source → target mapping
-
-For each legacy entity:
-
-```text
-legacy source → target entity/model → mapping status
-```
-
-Statuses:
-
-| Status | Meaning |
-|---|---|
-| `SUPPORTED_NOW` | Target Core model exists; field mapping defined |
-| `NEEDS_TARGET_MODEL` | Semantically correct target not built yet — do not force import |
-| `DROP_INTENTIONALLY` | Explicitly excluded with reason |
-| `MANUAL_REVIEW` | Operator decision required before import |
-
-**Rule:** do not invent target fields. Wrong semantics → `NEEDS_TARGET_MODEL`.
-
-**Deliverable:** mapping table in `docs/DATA_MIGRATION.md`.
-
-### DATA-00.3 — Safety contract
-
-Document in `docs/DATA_MIGRATION.md`:
-
-- archive stays **read-only**
-- **backup target** before any write migration
-- **dry-run mandatory** before real import
-- repeatability / idempotency where practical
-- provenance / legacy ID retention strategy
-- transaction boundaries, failure behaviour, safe rerun
-- verification counts + **unmapped report** requirement
-
-**Gate slice:** contract reviewed; operator knows abort/rerun rules.
-
-### DATA-00.4 — Dry-run
-
-Implementation (future task):
-
-```text
-source read → transform → validation → planned inserts/updates report
-```
-
-**No target mutation.**
-
-**Gate slice:** we know **exactly** what would be imported; report reviewed.
-
-### DATA-00.5 — Real migration
-
-Only after successful dry-run:
-
-- target backup
-- controlled writes to Core PostgreSQL
-- **no source mutation**
-- no duplicate import on safe rerun where practical
-
-**Scope:** first **supported slice** only (`SUPPORTED_NOW` entities).
-
-### DATA-00.6 — Verification + unmapped report
-
-Verify:
-
-- entity counts vs expectations
-- relationships and representative records
-- orphans, duplicates
-- legacy IDs / provenance preserved where required
-- all unsupported data listed in unmapped report
-
-### Gate PB-DATA-00
-
-**Product/engineering outcome:**
-
-> Supported historical information is **actually usable** in `job_search_ref`,
-> and everything not migrated is **explicitly known** (unmapped report).
-
-Not «all markdown files exist».
+One-time owner bootstrap migration completed and isolated from canonical
+product flow. A new clone of `job_search_ref` does not require the old
+monolith, SQLite, or migration tooling. Details live outside this repository.
 
 ---
 
 ## R1 — HH connection + active resume
 
-**PBI:** PB-00 + minimally necessary PB-01.  
-**Prerequisite:** Gate PB-DATA-00 (or explicit PO waiver documented).
+**PBI:** PB-00 + minimally necessary PB-01.
 
 **Product outcome:** operator connects HH, sees account context, selects **active
 HH resume**, with local linkage to profile/resume context for downstream R2.
@@ -419,7 +315,7 @@ Do not pre-design Offer schema beyond accepted product semantics.
 
 | Class | Examples | Treatment |
 |---|---|---|
-| **A. Blocking next slice** | None known for PB-DATA-00 start | Track during DATA-00.1 |
+| **A. Blocking next slice** | None known for R1 start | Track at R1 entry |
 | **B. Non-blocking implementation debt** | duplicate smoke/demo Core rows; browser apply transport missing | Fix when relevant slice needs it |
 | **C. Documentation drift** | old rev.1 «next Content»; volume name drift | Addressed by rev. 2 |
 | **D. Housekeeping** | untracked R0 screenshot sets, prompts | Optional cleanup; not blocking |
@@ -450,7 +346,7 @@ Old §9 target flow **superseded**. Remaining useful work (**PARTIAL**, not next
 - backup/restore runbook verification
 - doctor extensions
 
-Execute **after** PB-DATA-00 or in parallel only if it does not block migration/R1.
+Execute in parallel only if it does not block R1.
 
 ---
 
@@ -459,7 +355,7 @@ Execute **after** PB-DATA-00 or in parallel only if it does not block migration/
 | Gate | Observable outcome |
 |---|---|
 | **Gate R0** | **CLOSED** 2026-08-22 — dark 5-section Web, Assessment contextual, 37 tests |
-| **Gate PB-DATA-00** | Supported legacy data usable in ref; unmapped explicit |
+| **Gate PB-DATA-00** | **CLOSED** — one-time owner bootstrap isolated from product flow |
 | **Gate R1** | HH connected; active resume + local linkage; blocked paths documented |
 | **Gate R2** | Score/verdict/ranking/decision in Vacancy context with profile-aware scoring |
 | **Gate R3** | Pursue → channel → optional OSINT → outreach → response |
@@ -470,10 +366,10 @@ Execute **after** PB-DATA-00 or in parallel only if it does not block migration/
 
 ## Current next step
 
-**PB-DATA-00.1 — legacy inventory** (`/data/Projects/job_search` → start
-`docs/DATA_MIGRATION.md`).
+**R1 / PB-00** — HH connection, profile, resume list, active resume, local
+linkage, recovery states → **Gate R1**.
 
-Do not start R1, Scoring foundation, Content, or Hermes until PB-DATA-00 Gate
+Do not start Scoring foundation, Content, or Hermes until R1 Gate
 (or documented PO waiver).
 
 Оперативный снимок и HEAD SHA: [`PROJECT_STATUS.md`](PROJECT_STATUS.md).

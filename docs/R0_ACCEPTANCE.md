@@ -57,4 +57,4 @@ Do not reopen R0 for these unless architecture revision reveals an actual blocke
 
 ## Recommendation
 
-**Gate R0 closed.** Proceed to revision `ARCHITECTURE_PLAN.md` and `IMPLEMENTATION_PLAN.md`, then **PB-DATA-00** before active R1/R2 development.
+**Gate R0 closed.** Next product slice: **R1 / PB-00** (HH connection and active resume).

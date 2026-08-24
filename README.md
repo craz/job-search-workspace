@@ -1,7 +1,8 @@
 # Job Search Workspace
 
-Workspace для разделения исходного `/data/Projects/job_search` на независимые
-проекты с собственными Git-репозиториями, контрактами и жизненным циклом.
+Workspace независимых Git-репозиториев Job Search с собственными контрактами и
+жизненным циклом. Canonical clone самодостаточен: старый монолит не нужен для
+bootstrap, Compose или чистой PostgreSQL.
 
 Сервисы подключены как Git submodules под `services/`: workspace открывается в
 IDE одним деревом, а каждый сервис сохраняет собственный remote и release cycle.

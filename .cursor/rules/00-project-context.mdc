@@ -5,7 +5,7 @@ alwaysApply: true
 
 # Project context
 
-- `/data/Projects/job_search` — read-only архив; новая работа идёт в multirepo workspace.
+- Canonical `job_search_ref` is self-contained; do not treat any sibling monolith as a runtime, setup or onboarding dependency.
 - Запрещены cross-repo Python imports, общая прикладная БД и чтение чужих volumes.
 - Не публикуй секреты, PII, приватную историю или содержимое `.local/`.
 - Не выполнять реальные HH/Telegram отправки без явного разрешения пользователя.

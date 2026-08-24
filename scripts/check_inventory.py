@@ -1,15 +1,10 @@
 #!/usr/bin/env python3
-"""Prove that every source code file has one migration owner.
+"""Prove that every archived monolith source file has one product owner.
 
-The checker reads the archived monolith without modifying it. It inventories
-Python modules, top-level tests, operational scripts and root Python utilities.
-Ownership is determined by a single decision tree: a path returns exactly one
-``Assignment`` or fails as unclassified. Mixed legacy files receive one migration
-owner responsible for splitting behavior across contracts; this avoids copying a
-file into several repositories and creating duplicate business logic.
-
-The mapping describes the current migration snapshot. It is not a runtime
-dependency and does not import code from the archived project.
+The checker optionally reads a historical local snapshot of the original
+monolith without modifying it. It is a workspace bootstrap inventory, not a
+runtime or setup dependency of Job Search. `make test` skips the live-archive
+check when that snapshot is absent.
 """
 
 from __future__ import annotations

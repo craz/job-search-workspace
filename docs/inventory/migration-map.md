@@ -17,7 +17,7 @@ Python-файлу и operational script ровно одного владельц
 | Исходная область | Цель | Действие |
 |---|---|---|
 | domain/models/statuses/application vacancies | Core | перенести правила, заменить persistence ports |
-| SQLite repositories/migrations | Core | переписать на SQLAlchemy 2/Alembic/PostgreSQL; затем одноразовый importer |
+| SQLite repositories/migrations | Core | переписать на SQLAlchemy 2/Alembic/PostgreSQL |
 | company/people/hypothesis/metrics/vacancy CLI | Core | заменить на versioned JSON CLI/API |
 | `hh_*`, HH application services и scripts | HH | перенести по вертикальным срезам; DB calls заменить Core client |
 | Ollama/scoring/benchmark/compare | Scoring | выделить очередь, cache volume и Assessment contract |
