@@ -24,15 +24,15 @@
 | Content / Telegram §8 | не начат (submodule stub) |
 | Сквозная сборка §9 / Hermes §10 | не закрыты |
 | **Plan revisions** | **ARCHITECTURE_PLAN rev. 2** · **IMPLEMENTATION_PLAN rev. 2** |
-| **PB-DATA-00** | **DATA-00.1 ✓ · DATA-00.2 ✓ · DATA-00.3 ✓ · DATA-00.4 ✓ · DATA-00.5 ✓** — [`docs/DATA_MIGRATION.md`](docs/DATA_MIGRATION.md) §27 |
+| **PB-DATA-00** | **DATA-00.1 ✓ · DATA-00.2 ✓ · DATA-00.3 ✓ · DATA-00.4 ✓ · DATA-00.5 ✓ · DATA-00.6 ✓** — [`docs/DATA_MIGRATION.md`](docs/DATA_MIGRATION.md) §28 |
 | **R0 / PB-UX-00 Web redesign** | **CLOSED — Gate R0 ACCEPTED WITH NON-BLOCKING DEBT (2026-08-22)** |
 
 **Gate R0:** **ACCEPTED WITH NON-BLOCKING DEBT** (product owner, 2026-08-22).  
 **PB-UX-00:** **CLOSED** (T-UX-00.1 … T-UX-00.9 complete).  
 **R0** больше не является текущей реализационной работой.
 
-**Главный продуктовый next:** **PB-DATA-00.6** — final migration verification + unmapped/deferred report.  
-См. [`docs/DATA_MIGRATION.md`](docs/DATA_MIGRATION.md) §27, [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) rev. 2.
+**Главный продуктовый next:** **PB-DATA-00.7** — Legacy migration isolation + clean-clone acceptance.  
+См. [`docs/DATA_MIGRATION.md`](docs/DATA_MIGRATION.md) §28, [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) rev. 2.
 
 Артефакты R0:
 - [`DESIGN.md`](DESIGN.md) — normative visual system (Calm Dense Productivity, dark primary)
@@ -109,7 +109,7 @@ Content/Telegram, browser HH apply и Scoring foundation **не являются
 
 ## Решение по «го» / blockers
 
-- **«Го»** = **PB-DATA-00.6** final migration verification, или явная альтернатива пользователя.
+- **«Го»** = **PB-DATA-00.7** legacy isolation + clean-clone acceptance, или явная альтернатива пользователя.
 - R1+ — после Gate PB-DATA-00 (или documented PO waiver).
 
 ## Как обновлять этот файл

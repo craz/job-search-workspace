@@ -158,8 +158,9 @@ R5 — offer + finish search (PB-09, PB-10, final PB-11)
 4. **DATA-00.4** — dry-run implementation
 5. **DATA-00.5** — backup + real migration (first supported slice)
 6. **DATA-00.6** — verification + unmapped report → **Gate PB-DATA-00**
-7. **R1** decomposition of PB-00 (+ minimal PB-01) → R1 implementation → **Gate R1**
-8. **R2** (after R1 Gate) — see § R2 below
+7. **DATA-00.7** — Legacy migration isolation + clean-clone acceptance
+8. **R1** decomposition of PB-00 (+ minimal PB-01) → R1 implementation → **Gate R1**
+9. **R2** (after R1 Gate) — see § R2 below
 
 **Не в очереди:** Content next · Scoring foundation before R2 · Hermes next.
 

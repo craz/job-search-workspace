@@ -1214,3 +1214,90 @@ This violates the policy “Vacancy URL must never be substituted by Company URL
 
 Because the FAIL condition above is real, **PB-DATA-00 is NOT closed**.
 Next step must address the remaining forbidden `company.hh_url == vacancy.url` mapping in the migration transform.
+
+---
+### DATA-00.6 remediation (correction run `correction-20260824-080821`)
+
+**Failure cause (root):** в legacy data присутствовали строки, где `vacancy.url` семантически являлся employer/company profile URL (short/company page), и старая логика миграции при этом не считала такой URL «не vacancy URL». В результате в target попали migration-owned `Vacancy`, у которых:
+
+- `Vacancy.url == Company.hh_url` (44 случая)
+- trusted HH vacancy id для этих 44 вакансий отсутствовал, поэтому честно восстановить `https://hh.ru/vacancy/{id}` было нельзя
+
+**Correction strategy (targeted, migration-owned only):**
+
+1. Исправлены rules:
+   - URL семантически равный `company.hh_url` теперь отвергается как vacancy URL и переводится в `vacancies_missing_url` (DEFERRED).
+   - `hh.ru/employer/{id}` как vacancy URL отвергается.
+   - Placeholder домен отвергается.
+   - Reconstruction canonical vacancy URL выполняется только из `trusted hh vacancy id` (через `people.hh_vacancy_id`), иначе vacancy уходит в DEFERRED.
+2. Safety dependency audit перед таргет-мутацией:
+   - у 44 invalid вакансий зависимые migration-owned child records были только: `Applications` (1 запись)
+   - `People` = 0, `Assessments` = 0
+   - non-migration-owned dependent data не обнаружено (STOP condition не сработала)
+3. Target remediation:
+   - создан backup перед мутацией:
+     - dump: `backups/migration-runs/correction-20260824-080821/target-pre-correction.dump`
+     - size: `179087` bytes
+     - SHA-256: `a43a56702748fd4f01a5e97839f6ca6c89828bc3cb0486fac2e5fdea59bbb0d4`
+     - `pg_restore --list`: exit code `0`
+   - выполнена corrective transaction (one-shot delete, single commit):
+     - удалено `Vacancies`: 44 (migration-owned, vacancy identities)
+     - удалено `Applications`: 1 (dependent, migration-owned)
+     - `People` / `Assessments`: 0
+     - deletion rowcounts совпали ровно с ожиданиями — rollback не потребовался
+
+**Applied policy effect (recomputed approved slice):**
+
+- После correction `valid vacancy` count уменьшился:
+  - `vacancies`: `452 → 408` (минус 44 запретных company/employer URLs)
+  - `applications`: `407 → 406` (минус 1 зависимая application-строка от deferred вакансии)
+- Финальный migration-owned approved slice:
+  - `companies=323`, `vacancies=408`, `applications=406`, `people=24`, `daily_metrics=81`, `hypotheses=2`, `assessments=19`
+  - total migration-owned operations = `1263`
+
+**Post-remediation dry-run (idempotency + planned inserts):**
+
+Idempotency dry-run:
+- run id: `migrate-20260824-080928-1ee02c8`
+- `PLANNED_INSERT = 0`
+- `EXISTING_EQUIVALENT = 1263`
+- `CONFLICT = 0`
+
+**Final DATA-00.6 verification:** **PASS**
+
+Ключевые проверки:
+- source fingerprints unchanged (locked SHAs совпали): `fp_ok = true`
+- forbidden URL substitution среди migration-owned planned vacancies:
+  - `Vacancy.url == Company.hh_url` теперь **0**
+- deferred absence:
+  - все `vacancies_missing_url` / `orphan_vacancies` отсутствуют в target (`deferred_failures = 0`)
+  - watch-only companies отсутствуют (`0`)
+  - off-db category-B assessments отсутствуют
+- FK relationship sanity: `fk_failures = 0`
+- semantic spot-check:
+  - anomaly `application-3` (`автоответ`) → `Application.result = NULL` (PASS)
+  - sample value equivalence (vacancy/application/hypothesis/assessment payload equivalence): **все совпали**
+
+**2108 DEFERRED → 2152 DEFERRED (объяснение изменения):**
+
+В DATA-00.6 “DEFERRED” = количество deferred migration operations (не число сущностей).
+В новом policy эти 44 запрещённых вакансии корректно уходят в `vacancies_missing_url`, поэтому:
+
+- было `vacancies_missing_url = 47`
+- стало `vacancies_missing_url = 91` (+44)
+
+Итоговая decomposition для `operations_summary.DEFERRED = 2152`:
+- Companies (watch-only): 1043
+- Vacancies (orphan): 12
+- Vacancies (missing vacancy URL): 91
+- Assessments (embedded incomplete): 16
+- Assessments (off-DB scored score-lines): 988
+- Assessments (historical older score-line): 1
+- Assessments (orphan-linked): 1
+Сумма: 1043 + 12 + 91 + 16 + 988 + 1 + 1 = **2152**
+
+### PB-DATA-00 closure (after remediation)
+
+Поскольку corrective pass устранил реальную причину FAIL, **PB-DATA-00 теперь CLOSED / PASS**.
+Следующий несмежный шаг: **next = PB-DATA-00.7 — Legacy migration isolation + clean-clone acceptance**.
+DATA-00.7 **не начинать** в рамках этой задачи.
