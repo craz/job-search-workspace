@@ -1131,3 +1131,86 @@ docker compose start core web
 | `job_search.db` mtime after DATA-00.2 | **Unchanged:** `2026-07-31 14:21:07 +0300` |
 
 Mapping inspection on **2026-08-22** against Core @ `services/core` models/schemas.
+
+## 28. DATA-00.6 final verification (PB-DATA-00)
+
+**Verification result:** **FAIL**
+
+### Gate inputs (immutability)
+
+Legacy source fingerprints (re-checked against locked SHAs):
+
+- `job_search.db` SHA-256 = `33cd9776dbf141d85d06381108c3f2208c5699b13395f5bc1bd2f65a0ebee983`
+- `vacancy_scores.jsonl` SHA-256 = `e21e18f96dff58c9817a8826c7d477837fa255cf0b9022a48992295c3f3922b2`
+
+Target totals (read-only inspection, after PB-DATA-00.5 apply):
+
+- `companies` 325
+- `vacancies` 463
+- `applications` 418
+- `people` 29
+- `daily_metrics` 82
+- `hypotheses` 4
+- `assessments` 22
+
+### Idempotency dry-run (read-only)
+
+`migrate-20260824-074718-a1bb19a`
+
+- `PLANNED_INSERT = 0`
+- `EXISTING_EQUIVALENT = 1308`
+- `CONFLICT = 0`
+
+### Deferred datasets preserved (read-only absence checks)
+
+All deferred/unmapped categories expected to remain absent from Core:
+
+- watch-only Companies: **0** present
+- missing-URL vacancies (47): **0** present
+- orphan vacancies (12): **0** present
+- deferred Assessments (off-DB + orphan-linked + embedded hh ids): **0** present
+- historical older scoring rows: **0** mismatches (target assessment for each hh id matches the latest `scored_at`)
+
+Application anomaly check:
+
+- legacy `application:3` (`автоответ`) → Core `Application.result = NULL` (PASS)
+
+### 2108 DEFERRED explained (what “deferred” counts mean)
+
+In PB-DATA-00.4+ tooling, **DEFERRED = number of deferred migration operations**, not number of unique business entities.
+Breakdown matches `operations_summary.DEFERRED = 2108`:
+
+- Companies (watch-only): **1043**
+- Vacancies (orphan): **12**
+- Vacancies (missing vacancy URL): **47**
+- Assessments:
+  - embedded incomplete assessments: **16**
+  - off-DB scored vacancies: **988** (JSONL score lines, can include multiple lines per hh id)
+  - historical older score lines: **1**
+  - orphan-linked assessment: **1**
+
+Total: 1043 + 12 + 47 + 16 + 988 + 1 + 1 = **2108**
+
+### FAIL condition: Company URL substituted into Vacancy URL
+
+Within migration-owned vacancies (**452**), the following forbidden pattern was detected:
+
+- `Vacancy.url == company.hh_url` (employer page) for **44** vacancies.
+- `Vacancy` identities for these 44 rows all have:
+  - vacancy source = `legacy_job_search`
+  - company source = `hh` for **43** of them, `legacy_job_search` for **1**
+- `Vacancy.url` placeholders were not created:
+  - `legacy.job-search.invalid` domain in owned vacancies: **0**
+
+Sample identities (subset):
+
+- `vacancy-12` under `company-8` → `https://my.hh.ru/b/1kic4ke`
+- `vacancy-80` under `company` (`hh` external_id `2066667`) → `https://hh.ru/employer/2066667`
+- `vacancy-81` under `company` (`hh` external_id `4677559`) → `https://hh.ru/employer/4677559`
+
+This violates the policy “Vacancy URL must never be substituted by Company URL”.
+
+### PB-DATA-00 closure
+
+Because the FAIL condition above is real, **PB-DATA-00 is NOT closed**.
+Next step must address the remaining forbidden `company.hh_url == vacancy.url` mapping in the migration transform.
