@@ -17,7 +17,9 @@
 8. Keep implementation and documentation truthful, reproducible and understandable
    without chat context; never present planned behavior as implemented.
 9. Automatically commit only a completed green logical step, staging only task
-   files. Never push, create/merge a PR, tag or release without explicit request.
+   files. For user-visible slices, TECHNICAL PASS ≠ COMPLETE — follow
+   `DEVELOPMENT_PROCESS.md` owner-acceptance semantics before calling a slice
+   complete. Never push, create/merge a PR, tag or release without explicit request.
 10. Follow the nearest nested `AGENTS.md` for scripts, tests or documentation;
     narrower instructions extend and override this global minimum.
 11. Let the project hook synchronize raw history after each turn; use

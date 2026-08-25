@@ -238,6 +238,45 @@ make build
 отсутствии конфигурации. Warnings в CI считаются ошибками; подавлять их вместо
 исправления причины нельзя.
 
+### Статус среза: technical PASS ≠ COMPLETE
+
+Нормализованная терминология для инкрементов (US / R-slice / PBI-slice):
+
+| Статус | Значение |
+|---|---|
+| **IMPLEMENTED** | Код/контракт существуют в дереве |
+| **TECHNICAL PASS** | Автоматические и технические проверки зелёные |
+| **READY FOR OWNER ACCEPTANCE** | Есть runnable observable результат и явный manual checklist для владельца |
+| **OWNER ACCEPTED** | Владелец явно принял срез (`ACCEPT`) |
+| **COMPLETE** | TECHNICAL PASS **и** OWNER ACCEPTED |
+
+Обязательный порядок для **user-visible** функциональности:
+
+```text
+IMPLEMENTED
+  → TECHNICAL PASS
+  → READY FOR OWNER ACCEPTANCE
+  → OWNER ACCEPTED
+  → COMPLETE
+  → PUSH (только по явному запросу)
+```
+
+Правила:
+
+- TECHNICAL PASS **не** означает COMPLETE и **не** разрешает считать product
+  slice закрытым.
+- Для UI/product-facing среза owner acceptance обычно требует поднятый продукт и
+  короткий manual checklist (URL, где смотреть, что кликать, ожидаемый результат).
+- Для backend-only среза owner acceptance может опираться на observable API/CLI
+  evidence и Acceptance Criteria; владелец может явно waive manual UI review.
+- Gate Roadmap-этапа (Gate R0/R1/…) остаётся **отдельным** и закрывается после
+  всех нужных срезов этапа, а не после одного TECHNICAL PASS.
+- Push/PR реализации user-visible среза — после OWNER ACCEPTED (или явного waive),
+  если владелец не распорядился иначе.
+
+Cursor agent rule `10-development-workflow.mdc` ссылается на этот документ —
+отдельное alwaysApply-правило для acceptance **не** создаётся.
+
 BDD feature-файлы хранятся в `tests/features/*.feature`, step definitions — в
 `tests/bdd/`. Для Python-проектов стандартным runner будет `pytest-bdd`, если в
 конкретном репозитории ADR не зафиксирован другой совместимый инструмент.

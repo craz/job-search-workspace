@@ -171,7 +171,7 @@ monolith, SQLite, or migration tooling. Details live outside this repository.
 
 **PBI:** PB-00 + minimally necessary PB-01.  
 **Decomposition:** [`docs/R1_PB00_DECOMPOSITION.md`](docs/R1_PB00_DECOMPOSITION.md)  
-**Implementation:** **R1.1 COMPLETE** (2026-08-25); R1.2–R1.6 not started.
+**Implementation:** **R1.1 IMPLEMENTED / TECHNICAL PASS / OWNER ACCEPTANCE PENDING** (2026-08-25); R1.2–R1.6 not started. COMPLETE only after owner ACCEPT.
 
 **Product outcome:** operator connects HH, sees account context, selects **active
 HH resume**, with local linkage to profile/resume context for downstream R2.
@@ -208,7 +208,7 @@ TECH-US / DEBT-US / AC / BDD: see decomposition doc.
 
 | Increment | Outcome |
 |---|---|
-| **R1.1** | Operator-visible HH connection/session status — **COMPLETE** |
+| **R1.1** | Operator-visible HH connection/session status — **TECHNICAL PASS; OWNER ACCEPTANCE PENDING** |
 | **R1.2** | Current HH profile/account context (**official API YES** — `GET /me` = 200) |
 | **R1.3** | Resume list via **authenticated browser read-only** (owner decision; official API NO) |
 | **R1.4** | Active HH resume selection persisted |
@@ -216,7 +216,7 @@ TECH-US / DEBT-US / AC / BDD: see decomposition doc.
 | **R1.6** | Unified recovery / action-required states |
 | **R1.A** | Acceptance evidence → **Gate R1** |
 
-**Next implementation:** R1.2.  
+**Next:** owner ACCEPT of R1.1, then push, then **R1.2**.  
 **Gate critical path:** R1.3 browser resume list (403 error UX alone ≠ Gate CLOSED).
 
 ### External constraint (not «debt»)
@@ -409,7 +409,8 @@ Execute in parallel only if it does not block R1.
 
 ## Current next step
 
-**R1.2** — HH account/profile via official `GET /me` (R1.1 complete).
+**Owner ACCEPT of R1.1** (manual review). Until then R1.1 is not COMPLETE and
+R1.2 must not start.
 
 R1.3 will use authenticated browser **read-only** transport for own resume list
 (owner decision recorded; not started). Until R1.3 lands, Gate R1 cannot CLOSE.

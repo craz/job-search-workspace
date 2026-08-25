@@ -136,12 +136,21 @@ services:
       HH_VNC_PORT: "5900"
       HH_DISPLAY: ":99"
       HH_API_PORT: "8092"
+      # Keep Docker DNS / loopback out of the operator proxy; external HH API may still use it.
+      NO_PROXY: "127.0.0.1,localhost,hh,core,web,osint,postgres,searxng"
+      no_proxy: "127.0.0.1,localhost,hh,core,web,osint,postgres,searxng"
       # Redirect comes from services/hh/.env (archive-registered URI).
     depends_on:
       core:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8092/health/ready', timeout=2)"]
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.install_opener(urllib.request.build_opener(urllib.request.ProxyHandler({}))); urllib.request.urlopen('http://127.0.0.1:8092/health/ready', timeout=2)",
+        ]
       interval: 10s
       timeout: 5s
       retries: 12

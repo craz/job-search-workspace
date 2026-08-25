@@ -1,6 +1,6 @@
 # R1 / PB-00 — decomposition
 
-**Status:** R1.1 **COMPLETE**; R1.2–R1.6 not started  
+**Status:** R1.1 **IMPLEMENTED** · **TECHNICAL PASS** · **OWNER ACCEPTANCE PENDING** (not COMPLETE)  
 **Date:** 2026-08-25  
 **PBI:** PB-00 (primary) + minimal PB-01 slice for local linkage only  
 **HH submodule:** `92d2813`  
@@ -8,6 +8,18 @@
 
 Canonical execution pointer: [`IMPLEMENTATION_PLAN.md`](../IMPLEMENTATION_PLAN.md) § R1.  
 This document owns the detailed US / AC / BDD / Tasks for R1 entry.
+
+### R1.1 owner acceptance (manual)
+
+Open: `http://127.0.0.1:18080/` (local `WEB_PORT` from `.env`; default 8080).
+
+1. Header right: labels **HeadHunter** + state text (live expected: **Подключено**).
+2. No action button when connected; no tokens/paths in UI.
+3. Core signal remains usable (**Core доступен** when Core is up).
+4. Nav/vacancies still work.
+
+Other connection states: deterministic HH/Web tests; do not expire the real session
+to demo errors. COMPLETE only after owner **ACCEPT**.
 
 ---
 
@@ -372,7 +384,7 @@ Document required env only (existing HH `.env.example` pattern). Never commit to
 
 | Task | Delivers | Depends on |
 |---|---|---|
-| **R1.1** | Operator-visible HH connection/session status (CLI + HTTP + Web) | **COMPLETE** |
+| **R1.1** | Operator-visible HH connection/session status (CLI + HTTP + Web) | **IMPLEMENTED / TECHNICAL PASS / OWNER ACCEPTANCE PENDING** |
 | **R1.2** | HH account/profile read + display | R1.1 done; TECH-US-00.2 done (`/me` = 200) |
 | **R1.3** | Resume list via **authenticated browser read-only** transport (owner decision) | R1.1; normalize to internal resume-summary contract |
 | **R1.4** | Active resume select + persistence | R1.3 with a working list path |

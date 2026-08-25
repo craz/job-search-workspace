@@ -19,9 +19,9 @@
 | Core + Web MVP | готово |
 | Scoring (host Ollama pipeline) | базово готово |
 | OSINT (website / people → Core) | в основном готово |
-| HH read-path | **read-ready** for vacancies + **`GET /me`**; `/resumes/mine` + `/negotiations` **403**; R1.1 connection product surface **COMPLETE** |
+| HH read-path | **read-ready** for vacancies + **`GET /me`**; `/resumes/mine` + `/negotiations` **403**; R1.1 connection surface **IMPLEMENTED / TECHNICAL PASS / OWNER ACCEPTANCE PENDING** |
 | HH write-path (API) | код dual-gate готов; **production API apply заблокирован scope HH-приложения** |
-| **R1 / PB-00** | R1.1 **COMPLETE**; R1.3 transport = browser RO own resumes (decided, not implemented); Gate R1 still **BLOCKED** on resume-list until R1.3 |
+| **R1 / PB-00** | R1.1 **READY FOR OWNER ACCEPTANCE** (not COMPLETE); R1.3 transport = browser RO own resumes (decided, not implemented); Gate R1 still **BLOCKED** on resume-list until R1.3 |
 | Content / Telegram §8 | не начат (submodule stub) |
 | Сквозная сборка §9 / Hermes §10 | не закрыты |
 | **Plan revisions** | **ARCHITECTURE_PLAN rev. 2** · **IMPLEMENTATION_PLAN rev. 2** |
@@ -33,7 +33,7 @@
 **Gate PB-DATA-00:** **CLOSED** (DATA-00.1–00.7).  
 **R0** больше не является текущей реализационной работой.
 
-**Главный продуктовый next:** **R1.2** — HH account/profile via official `/me`.  
+**Главный продуктовый next:** owner **ACCEPT** R1.1 (manual review). После ACCEPT — push R1.1, затем R1.2.  
 R1.3: authenticated browser read-only own resume list (owner decision; not started).  
 Full R1: connection → profile → resume list → active resume → linkage → recovery → Gate R1.  
 Initial owner legacy data bootstrap completed before R1; it is not a product feature.
@@ -113,7 +113,7 @@ Content/Telegram, browser HH apply и Scoring foundation **не являются
 
 ## Решение по «го» / blockers
 
-- **«Го»** = **R1.2** (HH account/profile via `/me`), или если скажешь — push R1.1 commits / R1.3 browser resume list.
+- **«Го»** = owner **ACCEPT** R1.1 по checklist, или если скажешь замечания / push после ACCEPT / R1.2 после COMPLETE.
 
 ## Как обновлять этот файл
 
