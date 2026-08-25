@@ -1,10 +1,10 @@
 # Состояние проекта Job Search Multirepo
 
 **Дата снимка:** 2026-08-25 (UTC+3)  
-**Workspace HEAD:** R1 decomposition docs (local; parent `517ba19` on origin)  
+**Workspace HEAD:** local probe-docs commit (parent `878206e` on origin after decomposition push)  
 **Web submodule HEAD:** `86f37cb2647a49eababba0189ba8df24565b51bc`  
 **HH submodule HEAD:** `1ec60bf`  
-**Ветка:** `main` (ahead of `origin/main` after R1 docs commit; do not push until owner review)
+**Ветка:** `main` (ahead of `origin/main` after probe docs; do not push until owner review)
 
 Этот файл — оперативный снимок «где мы сейчас». Детальный план и gate-критерии
 живут в [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md); архитектура — в
@@ -19,9 +19,9 @@
 | Core + Web MVP | готово |
 | Scoring (host Ollama pipeline) | базово готово |
 | OSINT (website / people → Core) | в основном готово |
-| HH read-path | **read-ready** (session/OAuth/vacancy sync); R1 profile/resume product surface **not started** |
+| HH read-path | **read-ready** for vacancies + **`GET /me`**; `/resumes/mine` + `/negotiations` **403** (live probe 2026-08-25); R1 product surface **not started** |
 | HH write-path (API) | код dual-gate готов; **production API apply заблокирован scope HH-приложения** |
-| **R1 / PB-00** | **decomposed** — [`docs/R1_PB00_DECOMPOSITION.md`](docs/R1_PB00_DECOMPOSITION.md); implementation not started |
+| **R1 / PB-00** | decomposed + **TECH-US-00.2 probe DONE**; Gate R1 **BLOCKED BY EXTERNAL CONSTRAINT** on resume-list until owner R1.3 transport decision; implementation not started |
 | Content / Telegram §8 | не начат (submodule stub) |
 | Сквозная сборка §9 / Hermes §10 | не закрыты |
 | **Plan revisions** | **ARCHITECTURE_PLAN rev. 2** · **IMPLEMENTATION_PLAN rev. 2** |
@@ -33,8 +33,9 @@
 **Gate PB-DATA-00:** **CLOSED** (DATA-00.1–00.7).  
 **R0** больше не является текущей реализационной работой.
 
-**Главный продуктовый next:** **R1.1** — product-facing HH connection/session status (first task after R1 decomposition).  
-Full R1 slice: connection → profile → resume list → active resume → local linkage → recovery → Gate R1.  
+**Главный продуктовый next:** **owner decision — R1.3 resume transport** (official API `/resumes/mine` = 403).  
+Unblocked slice: **R1.1** connection status (does not close Gate alone). R1.2 can use `GET /me`.  
+Full R1: connection → profile → resume list (supported path) → active resume → linkage → recovery → Gate R1.  
 Initial owner legacy data bootstrap completed before R1; it is not a product feature.
 
 Артефакты R0:
@@ -112,7 +113,7 @@ Content/Telegram, browser HH apply и Scoring foundation **не являются
 
 ## Решение по «го» / blockers
 
-- **«Го»** = **R1.1** implementation (HH connection/session visible to operator), или явная альтернатива пользователя.
+- **«Го»** = **owner decision on R1.3 resume-list transport**, или если скажешь — **R1.1** implementation.
 
 ## Как обновлять этот файл
 

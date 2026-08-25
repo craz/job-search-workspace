@@ -55,8 +55,8 @@ the R1 linkage model. Do not overload it for active HH resume identity.
 | HH connection / session (CLI) | **IMPLEMENTED** | `session.py` `session_status` / `auth_status`; CLI `session status`, `auth status|open-login|confirm|clear`; OAuth token store + loopback; specs/runbooks under `services/hh/docs/` |
 | Operator noVNC login | **IMPLEMENTED** | `browser.py` + `auth open-login` / `confirm`; runbook `docs/runbooks/operator-novnc-login.md` |
 | Product-facing connection status (Web / unified operator report) | **MISSING** | Web `#connection-label` = Core health only (`static/app.js`) |
-| HH account / profile (`GET /me`) | **MISSING** | No `/me` client, CLI, or model in HH src; plans mention token may work — **not proven in code** |
-| Resume list product surface | **PARTIAL** | `AuthenticatedHhApi.list_resumes_mine()` → `GET /resumes/mine` used only for metrics view counters (`providers.py`); no `resumes list` CLI; no UI |
+| HH account / profile (`GET /me`) | **MISSING** (API **SUPPORTED**) | No `/me` client/CLI/model in HH product surface; **live probe 2026-08-25:** `GET /me` → **HTTP 200** with account identity fields |
+| Resume list product surface | **PARTIAL** (API **EXTERNAL_BLOCKED**) | `list_resumes_mine()` exists for metrics only; **live probe:** `GET /resumes/mine` → **HTTP 403** `forbidden` for current app/session |
 | Active HH resume select / persist | **MISSING** | `resume_id` only inside apply-plan fixtures |
 | CandidateProfile / ProfileVersion | **MISSING** | No Core models/API |
 | Recovery / action-required (unified) | **PARTIAL** | `live_auth` login_not_ready / token missing; metrics tolerate `resumes_mine_forbidden`; apply stops on captcha/403/429 — **no** unified operator/Web contract for R1 states |
@@ -65,13 +65,29 @@ the R1 linkage model. Do not overload it for active HH resume identity.
 
 ### External constraints (not DEBT-US)
 
-Documented and partially coded:
+**Live probe TECH-US-00.2 (2026-08-25)** — read-only, existing OAuth session
+(`login_ready=true`, access token present, not expired; state under operator
+`.local/hh-state`). No tokens/PII values recorded in git.
 
-- Current HH applicant application: `GET /resumes/mine` and `GET /negotiations` may return **403** (scope).
-- Code: metrics maps 403 on resumes → `resumes_mine_forbidden` note; applications sync does **not** tolerate negotiations 403.
-- **No** automated live probe of `/me` / `/resumes/mine` / `/negotiations` in-repo as an R1 acceptance artifact yet.
+| Endpoint | HTTP | Classification |
+|---|---|---|
+| Session / token gate | n/a | **SUPPORTED** (usable) |
+| `GET /me` | **200** | **SUPPORTED** |
+| `GET /resumes/mine` | **403** (`errors[].type=forbidden`) | **EXTERNAL_BLOCKED** |
+| `GET /negotiations` (status-only; not R1 scope) | **403** (`forbidden`) | **EXTERNAL_BLOCKED** |
 
-R1.3 remains a **decision point**: API vs browser (or other) transport if 403 persists. Do not invent a bypass.
+`/me` identity fields present (shapes only): `id`, `first_name`, `last_name`,
+`middle_name`, `email`, applicant/employer flags, plus `counters`
+(`resumes_count`, `unread_negotiations`, `new_resume_views`) and URL hints
+(`resumes_url`, `negotiations_url`). Resume **list** body was not returned
+(403); no resume id/title fields observed via official API.
+
+Code still: metrics maps resume 403 → `resumes_mine_forbidden`; applications
+sync does **not** tolerate negotiations 403 (DEBT-US-00.4 confirmed live).
+
+**R1.3 transport:** official HH API is **unavailable** for resume list on the
+current application/session → **owner decision required** (do not auto-pick
+browser/other transport; do not bypass 403).
 
 ---
 
@@ -162,9 +178,9 @@ Builds on existing session/oauth/`AuthenticatedHhApi`; does not invent product U
 
 ### TECH-US-00.2 — Live access probe artifact
 
-Operator-runnable (or gated CI) probe that records actual HTTP outcomes for
-`/me`, `/resumes/mine`, `/negotiations` against the current HH application.
-Result feeds R1.3 transport decision. Not a silent background feature.
+**Status: DONE (2026-08-25)** as a one-shot operator probe (not a unit-test /
+CI network dependency). Recorded outcomes above. Re-run only when HH app
+credentials/scope or token setup change.
 
 ### TECH-US-00.3 — Core minimal linkage schema + API
 
@@ -184,8 +200,8 @@ Prefer extending existing IA over a new Settings product.
 |---|---|---|
 | **DEBT-US-00.1** | Product-facing HH connection absent despite implemented CLI session/auth | Operator cannot see R1 connection state in product UI |
 | **DEBT-US-00.2** | `list_resumes_mine` exists only as metrics counter helper | Not a resume-list product capability |
-| **DEBT-US-00.3** | Plans state `/me` may work; no code probe | Docs ahead of implementation |
-| **DEBT-US-00.4** | Live applications sync assumes `/negotiations` readable while docs claim 403 | Brittle happy path vs documented constraint |
+| **DEBT-US-00.3** | ~~`/me` unproven~~ → **closed by probe** (API works); product `/me` client/CLI still **MISSING** (tracked under US-00.2 / R1.2) | Was docs-ahead; live fact now known |
+| **DEBT-US-00.4** | Live applications sync assumes `/negotiations` readable while API returns **403** | Confirmed live 2026-08-25; brittle happy path |
 
 **Not DEBT-US:** HH API 403 scope itself; missing browser apply transport (separate track).
 
@@ -352,26 +368,49 @@ Document required env only (existing HH `.env.example` pattern). Never commit to
 | Task | Delivers | Depends on |
 |---|---|---|
 | **R1.1** | Operator-visible HH connection/session status (CLI envelope polish + Web surface) | existing session/auth |
-| **R1.2** | HH account/profile read + display | R1.1; TECH-US-00.2 probe preferred first |
-| **R1.3** | Resume list retrieval + transport decision if 403 | R1.1; TECH-US-00.2 |
-| **R1.4** | Active resume select + persistence | R1.3 |
+| **R1.2** | HH account/profile read + display | R1.1; TECH-US-00.2 **done** (`/me` = 200) |
+| **R1.3** | Resume list via **owner-chosen** supported transport (official API unavailable today) | R1.1; **owner decision**; TECH-US-00.2 done |
+| **R1.4** | Active resume select + persistence | R1.3 with a working list path |
 | **R1.5** | Minimal Core CandidateProfile/ProfileVersion linkage | R1.4 |
 | **R1.6** | Unified recovery/action-required states across CLI+Web | R1.1–R1.3 (harden continuously) |
 | **R1.A** | Acceptance scenarios / Gate evidence | R1.1–R1.6 |
 
-**First implementation task (recommended):** **R1.1** — product-facing connection/session status on top of existing HH CLI, without assuming `/resumes/mine` or `/negotiations` work.
+**R1.2 official API:** **YES** (`GET /me` = 200).  
+**R1.3 official API:** **NO** (`GET /resumes/mine` = 403 for current app/session).
 
-Optional parallel: **TECH-US-00.2** live access probe (short, evidence-only).
+**First implementation task (unblocked):** **R1.1** — product-facing connection/session status.  
+**Critical path for Gate R1:** owner **R1.3 transport decision**, then implement that path — a 403 error screen alone does **not** close Gate R1.
 
 ---
 
 ## 11. Gate R1
 
-Gate passes only if all are true:
+### A. Error-handling acceptance (required, not sufficient)
+
+If an official API call returns 403, Job Search must show an **explicit external
+permission limitation** (never a fake empty resume list). Same for 401/expired/
+CAPTCHA. This is mandatory AC for US-00.6 / US-00.3.
+
+### B. Product capability (required to CLOSE Gate R1)
+
+A **supported** path must actually deliver:
+
+- account/profile context;
+- resume list;
+- active resume select + restore;
+- local CandidateProfile/ProfileVersion linkage.
+
+**Current official-API verdict (2026-08-25):** Gate R1 is
+**BLOCKED BY EXTERNAL CONSTRAINT** for the resume-list leg — `/me` works;
+`/resumes/mine` does not. Closing Gate R1 requires an owner-approved alternate
+transport (or HH application/permission change) **plus** implementation.
+Showing only the 403 state ≠ Gate CLOSED.
+
+Gate checklist (all must be true to CLOSE):
 
 1. HH connection state is understandable to the operator.
 2. With a working session, HH account/profile context is known **or** the blocking reason is explicit.
-3. Resume list is available **or** external permission limitation is explicit (not fake empty).
+3. Resume list is available on a **supported** path (not merely a documented 403).
 4. Exactly one active working resume is selected **or** explicit none/cleared.
 5. Active resume restores after restart (or stale+reselect is explicit).
 6. Local CandidateProfile/ProfileVersion linkage exists for the active resume.

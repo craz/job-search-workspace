@@ -182,8 +182,8 @@ HH resume**, with local linkage to profile/resume context for downstream R2.
 |---|---|
 | Session / OAuth / noVNC login CLI | **IMPLEMENTED** |
 | Product-facing connection status (Web) | **MISSING** |
-| HH account/profile (`/me`) | **MISSING** |
-| Resume list product surface | **PARTIAL** (`list_resumes_mine` metrics-only) |
+| HH account/profile (`/me`) | **MISSING** product surface; API **SUPPORTED** (live 200) |
+| Resume list product surface | **PARTIAL** / API **EXTERNAL_BLOCKED** (live 403) |
 | Active resume select/persist | **MISSING** |
 | CandidateProfile / ProfileVersion | **MISSING** |
 | Unified action-required states | **PARTIAL** |
@@ -201,33 +201,43 @@ HH resume**, with local linkage to profile/resume context for downstream R2.
 | **US-00.6** | Explicit action-required (401/expired/CAPTCHA/403) |
 | **US-01.1** | Minimal local CandidateProfile/ProfileVersion linkage |
 
-TECH-US / DEBT-US / AC / BDD: see decomposition doc.
+TECH-US / DEBT-US / AC / BDD: see decomposition doc.  
+**TECH-US-00.2** live probe: **DONE** 2026-08-25.
 
 ### Execution sequence
 
 | Increment | Outcome |
 |---|---|
 | **R1.1** | Operator-visible HH connection/session status (CLI + Web) |
-| **R1.2** | Current HH profile/account context |
-| **R1.3** | Resume list — **decision point:** API vs browser if 403 persists |
+| **R1.2** | Current HH profile/account context (**official API YES** — `GET /me` = 200) |
+| **R1.3** | Resume list — **owner decision required** (**official API NO** — `GET /resumes/mine` = 403) |
 | **R1.4** | Active HH resume selection persisted |
 | **R1.5** | Minimal CandidateProfile / ProfileVersion linkage in Core |
 | **R1.6** | Unified recovery / action-required states |
 | **R1.A** | Acceptance evidence → **Gate R1** |
 
-**Recommended first implementation task:** R1.1 (plus optional live access probe).
+**Unblocked first implementation:** R1.1.  
+**Gate critical path:** R1.3 owner transport decision (403 error UX alone ≠ Gate CLOSED).
 
 ### External constraint (not «debt»)
 
-Current HH applicant app may return **403** on `/resumes/mine` and `/negotiations`.
-`/me` is claimed workable in older notes but **not implemented/probed in HH code**.
-Plan must **not** assume blocked API flows. Undecided transport → decision point.
+Live probe (usable OAuth session, 2026-08-25):
+
+- `GET /me` → **200 SUPPORTED**
+- `GET /resumes/mine` → **403 EXTERNAL_BLOCKED** (`forbidden`)
+- `GET /negotiations` → **403** (not R1 scope; confirms DEBT-US-00.4)
+
+Do **not** invent a 403 bypass. Transport choice for R1.3 is an **owner decision**.
 
 ### Gate R1
 
-Operator can understand HH connection; with a working session sees account/resume
-context or an explicit blocker; selects active resume (or explicit none); linkage
-survives restart; 401/expired/CAPTCHA/403 are explicit; tests green — without R2.
+**A.** Explicit 403/401/CAPTCHA handling is mandatory AC.  
+**B.** Closing Gate still requires a **supported** path that actually lists resumes
+and supports active-resume + linkage.
+
+**Current official-API verdict:** Gate R1 **BLOCKED BY EXTERNAL CONSTRAINT** on
+the resume-list leg until owner-approved transport (or HH app permission change)
+is chosen and implemented — without R2.
 
 ---
 
@@ -398,8 +408,11 @@ Execute in parallel only if it does not block R1.
 
 ## Current next step
 
-**R1.1** — product-facing HH connection/session status (after owner accepts
-decomposition in [`docs/R1_PB00_DECOMPOSITION.md`](docs/R1_PB00_DECOMPOSITION.md)).
+**Owner decision: R1.3 resume-list transport** (official API unavailable for
+current HH app/session — live 403). Until then Gate R1 cannot CLOSE.
+
+Unblocked implementation (does not close Gate alone): **R1.1** product-facing
+HH connection/session status.
 
 Do not start Scoring foundation, Content, or Hermes until R1 Gate
 (or documented PO waiver).
