@@ -1,9 +1,8 @@
 # R1 / PB-00 — decomposition
 
-**Status:** R1.1 **OWNER ACCEPTED** / **COMPLETE** (2026-08-25); R1.2–R1.6 not started  
+**Status:** R1.1 **COMPLETE**; R1.2 **IMPLEMENTED · TECHNICAL PASS · OWNER ACCEPTANCE PENDING**; R1.3–R1.6 not started; **Gate R1 OPEN**  
 **Date:** 2026-08-25  
 **PBI:** PB-00 (primary) + minimal PB-01 slice for local linkage only  
-**HH submodule:** `92d2813`  
 **Prerequisite Gate:** PB-DATA-00 CLOSED  
 
 Canonical execution pointer: [`IMPLEMENTATION_PLAN.md`](../IMPLEMENTATION_PLAN.md) § R1.  
@@ -11,19 +10,15 @@ This document owns the detailed US / AC / BDD / Tasks for R1 entry.
 
 ### R1.1 owner acceptance (manual)
 
-**OWNER ACCEPTED** 2026-08-25 (manual review of http://127.0.0.1:18080/).
+**OWNER ACCEPTED** 2026-08-25 (manual review of http://127.0.0.1:18080/). Slice **COMPLETE**.
 
-Historical checklist (for reference):
+### R1.2 owner acceptance (pending)
 
-Open: `http://127.0.0.1:18080/` (local `WEB_PORT` from `.env`; default 8080).
+**Status:** IMPLEMENTED · TECHNICAL PASS · **OWNER ACCEPTANCE PENDING** (2026-08-25).
 
-1. Header right: labels **HeadHunter** + state text (live: **Подключено**).
-2. No action button when connected; no tokens/paths in UI.
-3. Core signal remains usable (**Core доступен** when Core is up).
-4. Nav/vacancies still work.
+Transport: official HH API `GET /me` only (no browser). R1.3 remains browser RO resume list.
 
-Other connection states: covered by deterministic HH/Web tests (not forced on the
-live session). Slice **COMPLETE**. Roadmap **Gate R1** still open until later slices.
+Checklist: see § «R1.2 OWNER ACCEPTANCE checklist» below and the agent final report.
 
 ---
 
@@ -71,12 +66,12 @@ the R1 linkage model. Do not overload it for active HH resume identity.
 | HH connection / session (CLI) | **IMPLEMENTED** | `session.py` `session_status` / `auth_status`; CLI `session status`, `auth status|open-login|confirm|clear`; OAuth token store + loopback; specs/runbooks under `services/hh/docs/` |
 | Operator noVNC login | **IMPLEMENTED** | `browser.py` + `auth open-login` / `confirm`; runbook `docs/runbooks/operator-novnc-login.md` |
 | Product-facing connection status (Web / unified operator report) | **IMPLEMENTED** (R1.1) | `connection status` CLI + `GET /api/v1/connection`; Web header HH signal |
-| HH account / profile (`GET /me`) | **MISSING** (API **SUPPORTED**) | No `/me` client/CLI/model in HH product surface; **live probe 2026-08-25:** `GET /me` → **HTTP 200** with account identity fields |
+| HH account / profile (`GET /me`) | **IMPLEMENTED** (R1.2; owner acceptance pending) | `account status` + `GET /api/v1/account`; Web header identity; normalized contract only; live `/me` 200 confirmed |
 | Resume list product surface | **PARTIAL** (API **EXTERNAL_BLOCKED**; **browser transport selected**) | Official API 403; owner decision: authenticated browser **read-only** for own resume list (not implemented yet) |
 | Active HH resume select / persist | **MISSING** | `resume_id` only inside apply-plan fixtures |
 | CandidateProfile / ProfileVersion | **MISSING** | No Core models/API |
 | Recovery / action-required (unified) | **PARTIAL** | `live_auth` login_not_ready / token missing; metrics tolerate `resumes_mine_forbidden`; apply stops on captcha/403/429 — **no** unified operator/Web contract for R1 states |
-| Web HH settings / resume UI | **MISSING** | Five R0 workspaces only; journal `resume_version` is free text |
+| Web HH settings / resume UI | **PARTIAL** (R1.2 account identity; no resume UI) | Header HH connection + account label; no resume list/select |
 | CAPTCHA bypass | **MISSING** (intentional) | `captcha_bypass: false`; apply stops — correct safety stance |
 
 ### External constraints (not DEBT-US)
@@ -221,7 +216,7 @@ Prefer extending existing IA over a new Settings product.
 |---|---|---|
 | **DEBT-US-00.1** | Product-facing HH connection absent despite implemented CLI session/auth | Operator cannot see R1 connection state in product UI |
 | **DEBT-US-00.2** | `list_resumes_mine` exists only as metrics counter helper | Not a resume-list product capability |
-| **DEBT-US-00.3** | ~~`/me` unproven~~ → **closed by probe** (API works); product `/me` client/CLI still **MISSING** (tracked under US-00.2 / R1.2) | Was docs-ahead; live fact now known |
+| **DEBT-US-00.3** | ~~`/me` unproven~~ → **closed by probe**; product surface delivered in R1.2 (owner acceptance pending) | Was docs-ahead |
 | **DEBT-US-00.4** | Live applications sync assumes `/negotiations` readable while API returns **403** | Confirmed live 2026-08-25; brittle happy path |
 
 **Not DEBT-US:** HH API 403 scope itself; missing browser apply transport (separate track).
@@ -389,20 +384,32 @@ Document required env only (existing HH `.env.example` pattern). Never commit to
 | Task | Delivers | Depends on |
 |---|---|---|
 | **R1.1** | Operator-visible HH connection/session status (CLI + HTTP + Web) | **COMPLETE** (OWNER ACCEPTED 2026-08-25) |
-| **R1.2** | HH account/profile read + display | R1.1 done; TECH-US-00.2 done (`/me` = 200) |
-| **R1.3** | Resume list via **authenticated browser read-only** transport (owner decision) | R1.1; normalize to internal resume-summary contract |
+| **R1.2** | HH account/profile read + display via official `GET /me` | **IMPLEMENTED · TECHNICAL PASS · OWNER ACCEPTANCE PENDING** |
+| **R1.3** | Resume list via **authenticated browser read-only** transport (owner decision) | **NOT STARTED** |
 | **R1.4** | Active resume select + persistence | R1.3 with a working list path |
 | **R1.5** | Minimal Core CandidateProfile/ProfileVersion linkage | R1.4 |
 | **R1.6** | Unified recovery/action-required states across CLI+Web | R1.1–R1.3 (harden continuously) |
 | **R1.A** | Acceptance scenarios / Gate evidence | R1.1–R1.6 |
 
-**R1.2 official API:** **YES** (`GET /me` = 200).  
+**R1.2 official API:** **YES** (`GET /me` = 200) — product transport for account context.  
 **R1.3 official API:** **NO** (`GET /resumes/mine` = 403).  
-**R1.3 transport decision:** authenticated browser session, read-only own resumes.
+**R1.3 transport decision:** authenticated browser session, read-only own resumes (**not started**).
 
-**Next implementation task:** **R1.2** — HH account/profile via official `/me`.  
-**Gate critical path:** R1.3 browser resume-list implementation after R1.2 — a 403
-error screen alone does **not** close Gate R1.
+**Next:** owner ACCEPT for R1.2, then push on request; then **R1.3**.  
+**Gate critical path:** R1.3 browser resume-list — a 403 error screen alone does **not** close Gate R1.  
+**Gate R1:** **OPEN**.
+
+### R1.2 OWNER ACCEPTANCE checklist
+
+Open: `http://127.0.0.1:18080/` (local `WEB_PORT`; this workspace uses 18080).
+
+1. Header right: **HeadHunter** + **Подключено** (R1.1 connection).
+2. Under/near that status: connected-account identity (`display_name` and/or `email` tooltip) — answers «к какому HH-аккаунту подключён Job Search?».
+3. No raw JSON, tokens, paths, resume list, or «0 resumes» claims.
+4. Core signal still usable; nav/vacancies still work.
+5. Confirm resume list is **not** part of R1.2 (R1.3).
+
+STOP until owner says `ACCEPT` / «принимаю».
 
 ---
 

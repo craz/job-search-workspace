@@ -2,7 +2,7 @@
 
 **Revision:** 2  
 **Basis:** UJM v1 + Product Backlog + Roadmap v1 + [`ARCHITECTURE_PLAN.md`](ARCHITECTURE_PLAN.md) rev. 2  
-**Updated:** 2026-08-25 (R1.1 HH connection status COMPLETE; no rev. 3)  
+**Updated:** 2026-08-25 (R1.2 TECHNICAL PASS / OWNER ACCEPTANCE PENDING; R1.1 COMPLETE)  
 **Previous revision:** 1 (service bootstrap / multirepo transfer sequence)
 
 Оперативный снимок: [`PROJECT_STATUS.md`](PROJECT_STATUS.md).  
@@ -171,7 +171,7 @@ monolith, SQLite, or migration tooling. Details live outside this repository.
 
 **PBI:** PB-00 + minimally necessary PB-01.  
 **Decomposition:** [`docs/R1_PB00_DECOMPOSITION.md`](docs/R1_PB00_DECOMPOSITION.md)  
-**Implementation:** **R1.1 COMPLETE** (OWNER ACCEPTED 2026-08-25); R1.2–R1.6 not started.
+**Implementation:** **R1.1 COMPLETE**; **R1.2 READY FOR OWNER ACCEPTANCE** (IMPLEMENTED · TECHNICAL PASS); R1.3–R1.6 not started; **Gate R1 OPEN**.
 
 **Product outcome:** operator connects HH, sees account context, selects **active
 HH resume**, with local linkage to profile/resume context for downstream R2.
@@ -182,19 +182,19 @@ HH resume**, with local linkage to profile/resume context for downstream R2.
 |---|---|
 | Session / OAuth / noVNC login CLI | **IMPLEMENTED** |
 | Product-facing connection status (Web) | **IMPLEMENTED** (R1.1) |
-| HH account/profile (`/me`) | **MISSING** product surface; API **SUPPORTED** (live 200) |
-| Resume list product surface | **PARTIAL** / API **EXTERNAL_BLOCKED** (live 403); browser RO transport **selected** |
+| HH account/profile (`/me`) | **IMPLEMENTED** (R1.2; owner acceptance pending); official API |
+| Resume list product surface | **PARTIAL** / API **EXTERNAL_BLOCKED** (live 403); browser RO transport **selected**, not started |
 | Active resume select/persist | **MISSING** |
 | CandidateProfile / ProfileVersion | **MISSING** |
-| Unified action-required states | **PARTIAL** (R1.1 connection mapping) |
-| Web HH context UI | **PARTIAL** (connection only) |
+| Unified action-required states | **PARTIAL** (R1.1 connection mapping + R1.2 profile codes) |
+| Web HH context UI | **PARTIAL** (connection + account identity; no resume UI) |
 
 ### Stories (summary)
 
 | ID | Intent |
 |---|---|
 | **US-00.1** | Understand HH connection state — **DONE (R1.1)** |
-| **US-00.2** | See HH account/profile |
+| **US-00.2** | See HH account/profile — **IMPLEMENTED** (R1.2; owner acceptance pending) |
 | **US-00.3** | List HH resumes |
 | **US-00.4** | Select active HH resume |
 | **US-00.5** | Restore active resume after restart |
@@ -209,15 +209,16 @@ TECH-US / DEBT-US / AC / BDD: see decomposition doc.
 | Increment | Outcome |
 |---|---|
 | **R1.1** | Operator-visible HH connection/session status — **COMPLETE** (OWNER ACCEPTED) |
-| **R1.2** | Current HH profile/account context (**official API YES** — `GET /me` = 200) |
-| **R1.3** | Resume list via **authenticated browser read-only** (owner decision; official API NO) |
+| **R1.2** | Current HH profile/account context via official `GET /me` — **READY FOR OWNER ACCEPTANCE** |
+| **R1.3** | Resume list via **authenticated browser read-only** — **NOT STARTED** |
 | **R1.4** | Active HH resume selection persisted |
 | **R1.5** | Minimal CandidateProfile / ProfileVersion linkage in Core |
 | **R1.6** | Unified recovery / action-required states |
 | **R1.A** | Acceptance evidence → **Gate R1** |
 
-**Next:** push R1.1 (on request), then **R1.2**.  
-**Gate critical path:** R1.3 browser resume list (403 error UX alone ≠ Gate CLOSED).
+**Next:** owner ACCEPT for R1.2 → push on request → **R1.3**.  
+**Gate critical path:** R1.3 browser resume list (403 error UX alone ≠ Gate CLOSED).  
+**Gate R1:** **OPEN**.
 
 ### External constraint (not «debt»)
 
@@ -409,12 +410,11 @@ Execute in parallel only if it does not block R1.
 
 ## Current next step
 
-**R1.2** — HH account/profile via official `GET /me` (after push of R1.1, unless
-owner starts R1.2 explicitly first).
+**Owner ACCEPT for R1.2** (HH account/profile via official `GET /me`), then push
+on request. **R1.3** (browser RO resume list) is **NOT STARTED**.
 
-R1.1 is **COMPLETE** (OWNER ACCEPTED 2026-08-25). R1.3 will use authenticated
-browser **read-only** transport for own resume list (owner decision recorded;
-not started). Until R1.3 lands, Gate R1 cannot CLOSE.
+R1.1 is **COMPLETE**. R1.2 is **READY FOR OWNER ACCEPTANCE** (not COMPLETE).
+Until R1.3 lands, **Gate R1** remains **OPEN** / cannot CLOSE.
 
 Do not start Scoring foundation, Content, or Hermes until R1 Gate
 (or documented PO waiver).

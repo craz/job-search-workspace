@@ -1,10 +1,8 @@
 # Состояние проекта Job Search Multirepo
 
 **Дата снимка:** 2026-08-25 (UTC+3)  
-**Workspace HEAD:** local R1.1 COMPLETE (parent `bbb70cf` on origin; ahead pending push)  
-**Web submodule HEAD:** `6dc63daa415f476452270318950f175bc293a8d6`  
-**HH submodule HEAD:** `92d28131f72ee9409318c52a378faf8b0236f2d4`  
-**Ветка:** `main` (ahead of `origin/main`; push after owner request)
+**Workspace HEAD:** local R1.2 TECHNICAL PASS (gitlinks/docs; not pushed)  
+**Ветка:** `main` (R1.1 baseline on `origin/main` @ `f50c2aa`; R1.2 commits local-only until ACCEPT + push request)
 
 Этот файл — оперативный снимок «где мы сейчас». Детальный план и gate-критерии
 живут в [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md); архитектура — в
@@ -19,9 +17,9 @@
 | Core + Web MVP | готово |
 | Scoring (host Ollama pipeline) | базово готово |
 | OSINT (website / people → Core) | в основном готово |
-| HH read-path | **read-ready** for vacancies + **`GET /me`**; `/resumes/mine` + `/negotiations` **403**; R1.1 connection surface **COMPLETE** (OWNER ACCEPTED) |
+| HH read-path | vacancies + **`GET /me` product surface (R1.2)**; `/resumes/mine` + `/negotiations` **403**; R1.1 connection **COMPLETE** |
 | HH write-path (API) | код dual-gate готов; **production API apply заблокирован scope HH-приложения** |
-| **R1 / PB-00** | R1.1 **COMPLETE**; next **R1.2**; R1.3 transport = browser RO own resumes (decided, not implemented); Gate R1 still **BLOCKED** on resume-list until R1.3 |
+| **R1 / PB-00** | R1.1 **COMPLETE**; R1.2 **READY FOR OWNER ACCEPTANCE**; R1.3 transport = browser RO (decided, **not started**); **Gate R1 OPEN** |
 | Content / Telegram §8 | не начат (submodule stub) |
 | Сквозная сборка §9 / Hermes §10 | не закрыты |
 | **Plan revisions** | **ARCHITECTURE_PLAN rev. 2** · **IMPLEMENTATION_PLAN rev. 2** |
@@ -33,7 +31,7 @@
 **Gate PB-DATA-00:** **CLOSED** (DATA-00.1–00.7).  
 **R0** больше не является текущей реализационной работой.
 
-**Главный продуктовый next:** push R1.1 commits (по запросу), затем **R1.2** — HH account/profile via `/me`.  
+**Главный продуктовый next:** owner **ACCEPT** для R1.2, затем push по запросу; далее **R1.3**.  
 R1.3: authenticated browser read-only own resume list (owner decision; not started).  
 Full R1: connection → profile → resume list → active resume → linkage → recovery → Gate R1.  
 Initial owner legacy data bootstrap completed before R1; it is not a product feature.
@@ -113,7 +111,9 @@ Content/Telegram, browser HH apply и Scoring foundation **не являются
 
 ## Решение по «го» / blockers
 
-- **«Го»** = **push** R1.1 commits (workspace + HH/Web remotes as needed), или если скажешь — сразу **R1.2** без push.
+- **«Го»** = owner **ACCEPT** для R1.2 (checklist в `docs/R1_PB00_DECOMPOSITION.md`),  
+  или если скажешь — remarks / правки до ACCEPT.  
+  Push R1.2 — только после ACCEPT и явного запроса. R1.3 не стартовать до ACCEPT.
 
 ## Как обновлять этот файл
 
