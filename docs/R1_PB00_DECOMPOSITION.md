@@ -1,6 +1,6 @@
 # R1 / PB-00 — decomposition
 
-**Status:** R1.1 **IMPLEMENTED** · **TECHNICAL PASS** · **OWNER ACCEPTANCE PENDING** (not COMPLETE)  
+**Status:** R1.1 **OWNER ACCEPTED** / **COMPLETE** (2026-08-25); R1.2–R1.6 not started  
 **Date:** 2026-08-25  
 **PBI:** PB-00 (primary) + minimal PB-01 slice for local linkage only  
 **HH submodule:** `92d2813`  
@@ -11,15 +11,19 @@ This document owns the detailed US / AC / BDD / Tasks for R1 entry.
 
 ### R1.1 owner acceptance (manual)
 
+**OWNER ACCEPTED** 2026-08-25 (manual review of http://127.0.0.1:18080/).
+
+Historical checklist (for reference):
+
 Open: `http://127.0.0.1:18080/` (local `WEB_PORT` from `.env`; default 8080).
 
-1. Header right: labels **HeadHunter** + state text (live expected: **Подключено**).
+1. Header right: labels **HeadHunter** + state text (live: **Подключено**).
 2. No action button when connected; no tokens/paths in UI.
 3. Core signal remains usable (**Core доступен** when Core is up).
 4. Nav/vacancies still work.
 
-Other connection states: deterministic HH/Web tests; do not expire the real session
-to demo errors. COMPLETE only after owner **ACCEPT**.
+Other connection states: covered by deterministic HH/Web tests (not forced on the
+live session). Slice **COMPLETE**. Roadmap **Gate R1** still open until later slices.
 
 ---
 
@@ -384,7 +388,7 @@ Document required env only (existing HH `.env.example` pattern). Never commit to
 
 | Task | Delivers | Depends on |
 |---|---|---|
-| **R1.1** | Operator-visible HH connection/session status (CLI + HTTP + Web) | **IMPLEMENTED / TECHNICAL PASS / OWNER ACCEPTANCE PENDING** |
+| **R1.1** | Operator-visible HH connection/session status (CLI + HTTP + Web) | **COMPLETE** (OWNER ACCEPTED 2026-08-25) |
 | **R1.2** | HH account/profile read + display | R1.1 done; TECH-US-00.2 done (`/me` = 200) |
 | **R1.3** | Resume list via **authenticated browser read-only** transport (owner decision) | R1.1; normalize to internal resume-summary contract |
 | **R1.4** | Active resume select + persistence | R1.3 with a working list path |
