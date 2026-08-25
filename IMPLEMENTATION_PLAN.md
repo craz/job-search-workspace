@@ -2,7 +2,7 @@
 
 **Revision:** 2  
 **Basis:** UJM v1 + Product Backlog + Roadmap v1 + [`ARCHITECTURE_PLAN.md`](ARCHITECTURE_PLAN.md) rev. 2  
-**Updated:** 2026-08-22  
+**Updated:** 2026-08-25 (R1 / PB-00 decomposition; no rev. 3)  
 **Previous revision:** 1 (service bootstrap / multirepo transfer sequence)
 
 Оперативный снимок: [`PROJECT_STATUS.md`](PROJECT_STATUS.md).  
@@ -169,33 +169,65 @@ monolith, SQLite, or migration tooling. Details live outside this repository.
 
 ## R1 — HH connection + active resume
 
-**PBI:** PB-00 + minimally necessary PB-01.
+**PBI:** PB-00 + minimally necessary PB-01.  
+**Decomposition:** [`docs/R1_PB00_DECOMPOSITION.md`](docs/R1_PB00_DECOMPOSITION.md)  
+**Implementation:** not started (audit + planning only as of 2026-08-25).
 
 **Product outcome:** operator connects HH, sees account context, selects **active
 HH resume**, with local linkage to profile/resume context for downstream R2.
 
-### Execution sequence (decompose at R1 entry)
+### Audit snapshot (HH `1ec60bf`)
+
+| Capability | Class |
+|---|---|
+| Session / OAuth / noVNC login CLI | **IMPLEMENTED** |
+| Product-facing connection status (Web) | **MISSING** |
+| HH account/profile (`/me`) | **MISSING** |
+| Resume list product surface | **PARTIAL** (`list_resumes_mine` metrics-only) |
+| Active resume select/persist | **MISSING** |
+| CandidateProfile / ProfileVersion | **MISSING** |
+| Unified action-required states | **PARTIAL** |
+| Web HH context UI | **MISSING** |
+
+### Stories (summary)
+
+| ID | Intent |
+|---|---|
+| **US-00.1** | Understand HH connection state |
+| **US-00.2** | See HH account/profile |
+| **US-00.3** | List HH resumes |
+| **US-00.4** | Select active HH resume |
+| **US-00.5** | Restore active resume after restart |
+| **US-00.6** | Explicit action-required (401/expired/CAPTCHA/403) |
+| **US-01.1** | Minimal local CandidateProfile/ProfileVersion linkage |
+
+TECH-US / DEBT-US / AC / BDD: see decomposition doc.
+
+### Execution sequence
 
 | Increment | Outcome |
 |---|---|
-| **R1.1** | HH connection / session state visible to operator (existing capabilities + UX/runbook) |
+| **R1.1** | Operator-visible HH connection/session status (CLI + Web) |
 | **R1.2** | Current HH profile/account context |
-| **R1.3** | Resume list retrieval — **decision point:** API vs browser if 403 persists |
+| **R1.3** | Resume list — **decision point:** API vs browser if 403 persists |
 | **R1.4** | Active HH resume selection persisted |
-| **R1.5** | Local linkage (CandidateProfile / ResumeVersion — minimal model; schema TBD at R1 entry) |
-| **R1.6** | Recovery, error, operator-action states (auth expired, captcha, scope blocked) |
+| **R1.5** | Minimal CandidateProfile / ProfileVersion linkage in Core |
+| **R1.6** | Unified recovery / action-required states |
+| **R1.A** | Acceptance evidence → **Gate R1** |
+
+**Recommended first implementation task:** R1.1 (plus optional live access probe).
 
 ### External constraint (not «debt»)
 
-Current HH applicant app: token may work for `/me`, but `/negotiations`,
-`/resumes/mine` → **403**. Plan must **not** assume API flows that return 403
-today. Where transport undecided → **decision point**, not fantasy implementation.
+Current HH applicant app may return **403** on `/resumes/mine` and `/negotiations`.
+`/me` is claimed workable in older notes but **not implemented/probed in HH code**.
+Plan must **not** assume blocked API flows. Undecided transport → decision point.
 
 ### Gate R1
 
-Operator can connect HH, see profile/resume context, select active resume with
-local linkage; blocked paths documented with explicit operator recovery — without
-requiring R2 scoring or R3 outreach.
+Operator can understand HH connection; with a working session sees account/resume
+context or an explicit blocker; selects active resume (or explicit none); linkage
+survives restart; 401/expired/CAPTCHA/403 are explicit; tests green — without R2.
 
 ---
 
@@ -366,8 +398,8 @@ Execute in parallel only if it does not block R1.
 
 ## Current next step
 
-**R1 / PB-00** — HH connection, profile, resume list, active resume, local
-linkage, recovery states → **Gate R1**.
+**R1.1** — product-facing HH connection/session status (after owner accepts
+decomposition in [`docs/R1_PB00_DECOMPOSITION.md`](docs/R1_PB00_DECOMPOSITION.md)).
 
 Do not start Scoring foundation, Content, or Hermes until R1 Gate
 (or documented PO waiver).

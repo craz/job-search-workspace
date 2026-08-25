@@ -1,0 +1,392 @@
+# R1 / PB-00 — decomposition
+
+**Status:** decomposition complete; implementation **not started**  
+**Date:** 2026-08-25  
+**PBI:** PB-00 (primary) + minimal PB-01 slice for local linkage only  
+**HH submodule:** `1ec60bf`  
+**Prerequisite Gate:** PB-DATA-00 CLOSED  
+
+Canonical execution pointer: [`IMPLEMENTATION_PLAN.md`](../IMPLEMENTATION_PLAN.md) § R1.  
+This document owns the detailed US / AC / BDD / Tasks for R1 entry.
+
+---
+
+## 1. Product goal
+
+Operator has a trustworthy HeadHunter context:
+
+```text
+HH connection/session
+  → HH account/profile
+  → resume list
+  → active HH resume
+  → local CandidateProfile / ProfileVersion linkage
+  → recovery / action-required states
+  → Gate R1
+```
+
+**Out of R1:** full SearchProfile, scoring profile, multi-provider resumes,
+vacancy ingestion redesign, browser apply productization, R2 scoring foundation.
+
+---
+
+## 2. Domain boundary (do not collapse)
+
+| Concept | Meaning in R1 | Owner |
+|---|---|---|
+| **HH Account / Profile** | External HeadHunter account context (`/me` or documented substitute) | HH service (read) |
+| **HH Resume** | External resume object from HH (`id`, title, …) | HH service (read) |
+| **Active HH resume** | Exactly one selected external resume id for the operator (or explicit none) | HH + Core linkage |
+| **CandidateProfile** | Local durable “who I am as a candidate” identity | Core |
+| **ProfileVersion** | Local snapshot/version of candidate context used for linkage (and later R2 scoring) | Core |
+| **SearchProfile** | Search preferences / cycle context | **R2+** — not built in R1 |
+
+`Application.resume_version` (existing Core free-text field on Journal) is **not**
+the R1 linkage model. Do not overload it for active HH resume identity.
+
+`Person` is company contact (OSINT) — **not** CandidateProfile.
+
+---
+
+## 3. Implementation audit (as of HH `1ec60bf`)
+
+| Capability | Class | Evidence |
+|---|---|---|
+| HH connection / session (CLI) | **IMPLEMENTED** | `session.py` `session_status` / `auth_status`; CLI `session status`, `auth status|open-login|confirm|clear`; OAuth token store + loopback; specs/runbooks under `services/hh/docs/` |
+| Operator noVNC login | **IMPLEMENTED** | `browser.py` + `auth open-login` / `confirm`; runbook `docs/runbooks/operator-novnc-login.md` |
+| Product-facing connection status (Web / unified operator report) | **MISSING** | Web `#connection-label` = Core health only (`static/app.js`) |
+| HH account / profile (`GET /me`) | **MISSING** | No `/me` client, CLI, or model in HH src; plans mention token may work — **not proven in code** |
+| Resume list product surface | **PARTIAL** | `AuthenticatedHhApi.list_resumes_mine()` → `GET /resumes/mine` used only for metrics view counters (`providers.py`); no `resumes list` CLI; no UI |
+| Active HH resume select / persist | **MISSING** | `resume_id` only inside apply-plan fixtures |
+| CandidateProfile / ProfileVersion | **MISSING** | No Core models/API |
+| Recovery / action-required (unified) | **PARTIAL** | `live_auth` login_not_ready / token missing; metrics tolerate `resumes_mine_forbidden`; apply stops on captcha/403/429 — **no** unified operator/Web contract for R1 states |
+| Web HH settings / resume UI | **MISSING** | Five R0 workspaces only; journal `resume_version` is free text |
+| CAPTCHA bypass | **MISSING** (intentional) | `captcha_bypass: false`; apply stops — correct safety stance |
+
+### External constraints (not DEBT-US)
+
+Documented and partially coded:
+
+- Current HH applicant application: `GET /resumes/mine` and `GET /negotiations` may return **403** (scope).
+- Code: metrics maps 403 on resumes → `resumes_mine_forbidden` note; applications sync does **not** tolerate negotiations 403.
+- **No** automated live probe of `/me` / `/resumes/mine` / `/negotiations` in-repo as an R1 acceptance artifact yet.
+
+R1.3 remains a **decision point**: API vs browser (or other) transport if 403 persists. Do not invent a bypass.
+
+---
+
+## 4. User Stories (PB-00)
+
+### US-00.1 — Understand HH connection state
+
+```text
+Как оператор,
+Я хочу видеть актуальное состояние подключения HeadHunter,
+Чтобы знать, можно ли читать HH context и что делать, если нельзя.
+```
+
+**In scope:** session / login_ready / token readiness / clear recovery hints.  
+**Non-scope:** resume list, apply, scoring.
+
+### US-00.2 — See current HH account / profile
+
+```text
+Как оператор,
+Я хочу видеть контекст своего HH account/profile,
+Чтобы подтвердить, что Job Search смотрит на правильный аккаунт.
+```
+
+**In scope:** fetch + display account identity fields available from HH.  
+**Non-scope:** editing HH profile.
+
+### US-00.3 — List available HH resumes
+
+```text
+Как оператор,
+Я хочу получить список доступных HH resumes,
+Чтобы выбрать, с каким резюме работать дальше.
+```
+
+**In scope:** list contract + empty / blocked outcomes.  
+**Non-scope:** editing resume content on HH.
+
+### US-00.4 — Select active HH resume
+
+```text
+Как оператор,
+Я хочу выбрать одно активное HH resume (или явно оставить выбор пустым),
+Чтобы последующие шаги использовали известный resume context.
+```
+
+### US-00.5 — Restore active resume after restart
+
+```text
+Как оператор,
+Я хочу, чтобы выбранное активное resume восстанавливалось после restart,
+Чтобы не выбирать его заново каждый раз.
+```
+
+### US-00.6 — Explicit action-required states
+
+```text
+Как оператор,
+Я хочу явно видеть not authorized / expired / CAPTCHA / permission denied,
+Чтобы не путать внешний блок с «пустым списком» или молчаливым сбоем.
+```
+
+### US-01.1 — Minimal local linkage (minimal PB-01)
+
+```text
+Как оператор,
+Я хочу связать активное HH resume с локальным CandidateProfile / ProfileVersion,
+Чтобы R2 мог опираться на локальный candidate context, а не только на ephemeral HH id.
+```
+
+**In scope:** minimal Core model + link to `source=hh` + external resume id + restore.  
+**Non-scope:** SearchProfile, scoring policy, resume history analytics, multi-provider.
+
+---
+
+## 5. TECH-US
+
+### TECH-US-00.1 — HH client contract for profile + resumes
+
+Stable HH-side read contract (CLI and/or internal API) for:
+
+- connection status envelope
+- account/profile fetch
+- resume list fetch
+- typed error codes: `not_authorized`, `expired`, `captcha_or_action_required`, `permission_denied`, `network_failure`
+
+Builds on existing session/oauth/`AuthenticatedHhApi`; does not invent product UI.
+
+### TECH-US-00.2 — Live access probe artifact
+
+Operator-runnable (or gated CI) probe that records actual HTTP outcomes for
+`/me`, `/resumes/mine`, `/negotiations` against the current HH application.
+Result feeds R1.3 transport decision. Not a silent background feature.
+
+### TECH-US-00.3 — Core minimal linkage schema + API
+
+Introduce minimal CandidateProfile / ProfileVersion (names TBD at schema task)
+with HH resume identity fields and active-link semantics. Versioned HTTP/JSON only.
+
+### TECH-US-00.4 — Web HH context surface
+
+Minimal R0-consistent panel/section for connection + profile + resumes + errors.
+Prefer extending existing IA over a new Settings product.
+
+---
+
+## 6. DEBT-US (only real debt)
+
+| ID | Debt | Why debt (not external) |
+|---|---|---|
+| **DEBT-US-00.1** | Product-facing HH connection absent despite implemented CLI session/auth | Operator cannot see R1 connection state in product UI |
+| **DEBT-US-00.2** | `list_resumes_mine` exists only as metrics counter helper | Not a resume-list product capability |
+| **DEBT-US-00.3** | Plans state `/me` may work; no code probe | Docs ahead of implementation |
+| **DEBT-US-00.4** | Live applications sync assumes `/negotiations` readable while docs claim 403 | Brittle happy path vs documented constraint |
+
+**Not DEBT-US:** HH API 403 scope itself; missing browser apply transport (separate track).
+
+---
+
+## 7. Acceptance Criteria by story
+
+### US-00.1
+
+1. Given HH session is not ready, when operator opens connection status, then state is explicit **not ready** with next action (e.g. open-login / confirm).
+2. Given login_ready but access token missing/expired, then status shows **token action required**, not “connected”.
+3. Given login_ready + valid token store, then status shows **ready for authenticated reads**.
+4. Status never prints tokens/cookies.
+
+### US-00.2
+
+1. Given ready authenticated session and `/me` (or chosen substitute) succeeds, then operator sees account identity fields (at least stable id/name as available).
+2. Given 401/expired, then profile is not shown as empty success — **action required**.
+3. Given 403 permission limitation on profile endpoint, then **permission denied** is explicit.
+
+### US-00.3
+
+1. Given transport that can list resumes, then operator sees a list of resumes with external ids and display titles.
+2. Given empty but authorized list, then UI/CLI shows **empty list**, not an error.
+3. Given 403 on resume transport, then result is **permission denied / external limitation**, **never** silently empty success.
+4. Given network failure, then failure is explicit and retry is operator-controlled (no silent loop).
+
+### US-00.4
+
+1. Operator can select exactly one active resume from the list.
+2. Operator can clear selection to explicit **none**.
+3. Selection is rejected if resume id is not in the last successful list (or revalidated).
+
+### US-00.5
+
+1. After process/container restart, previously selected active resume id is restored.
+2. If restored id is no longer available, state is **stale selection** + action required (re-select), not silent fake success.
+
+### US-00.6
+
+1. 401 / expired → action required (re-auth), no silent retry storm.
+2. CAPTCHA / action required → stop + explicit state; no bypass.
+3. 403 scope → explicit external limitation.
+4. These states are distinguishable in the operator-facing contract.
+
+### US-01.1
+
+1. Selecting active HH resume creates/updates local linkage: `source=hh`, external resume id, link to CandidateProfile/ProfileVersion.
+2. Linkage survives restart.
+3. Fresh install without selection has **no** automatic legacy/`legacy_job_search` candidate data.
+4. Clearing active resume clears or marks linkage inactive without deleting unrelated Core history.
+
+---
+
+## 8. BDD / Gherkin (useful E2E only)
+
+```gherkin
+Feature: R1 HeadHunter context
+
+  @us-00.1
+  Scenario: Working session is visible as ready
+    Given HH login is confirmed and an access token is stored
+    When the operator requests HH connection status
+    Then the status is ready for authenticated reads
+    And no secrets are exposed
+
+  @us-00.2
+  Scenario: Account profile available when HH allows it
+    Given HH connection status is ready
+    And the account profile transport succeeds
+    When the operator requests HH account context
+    Then account identity is shown
+
+  @us-00.3
+  Scenario: Resume list available when HH allows it
+    Given HH connection status is ready
+    And the resume list transport succeeds
+    When the operator requests the resume list
+    Then available resumes are shown with external ids
+
+  @us-00.3 @us-00.6
+  Scenario: Permission denied is not an empty list
+    Given HH connection status is ready
+    And the resume list transport returns 403
+    When the operator requests the resume list
+    Then the result is permission denied
+    And it is not presented as an empty successful list
+
+  @us-00.4 @us-00.5
+  Scenario: Active resume survives restart
+    Given a resume list is available
+    And the operator selected one active HH resume
+    When the HH/Core services restart
+    Then the same active resume id is restored
+
+  @us-00.6
+  Scenario: Expired session requires operator action
+    Given the access token is expired or revoked
+    When the operator requests HH account or resumes
+    Then an expired/not-authorized action-required state is shown
+    And the system does not silently retry in a loop
+
+  @us-00.6
+  Scenario: CAPTCHA or action-required stops automation
+    Given HH returns a captcha or action-required condition on a guarded path
+    When the operator-facing flow encounters it
+    Then the flow stops with an explicit action-required state
+    And no captcha bypass is attempted
+
+  @us-01.1
+  Scenario: Active resume links to local profile version
+    Given an active HH resume is selected
+    When local linkage is created
+    Then Core stores source hh and the external resume id
+    And the linkage is readable after restart
+```
+
+---
+
+## 9. Minimal PB-01 data / API / UI proposals
+
+### Data (Core) — proposed minimum
+
+Introduce (exact names in schema task / ADR if needed):
+
+- **CandidateProfile** — single-operator local candidate identity (UUID).
+- **ProfileVersion** — versioned snapshot used as linkage target for R1 (and later scoring input).
+  - Minimum fields: id, candidate_profile_id, created_at, optional label.
+- **ActiveHhResumeLink** (or fields on ProfileVersion):
+  - `source = "hh"`
+  - `external_resume_id` (string)
+  - optional cached `title`
+  - `selected_at`
+  - `status`: `active` | `cleared` | `stale`
+
+Do **not** require SearchProfile. Do **not** reuse `Person` or `Application.resume_version` as the link.
+
+### HH API / CLI — proposed minimum
+
+- `session`/`auth` status already exist → add product envelope codes for R1 states.
+- New: account/profile read command.
+- New: resumes list command (distinct from metrics helper).
+- New or Core-owned: get/set active resume (persistence location decided in R1.4/R1.5; prefer Core as domain SoT for linkage).
+
+### Web UI — proposed minimum
+
+One compact HH context surface (panel or light workspace addition) showing:
+
+- connection state
+- account/profile summary
+- resume list + active marker
+- action-required / error banner
+
+Use R0 Calm Dense Productivity; no large Settings subsystem.
+
+### Config / secrets
+
+Document required env only (existing HH `.env.example` pattern). Never commit tokens, cookies, profiles, real `.env`.
+
+---
+
+## 10. Implementation Task order
+
+| Task | Delivers | Depends on |
+|---|---|---|
+| **R1.1** | Operator-visible HH connection/session status (CLI envelope polish + Web surface) | existing session/auth |
+| **R1.2** | HH account/profile read + display | R1.1; TECH-US-00.2 probe preferred first |
+| **R1.3** | Resume list retrieval + transport decision if 403 | R1.1; TECH-US-00.2 |
+| **R1.4** | Active resume select + persistence | R1.3 |
+| **R1.5** | Minimal Core CandidateProfile/ProfileVersion linkage | R1.4 |
+| **R1.6** | Unified recovery/action-required states across CLI+Web | R1.1–R1.3 (harden continuously) |
+| **R1.A** | Acceptance scenarios / Gate evidence | R1.1–R1.6 |
+
+**First implementation task (recommended):** **R1.1** — product-facing connection/session status on top of existing HH CLI, without assuming `/resumes/mine` or `/negotiations` work.
+
+Optional parallel: **TECH-US-00.2** live access probe (short, evidence-only).
+
+---
+
+## 11. Gate R1
+
+Gate passes only if all are true:
+
+1. HH connection state is understandable to the operator.
+2. With a working session, HH account/profile context is known **or** the blocking reason is explicit.
+3. Resume list is available **or** external permission limitation is explicit (not fake empty).
+4. Exactly one active working resume is selected **or** explicit none/cleared.
+5. Active resume restores after restart (or stale+reselect is explicit).
+6. Local CandidateProfile/ProfileVersion linkage exists for the active resume.
+7. 401 / expired / CAPTCHA / 403 are presented explicitly; no silent retry loops; no captcha bypass.
+8. External permission limitation is not masked as success.
+9. Applicable tests green (`make test` workspace + HH/Core/Web gates used by the slice).
+
+---
+
+## 12. Non-scope reminder
+
+Do not in R1 implementation:
+
+- full PB-01 SearchProfile
+- PB-02 / PB-03 / R2 scoring foundation
+- browser apply as primary product path
+- HH 403 bypass
+- schema work unrelated to minimal linkage
