@@ -1,7 +1,9 @@
 # Состояние проекта Job Search Multirepo
 
 **Дата снимка:** 2026-08-25 (UTC+3)  
-**Workspace HEAD:** local R1.2 TECHNICAL PASS (gitlinks/docs; not pushed)  
+**Workspace HEAD:** local R1.2 TECHNICAL PASS (not pushed)  
+**Web submodule HEAD:** `1a21bbb0d5f1456ea3550bc7e68d23d4d68c1e00`  
+**HH submodule HEAD:** `c4752b1312c65960c63c3b89e74da70c24c9d339`  
 **Ветка:** `main` (R1.1 baseline on `origin/main` @ `f50c2aa`; R1.2 commits local-only until ACCEPT + push request)
 
 Этот файл — оперативный снимок «где мы сейчас». Детальный план и gate-критерии
