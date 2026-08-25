@@ -2,7 +2,7 @@
 
 **Revision:** 2  
 **Basis:** UJM v1 + Product Backlog + Roadmap v1 + [`ARCHITECTURE_PLAN.md`](ARCHITECTURE_PLAN.md) rev. 2  
-**Updated:** 2026-08-25 (R1 / PB-00 decomposition; no rev. 3)  
+**Updated:** 2026-08-25 (R1.1 HH connection status COMPLETE; no rev. 3)  
 **Previous revision:** 1 (service bootstrap / multirepo transfer sequence)
 
 Оперативный снимок: [`PROJECT_STATUS.md`](PROJECT_STATUS.md).  
@@ -171,29 +171,29 @@ monolith, SQLite, or migration tooling. Details live outside this repository.
 
 **PBI:** PB-00 + minimally necessary PB-01.  
 **Decomposition:** [`docs/R1_PB00_DECOMPOSITION.md`](docs/R1_PB00_DECOMPOSITION.md)  
-**Implementation:** not started (audit + planning only as of 2026-08-25).
+**Implementation:** **R1.1 COMPLETE** (2026-08-25); R1.2–R1.6 not started.
 
 **Product outcome:** operator connects HH, sees account context, selects **active
 HH resume**, with local linkage to profile/resume context for downstream R2.
 
-### Audit snapshot (HH `1ec60bf`)
+### Audit snapshot
 
 | Capability | Class |
 |---|---|
 | Session / OAuth / noVNC login CLI | **IMPLEMENTED** |
-| Product-facing connection status (Web) | **MISSING** |
+| Product-facing connection status (Web) | **IMPLEMENTED** (R1.1) |
 | HH account/profile (`/me`) | **MISSING** product surface; API **SUPPORTED** (live 200) |
-| Resume list product surface | **PARTIAL** / API **EXTERNAL_BLOCKED** (live 403) |
+| Resume list product surface | **PARTIAL** / API **EXTERNAL_BLOCKED** (live 403); browser RO transport **selected** |
 | Active resume select/persist | **MISSING** |
 | CandidateProfile / ProfileVersion | **MISSING** |
-| Unified action-required states | **PARTIAL** |
-| Web HH context UI | **MISSING** |
+| Unified action-required states | **PARTIAL** (R1.1 connection mapping) |
+| Web HH context UI | **PARTIAL** (connection only) |
 
 ### Stories (summary)
 
 | ID | Intent |
 |---|---|
-| **US-00.1** | Understand HH connection state |
+| **US-00.1** | Understand HH connection state — **DONE (R1.1)** |
 | **US-00.2** | See HH account/profile |
 | **US-00.3** | List HH resumes |
 | **US-00.4** | Select active HH resume |
@@ -208,16 +208,16 @@ TECH-US / DEBT-US / AC / BDD: see decomposition doc.
 
 | Increment | Outcome |
 |---|---|
-| **R1.1** | Operator-visible HH connection/session status (CLI + Web) |
+| **R1.1** | Operator-visible HH connection/session status — **COMPLETE** |
 | **R1.2** | Current HH profile/account context (**official API YES** — `GET /me` = 200) |
-| **R1.3** | Resume list — **owner decision required** (**official API NO** — `GET /resumes/mine` = 403) |
+| **R1.3** | Resume list via **authenticated browser read-only** (owner decision; official API NO) |
 | **R1.4** | Active HH resume selection persisted |
 | **R1.5** | Minimal CandidateProfile / ProfileVersion linkage in Core |
 | **R1.6** | Unified recovery / action-required states |
 | **R1.A** | Acceptance evidence → **Gate R1** |
 
-**Unblocked first implementation:** R1.1.  
-**Gate critical path:** R1.3 owner transport decision (403 error UX alone ≠ Gate CLOSED).
+**Next implementation:** R1.2.  
+**Gate critical path:** R1.3 browser resume list (403 error UX alone ≠ Gate CLOSED).
 
 ### External constraint (not «debt»)
 
@@ -227,7 +227,8 @@ Live probe (usable OAuth session, 2026-08-25):
 - `GET /resumes/mine` → **403 EXTERNAL_BLOCKED** (`forbidden`)
 - `GET /negotiations` → **403** (not R1 scope; confirms DEBT-US-00.4)
 
-Do **not** invent a 403 bypass. Transport choice for R1.3 is an **owner decision**.
+**Owner decision R1.3:** authenticated browser session, **read-only** own resume list
+(not apply/edit/negotiations/CAPTCHA bypass). Do **not** invent an API 403 bypass.
 
 ### Gate R1
 
@@ -236,8 +237,8 @@ Do **not** invent a 403 bypass. Transport choice for R1.3 is an **owner decision
 and supports active-resume + linkage.
 
 **Current official-API verdict:** Gate R1 **BLOCKED BY EXTERNAL CONSTRAINT** on
-the resume-list leg until owner-approved transport (or HH app permission change)
-is chosen and implemented — without R2.
+the resume-list leg until browser RO transport (or HH app permission change)
+is implemented — without R2.
 
 ---
 
@@ -408,11 +409,10 @@ Execute in parallel only if it does not block R1.
 
 ## Current next step
 
-**Owner decision: R1.3 resume-list transport** (official API unavailable for
-current HH app/session — live 403). Until then Gate R1 cannot CLOSE.
+**R1.2** — HH account/profile via official `GET /me` (R1.1 complete).
 
-Unblocked implementation (does not close Gate alone): **R1.1** product-facing
-HH connection/session status.
+R1.3 will use authenticated browser **read-only** transport for own resume list
+(owner decision recorded; not started). Until R1.3 lands, Gate R1 cannot CLOSE.
 
 Do not start Scoring foundation, Content, or Hermes until R1 Gate
 (or documented PO waiver).
