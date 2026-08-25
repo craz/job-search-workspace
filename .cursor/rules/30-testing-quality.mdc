@@ -17,7 +17,9 @@ globs:
   `tests/features`, связанные с User Story тегом.
 - Contract: совместимость OpenAPI и JSON CLI schemas между provider/consumer.
 - Smoke: один критический сценарий; реальные HH/Telegram отправки запрещены по умолчанию.
-- UI/noVNC: manual checklist из feature spec.
+- UI/noVNC: manual checklist из feature spec; для user-facing slice этот
+  checklist — evidence для OWNER ACCEPTANCE и не заменяется зелёными
+  unit/UI tests (COMPLETE требует явного ACCEPT владельца).
 - Fixtures не используют рабочие volumes, токены, cookies или персональные данные.
 - Warnings в CI являются ошибками; не скрывать их фильтрами.
 - После изменения сообщить точные команды, pass/fail/skip и причину каждого skip.

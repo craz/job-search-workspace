@@ -7,20 +7,53 @@ alwaysApply: false
 
 Следуй `DEVELOPMENT_PROCESS.md`.
 
-Цикл изменения:
+## Статусы среза
+
+| Статус | Значение |
+|---|---|
+| **IMPLEMENTED** | Требуемый код/изменение реализовано |
+| **TECHNICAL PASS** | Применимые автоматические и технические gates зелёные |
+| **READY FOR OWNER ACCEPTANCE** | Observable результат запущен/подготовлен; владельцу дан конкретный checklist |
+| **OWNER ACCEPTED** | Владелец явно сказал `ACCEPT` / «принимаю» (или однозначный эквивалент) |
+| **COMPLETE** | TECHNICAL PASS + OWNER ACCEPTED (для user-facing product slice) |
+
+Local auto-commit после TECHNICAL PASS допустим и **не** означает OWNER ACCEPTED / COMPLETE.
+
+Owner acceptance **среза** не заменяет Roadmap **Gate** этапа (Gate R0/R1/…).
+
+## Цикл изменения
 
 1. Проверить Git и исследовать текущий код/тесты.
 2. Зафиксировать результат, in scope и non-scope.
 3. Описать User Story: «Как [роль], Я хочу [действие], Чтобы [ценность]».
 4. До кода определить Gherkin acceptance scenarios и публичный контракт.
 5. Реализовать минимальный вертикальный срез без рефакторинга «заодно».
-6. Запустить format, lint, typecheck, unit, integration, contract, BDD и build gates.
-7. Просмотреть полный diff, проверить безопасность и документацию.
-8. После TECHNICAL PASS закоммитить завершённый логический шаг (только файлы
-   задачи). Для user-visible среза это ещё **не** COMPLETE: нужна owner
-   acceptance (см. `DEVELOPMENT_PROCESS.md`).
-9. Push/PR/merge — только по явному запросу; для product-facing обычно после
-   OWNER ACCEPTED.
+6. Запустить применимые technical gates (format, lint, typecheck, unit,
+   integration, contract, BDD, build — что существует).
+7. Просмотреть полный diff, безопасность и документацию.
+8. Если technical gates green:
+   - статус **IMPLEMENTED** / **TECHNICAL PASS**;
+   - завершённый технический шаг можно автоматически закоммитить
+     (см. `15-auto-commit.mdc`);
+   - commit = завершённый технический шаг, **не** product acceptance.
+9. Если изменение наблюдаемо пользователем:
+   - поднять реальный продукт;
+   - проверить live behavior;
+   - подготовить конкретный **OWNER ACCEPTANCE** checklist:
+     URL → куда перейти → что сделать → что должно произойти;
+   - сообщить **READY FOR OWNER ACCEPTANCE**;
+   - **STOP** и запросить у владельца `ACCEPT` либо замечания.
+   Для backend-only / infrastructure slice UI-приёмка не обязательна:
+   достаточно observable API/CLI/smoke + AC; владелец может явно waive
+   manual review.
+10. Только после явного **ACCEPT** владельца:
+    - **OWNER ACCEPTED**;
+    - slice можно считать **COMPLETE**;
+    - обновить соответствующий status/gate-документ.
+11. Следующий product slice **не** начинать до owner acceptance текущего,
+    если владелец явно не разрешил продолжить раньше.
+12. Push/PR/merge — только по явному запросу пользователя
+    (существующая политика; обычно после OWNER ACCEPTED для user-facing).
 
 Если меняется несколько репозиториев: сначала обратно совместимый provider,
 затем consumers, потом удаление старого контракта.

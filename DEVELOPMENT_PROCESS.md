@@ -244,17 +244,18 @@ make build
 
 | Статус | Значение |
 |---|---|
-| **IMPLEMENTED** | Код/контракт существуют в дереве |
-| **TECHNICAL PASS** | Автоматические и технические проверки зелёные |
-| **READY FOR OWNER ACCEPTANCE** | Есть runnable observable результат и явный manual checklist для владельца |
-| **OWNER ACCEPTED** | Владелец явно принял срез (`ACCEPT`) |
-| **COMPLETE** | TECHNICAL PASS **и** OWNER ACCEPTED |
+| **IMPLEMENTED** | Требуемый код/изменение реализовано |
+| **TECHNICAL PASS** | Применимые автоматические и технические gates зелёные |
+| **READY FOR OWNER ACCEPTANCE** | Observable результат реально запущен/подготовлен; владельцу дан конкретный способ проверить (checklist) |
+| **OWNER ACCEPTED** | Владелец продукта явно подтвердил `ACCEPT` / «принимаю» либо эквивалентное однозначное согласие |
+| **COMPLETE** | TECHNICAL PASS **и** OWNER ACCEPTED — для пользовательски наблюдаемого product slice |
 
 Обязательный порядок для **user-visible** функциональности:
 
 ```text
 IMPLEMENTED
   → TECHNICAL PASS
+  → local commit allowed (технический шаг; не product acceptance)
   → READY FOR OWNER ACCEPTANCE
   → OWNER ACCEPTED
   → COMPLETE
@@ -263,19 +264,28 @@ IMPLEMENTED
 
 Правила:
 
-- TECHNICAL PASS **не** означает COMPLETE и **не** разрешает считать product
-  slice закрытым.
-- Для UI/product-facing среза owner acceptance обычно требует поднятый продукт и
-  короткий manual checklist (URL, где смотреть, что кликать, ожидаемый результат).
-- Для backend-only среза owner acceptance может опираться на observable API/CLI
-  evidence и Acceptance Criteria; владелец может явно waive manual UI review.
-- Gate Roadmap-этапа (Gate R0/R1/…) остаётся **отдельным** и закрывается после
-  всех нужных срезов этапа, а не после одного TECHNICAL PASS.
+- TECHNICAL PASS **не** означает COMPLETE и **не** закрывает product slice.
+- Local auto-commit после TECHNICAL PASS **допустим** и означает завершённый
+  технический шаг, **не** OWNER ACCEPTED / COMPLETE.
+- Для UI/product-facing среза owner acceptance требует поднятый продукт и
+  короткий manual checklist (URL → куда перейти → что сделать → ожидаемый результат),
+  затем STOP до явного ACCEPT.
+- Следующий product slice **не** начинать до owner acceptance текущего, если
+  владелец явно не разрешил продолжить раньше.
+- Для backend-only / infrastructure slice, где UI-приёмка бессмысленна, owner
+  acceptance возможна через observable API/CLI/smoke evidence и AC; владелец
+  может явно waive manual UI review. Не требовать искусственную UI-приёмку.
+- **Два уровня приёмки:**
+  1. **Slice acceptance** (R1.1, R1.2, …) — owner ACCEPT отдельного инкремента;
+  2. **Roadmap stage Gate** (Gate R1, …) — интегральная verification после
+     нужных срезов этапа и отдельное решение владельца по Gate.
+  Owner acceptance среза **не** заменяет Roadmap Gate.
 - Push/PR реализации user-visible среза — после OWNER ACCEPTED (или явного waive),
   если владелец не распорядился иначе.
 
-Cursor agent rule `10-development-workflow.mdc` ссылается на этот документ —
-отдельное alwaysApply-правило для acceptance **не** создаётся.
+Cursor rules: краткий global invariant в `00-project-context.mdc`; детали цикла в
+`10-development-workflow.mdc`. Отдельное alwaysApply-правило для acceptance
+**не** создаётся (ровно один alwaysApply).
 
 BDD feature-файлы хранятся в `tests/features/*.feature`, step definitions — в
 `tests/bdd/`. Для Python-проектов стандартным runner будет `pytest-bdd`, если в

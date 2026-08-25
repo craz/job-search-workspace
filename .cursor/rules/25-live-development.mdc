@@ -29,6 +29,8 @@ globs:
 - После Dockerfile, dependency lock, Compose, env или migration изменений выполняй
   rebuild/restart затронутого сервиса, не удаляя named volumes.
 - Для UI используй live browser и проверяй loading, success, empty и error states.
+  Результаты live-проверки входят в OWNER ACCEPTANCE checklist
+  (`10-development-workflow.mdc`).
 - HH Chromium открывай через локальный noVNC; не запускай второй Chromium с тем же profile.
 - Не оставляй foreground-процесс, который блокирует агентскую сессию: используй
   штатные dev/status/logs команды и сообщай URL/состояние.

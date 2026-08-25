@@ -11,6 +11,11 @@ alwaysApply: true
 - Не выполнять реальные HH/Telegram отправки без явного разрешения пользователя.
 - Проверяй изменение применимыми gates; не скрывай warnings и не выдавай planned за ready.
 - Автокоммит допустим только для завершённого green шага и только своих файлов.
+- User-facing product slice нельзя объявлять COMPLETE и начинать следующий
+  только из‑за green gates: после TECHNICAL PASS подготовь runnable owner
+  acceptance, дай конкретный checklist и дождись явного ACCEPT владельца
+  (если он явно не разрешил иначе). Подробности — `DEVELOPMENT_PROCESS.md`
+  и `10-development-workflow.mdc`.
 - Push, PR, merge, tag и release требуют явного запроса пользователя.
 - Перед созданием или именованием долгоживущего service instance либо
   инфраструктурной сущности прочитай `NAMING_CONVENTION.md`, проверь `USED` и
