@@ -262,6 +262,7 @@ HH session/auth
   → resume list
   → active HH resume
   → linkage to local CandidateProfile / ProfileVersion (R1.5: id only)
+  → unified recovery / action-required states (R1.6)
   → (R2 / full PB-01) local ResumeVersion content snapshot before PB-03 Scoring
 ```
 

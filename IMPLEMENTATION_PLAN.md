@@ -2,7 +2,7 @@
 
 **Revision:** 2  
 **Basis:** UJM v1 + Product Backlog + Roadmap v1 + [`ARCHITECTURE_PLAN.md`](ARCHITECTURE_PLAN.md) rev. 2  
-**Updated:** 2026-08-26 (R1.1–R1.5 COMPLETE · PUSHED; next R1.6; Gate R1 OPEN)
+**Updated:** 2026-08-26 (R1.1–R1.6 COMPLETE; R1.6 push pending; Gate R1 OPEN)
 **Previous revision:** 1 (service bootstrap / multirepo transfer sequence)
 
 Оперативный снимок: [`PROJECT_STATUS.md`](PROJECT_STATUS.md).  
@@ -171,8 +171,8 @@ monolith, SQLite, or migration tooling. Details live outside this repository.
 
 **PBI:** PB-00 + minimally necessary PB-01.  
 **Decomposition:** [`docs/R1_PB00_DECOMPOSITION.md`](docs/R1_PB00_DECOMPOSITION.md)  
-**Implementation:** **R1.1–R1.5 COMPLETE · PUSHED**;
-R1.6 not started; **Gate R1 OPEN**.
+**Implementation:** **R1.1–R1.6 COMPLETE** (R1.1–R1.5 PUSHED; R1.6 local COMPLETE);
+**Gate R1 OPEN**.
 
 **Product outcome:** operator connects HH, sees account context, selects **active
 HH resume**, with local linkage to profile/resume context for downstream R2.
@@ -187,8 +187,8 @@ HH resume**, with local linkage to profile/resume context for downstream R2.
 | Resume list product surface | **IMPLEMENTED** (R1.3 COMPLETE · PUSHED); browser RO |
 | Active resume select/persist | **IMPLEMENTED** (R1.4 COMPLETE); HH state file |
 | CandidateProfile / ProfileVersion | **IMPLEMENTED** (R1.5 COMPLETE · PUSHED); **identifier-only**, not scoring-ready |
-| Unified action-required states | **PARTIAL** (R1.1–R1.5; R1.6 next) |
-| Web HH context UI | **PARTIAL** (connection + account + resume + debug linkage line) |
+| Unified action-required states | **IMPLEMENTED** (R1.6 COMPLETE; OWNER ACCEPTED) |
+| Web HH context UI | **PARTIAL** (connection + account + resume + recovery UX + debug linkage line) |
 
 ### Stories (summary)
 
@@ -199,7 +199,7 @@ HH resume**, with local linkage to profile/resume context for downstream R2.
 | **US-00.3** | List HH resumes — **DONE (R1.3)** |
 | **US-00.4** | Select active HH resume — **DONE (R1.4)** |
 | **US-00.5** | Restore active resume after restart — **DONE (R1.4)** |
-| **US-00.6** | Explicit action-required (401/expired/CAPTCHA/403) |
+| **US-00.6** | Explicit action-required (401/expired/CAPTCHA/403) — **DONE (R1.6)** |
 | **US-01.1** | Minimal local CandidateProfile/ProfileVersion linkage — **DONE (R1.5)** |
 
 TECH-US / DEBT-US / AC / BDD: see decomposition doc.  
@@ -214,7 +214,7 @@ TECH-US / DEBT-US / AC / BDD: see decomposition doc.
 | **R1.3** | Resume list via **authenticated browser read-only** — **COMPLETE · PUSHED** (OWNER ACCEPTED) |
 | **R1.4** | Active HH resume selection persisted — **COMPLETE · PUSHED** (OWNER ACCEPTED) |
 | **R1.5** | Minimal CandidateProfile / ProfileVersion linkage in Core — **COMPLETE · PUSHED** (OWNER ACCEPTED; identifier-only) |
-| **R1.6** | Unified recovery / action-required states |
+| **R1.6** | Unified recovery / action-required states — **COMPLETE** (OWNER ACCEPTED; push pending) |
 | **R1.A** | Acceptance evidence → **Gate R1** |
 
 **R1.5 architecture note:** linkage is `ProfileVersion` ↔ HH `external_resume_id`
@@ -222,8 +222,8 @@ only. Resume **content** snapshot is **not** in R1.5. **PB-03 Scoring** must not
 consume R1.5 as candidate text; **R2 / full PB-01** must add local resume
 snapshot/version first.
 
-**Next:** **R1.6** (unified recovery / action-required).  
-**Gate critical path:** accepted resume list then active resume (403 error UX alone ≠ Gate CLOSED).  
+**Next:** **R1.A** (Gate evidence).  
+**Gate critical path:** R1.1–R1.6 complete; Gate pack next.  
 **Gate R1:** **OPEN**.
 
 ### External constraint (not «debt»)

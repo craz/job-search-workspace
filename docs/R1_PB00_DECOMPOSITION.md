@@ -1,6 +1,6 @@
 # R1 / PB-00 — decomposition
 
-**Status:** R1.1–R1.5 **COMPLETE · PUSHED**; R1.6 not started; **Gate R1 OPEN**
+**Status:** R1.1–R1.6 **COMPLETE** (R1.1–R1.5 PUSHED; R1.6 local COMPLETE, push pending); **Gate R1 OPEN**
 **Date:** 2026-08-26  
 **PBI:** PB-00 (primary) + minimal PB-01 slice for local linkage only  
 **Prerequisite Gate:** PB-DATA-00 CLOSED  
@@ -83,7 +83,7 @@ the R1 linkage model. Do not overload it for active HH resume identity.
 | Resume list product surface | **IMPLEMENTED** (R1.3 COMPLETE · PUSHED) | Browser RO `resumes list` / `GET /api/v1/resumes`; official API still 403 |
 | Active HH resume select / persist | **IMPLEMENTED** (R1.4 COMPLETE) | HH state `active_resume.json`; Web strip select/clear |
 | CandidateProfile / ProfileVersion | **IMPLEMENTED** (R1.5 COMPLETE · PUSHED) | Identifier-only Core linkage; **not** resume content / not scoring-ready |
-| Recovery / action-required (unified) | **PARTIAL** | R1.1–R1.5 codes; R1.6 not started |
+| Recovery / action-required (unified) | **DONE** | R1.6 OWNER ACCEPTED → COMPLETE |
 | Web HH settings / resume UI | **PARTIAL** (R1.2–R1.5) | Resume strip + select; linkage line = acceptance/debug visibility |
 | CAPTCHA bypass | **MISSING** (intentional) | `captcha_bypass: false`; apply stops — correct safety stance |
 
@@ -402,7 +402,7 @@ Document required env only (existing HH `.env.example` pattern). Never commit to
 | **R1.3** | Resume list via **authenticated browser read-only** transport (owner decision) | **COMPLETE · PUSHED** (OWNER ACCEPTED 2026-08-26) |
 | **R1.4** | Active resume select + persistence (US-00.4 + US-00.5 restart) | **COMPLETE · PUSHED** (OWNER ACCEPTED 2026-08-26) |
 | **R1.5** | Minimal Core CandidateProfile/ProfileVersion linkage | **COMPLETE · PUSHED** (OWNER ACCEPTED 2026-08-26) |
-| **R1.6** | Unified recovery/action-required states across CLI+Web | R1.1–R1.5 |
+| **R1.6** | Unified recovery/action-required states across CLI+Web | **COMPLETE** (OWNER ACCEPTED 2026-08-26; push pending) |
 | **R1.A** | Acceptance scenarios / Gate evidence | R1.1–R1.6 |
 
 **R1.2 official API:** **YES** (`GET /me` = 200) — product transport for account context.  
@@ -416,9 +416,53 @@ Document required env only (existing HH `.env.example` pattern). Never commit to
 Before **PB-03 Scoring**, **R2 / full PB-01** must add a local resume content
 snapshot/version. Web «Локальная связь: активна» = acceptance/debug visibility.
 
-**Next:** **R1.6** (unified recovery / action-required).  
-**Gate critical path:** active resume + local linkage + recovery UX.  
+**R1.6:** additive `recovery.{kind,operator_action}` on connection/account/resumes;
+distinguishable reauth / captcha_or_action_required / external_limitation /
+network_failure; no CAPTCHA bypass; bounded polls only.
+
+**Next:** **R1.A** (Gate evidence). Do **not** close Gate R1 here.  
 **Gate R1:** **OPEN**.
+
+### R1.6 OWNER ACCEPTANCE — ACCEPTED
+
+**OWNER ACCEPTED** 2026-08-26. Happy-path Web check: connected + resume list intact;
+login CTA intentionally hidden while authorized. Slice **COMPLETE** (local;
+push when requested).
+
+### R1.6 OWNER ACCEPTANCE checklist
+
+Смысл среза: когда с HH что-то не так, на экране **понятно что именно**,
+а не «пустой список резюме» и не бесконечная тихая перезагрузка.
+
+Prerequisite: `make up` / `make dev`; страница http://127.0.0.1:18080/
+(после деплоя R1.6 кода в HH+Web).
+
+**Обязательно (happy path + «нужен вход»):**
+
+1. Открой http://127.0.0.1:18080/
+2. Если HH уже вошёл — в шапке «Подключено», в блоке «Резюме HH» видны
+   названия резюме (как в R1.3/R1.4). Это ок: срез не ломает рабочий путь.
+3. Нажми в блоке резюме что-то вроде **«Войти в HeadHunter»** / открой окно
+   входа, **не** завершая вход до конца (или выйди из HH в окне входа и
+   обнови страницу Job Search).
+4. Ожидание: вместо списка резюме — явный текст вроде
+   «Чтобы показать ваши резюме, войдите…» / «Сессия истекла…» и кнопка входа.
+   **Не должно** выглядеть как «Пока нет резюме в аккаунте».
+
+**Если само случится (не обязательно устраивать специально):**
+
+5. HH показал CAPTCHA / «подтвердите, что вы человек» в окне входа —
+   в Job Search должно быть видно, что нужно действие оператора / проверка,
+   а не тихий успех и не пустой список.
+6. HH отказал в доступе к резюме — текст про ограничение доступа HH,
+   не «пока нет резюме».
+7. Сеть/HH временно недоступны — явная ошибка; страница **не** крутит
+   обновление списка без остановки десятки минут.
+
+CLI/`recovery.kind` — **не** часть ручной приёмки (это для разработчика).
+
+Reply **ACCEPT** or list defects. Slice is not COMPLETE until ACCEPT.
+Local commits only until you ask to push.
 
 ### R1.5 OWNER ACCEPTANCE — ACCEPTED
 
