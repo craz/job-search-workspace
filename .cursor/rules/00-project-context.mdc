@@ -6,6 +6,15 @@ alwaysApply: true
 # Project context
 
 - Canonical `job_search_ref` is self-contained; do not treat any sibling monolith as a runtime, setup or onboarding dependency.
+- Product source of truth: Google Drive document **"Job Search"**.
+  Before decomposing a new Roadmap stage, changing Product Backlog /
+  Roadmap semantics, making a product-scope decision, or starting a new
+  `R<N>` stage — read the current relevant tabs of that Google Doc via the
+  connected Google Drive tool (`Product Backlog`, `Roadmap`, current `R<N>`
+  tab). Repository docs are an implementation projection of that product
+  plan; if they conflict with the current Google Doc, STOP and report the
+  conflict instead of choosing silently. Do not modify the canonical Google
+  Doc unless the owner explicitly requests it.
 - Запрещены cross-repo Python imports, общая прикладная БД и чтение чужих volumes.
 - Не публикуй секреты, PII, приватную историю или содержимое `.local/`.
 - Не выполнять реальные HH/Telegram отправки без явного разрешения пользователя.

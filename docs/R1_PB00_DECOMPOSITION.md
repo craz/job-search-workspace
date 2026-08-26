@@ -1,7 +1,7 @@
 # R1 / PB-00 — decomposition
 
-**Status:** R1.1–R1.3 **COMPLETE · PUSHED**; R1.4 **READY FOR OWNER ACCEPTANCE**
-(IMPLEMENTED · TECHNICAL PASS · COMPLETE: NO); R1.5–R1.6 not started; **Gate R1 OPEN**
+**Status:** R1.1–R1.4 **COMPLETE** (R1.1–R1.3 **PUSHED**; R1.4 local, push on request);
+R1.5–R1.6 not started; **Gate R1 OPEN**
 **Date:** 2026-08-26  
 **PBI:** PB-00 (primary) + minimal PB-01 slice for local linkage only  
 **Prerequisite Gate:** PB-DATA-00 CLOSED  
@@ -82,7 +82,7 @@ the R1 linkage model. Do not overload it for active HH resume identity.
 | Product-facing connection status (Web / unified operator report) | **IMPLEMENTED** (R1.1) | `connection status` CLI + `GET /api/v1/connection`; Web header HH signal |
 | HH account / profile (`GET /me`) | **IMPLEMENTED** (R1.2 COMPLETE) | `account status` + `GET /api/v1/account`; Web header identity; official `/me` |
 | Resume list product surface | **IMPLEMENTED** (R1.3 COMPLETE · PUSHED) | Browser RO `resumes list` / `GET /api/v1/resumes`; official API still 403 |
-| Active HH resume select / persist | **IMPLEMENTED** (R1.4; owner acceptance pending) | HH state `active_resume.json`; Web strip select/clear |
+| Active HH resume select / persist | **IMPLEMENTED** (R1.4 COMPLETE) | HH state `active_resume.json`; Web strip select/clear |
 | CandidateProfile / ProfileVersion | **MISSING** | No Core models/API (R1.5) |
 | Recovery / action-required (unified) | **PARTIAL** | R1.1–R1.4 status codes; CAPTCHA still stops apply |
 | Web HH settings / resume UI | **PARTIAL** (R1.2–R1.4) | Header account + resume strip with active select; no Core linkage |
@@ -401,7 +401,7 @@ Document required env only (existing HH `.env.example` pattern). Never commit to
 | **R1.1** | Operator-visible HH connection/session status (CLI + HTTP + Web) | **COMPLETE** (OWNER ACCEPTED 2026-08-25) |
 | **R1.2** | HH account/profile read + display via official `GET /me` | **COMPLETE** (OWNER ACCEPTED 2026-08-26) |
 | **R1.3** | Resume list via **authenticated browser read-only** transport (owner decision) | **COMPLETE · PUSHED** (OWNER ACCEPTED 2026-08-26) |
-| **R1.4** | Active resume select + persistence (US-00.4 + US-00.5 restart) | **READY FOR OWNER ACCEPTANCE** |
+| **R1.4** | Active resume select + persistence (US-00.4 + US-00.5 restart) | **COMPLETE** (OWNER ACCEPTED 2026-08-26) |
 | **R1.5** | Minimal Core CandidateProfile/ProfileVersion linkage | R1.4 |
 | **R1.6** | Unified recovery/action-required states across CLI+Web | R1.1–R1.4 (harden continuously) |
 | **R1.A** | Acceptance scenarios / Gate evidence | R1.1–R1.6 |
@@ -416,9 +416,14 @@ Document required env only (existing HH `.env.example` pattern). Never commit to
 **R1.4 stale:** stored id missing from current list → `selection.status=stale` + reselect;
 not silent fake active.
 
-**Next:** owner ACCEPT for R1.4 → then **R1.5**.  
+**Next:** push R1.4 on request; then **R1.5** (after reading canonical Google Doc tabs).  
 **Gate critical path:** active resume — a 403 error screen alone does **not** close Gate R1.  
 **Gate R1:** **OPEN**.
+
+### R1.4 OWNER ACCEPTANCE — ACCEPTED
+
+**OWNER ACCEPTED** 2026-08-26 (product review of active resume select on
+http://127.0.0.1:18080/ «Резюме HH»). Slice **COMPLETE**.
 
 ### R1.4 OWNER ACCEPTANCE checklist
 
