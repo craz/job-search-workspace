@@ -168,14 +168,17 @@ PostgreSQL 17, SQLAlchemy 2.x, Alembic. **Только Core** имеет credent
 | OSINT raw/proposed findings | OSINT cache | Confirmed → Core HTTP |
 | Content drafts, Telegram IDs | Content (future) | Not in Core |
 
-**Implemented Core schema** (Alembic, 7 revisions): `Company`, `Vacancy`,
-`Application`, `DailyMetric`, `Person`, `Hypothesis`, `Assessment` — см.
-`services/core/src/job_search_core/models.py`.
+**Implemented Core schema** (Alembic): `Company`, `Vacancy`,
+`Application`, `DailyMetric`, `Person`, `Hypothesis`, `Assessment`,
+plus R1.5 `CandidateProfile` / `ProfileVersion` / `ActiveHhResumeLink`
+(**identifier-only** HH resume linkage — not resume body content).
 
 **Target concepts (Roadmap; детальные схемы — позже):**
 
-- `SearchProfile`, `CandidateProfile` / `ProfileVersion`;
-- `ResumeVersion`, linkage к active HH resume (R1);
+- `SearchProfile`, richer `CandidateProfile` / `ProfileVersion`;
+- `ResumeVersion` (local **content** snapshot) + linkage к active HH resume;
+  R1.5 only stores `external_resume_id` linkage — **not** scoring-ready text;
+  before **PB-03 Scoring**, R2 / full PB-01 must add content snapshot;
 - user **decision** on Vacancy (отдельно от LLM verdict — R2/PB-04);
 - hiring pipeline, `Offer`, `SearchCycle` (R4–R5).
 

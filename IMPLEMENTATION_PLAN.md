@@ -2,7 +2,7 @@
 
 **Revision:** 2  
 **Basis:** UJM v1 + Product Backlog + Roadmap v1 + [`ARCHITECTURE_PLAN.md`](ARCHITECTURE_PLAN.md) rev. 2  
-**Updated:** 2026-08-26 (R1.4 COMPLETE · PUSHED; R1.5 OWNER ACCEPTANCE PENDING)
+**Updated:** 2026-08-26 (R1.1–R1.5 COMPLETE · PUSHED; next R1.6; Gate R1 OPEN)
 **Previous revision:** 1 (service bootstrap / multirepo transfer sequence)
 
 Оперативный снимок: [`PROJECT_STATUS.md`](PROJECT_STATUS.md).  
@@ -171,8 +171,7 @@ monolith, SQLite, or migration tooling. Details live outside this repository.
 
 **PBI:** PB-00 + minimally necessary PB-01.  
 **Decomposition:** [`docs/R1_PB00_DECOMPOSITION.md`](docs/R1_PB00_DECOMPOSITION.md)  
-**Implementation:** **R1.1–R1.4 COMPLETE · PUSHED**;
-**R1.5 READY FOR OWNER ACCEPTANCE** (IMPLEMENTED · TECHNICAL PASS · COMPLETE: NO);
+**Implementation:** **R1.1–R1.5 COMPLETE · PUSHED**;
 R1.6 not started; **Gate R1 OPEN**.
 
 **Product outcome:** operator connects HH, sees account context, selects **active
@@ -187,9 +186,9 @@ HH resume**, with local linkage to profile/resume context for downstream R2.
 | HH account/profile (`/me`) | **IMPLEMENTED** (R1.2 COMPLETE); official API |
 | Resume list product surface | **IMPLEMENTED** (R1.3 COMPLETE · PUSHED); browser RO |
 | Active resume select/persist | **IMPLEMENTED** (R1.4 COMPLETE); HH state file |
-| CandidateProfile / ProfileVersion | **IMPLEMENTED** (R1.5; acceptance pending) |
-| Unified action-required states | **PARTIAL** (R1.1–R1.5 codes) |
-| Web HH context UI | **PARTIAL** (connection + account + resume + linkage line) |
+| CandidateProfile / ProfileVersion | **IMPLEMENTED** (R1.5 COMPLETE · PUSHED); **identifier-only**, not scoring-ready |
+| Unified action-required states | **PARTIAL** (R1.1–R1.5; R1.6 next) |
+| Web HH context UI | **PARTIAL** (connection + account + resume + debug linkage line) |
 
 ### Stories (summary)
 
@@ -201,7 +200,7 @@ HH resume**, with local linkage to profile/resume context for downstream R2.
 | **US-00.4** | Select active HH resume — **DONE (R1.4)** |
 | **US-00.5** | Restore active resume after restart — **DONE (R1.4)** |
 | **US-00.6** | Explicit action-required (401/expired/CAPTCHA/403) |
-| **US-01.1** | Minimal local CandidateProfile/ProfileVersion linkage — **IMPLEMENTED** (R1.5; acceptance pending) |
+| **US-01.1** | Minimal local CandidateProfile/ProfileVersion linkage — **DONE (R1.5)** |
 
 TECH-US / DEBT-US / AC / BDD: see decomposition doc.  
 **TECH-US-00.2** live probe: **DONE** 2026-08-25.
@@ -214,11 +213,16 @@ TECH-US / DEBT-US / AC / BDD: see decomposition doc.
 | **R1.2** | Current HH profile/account context via official `GET /me` — **COMPLETE** (OWNER ACCEPTED) |
 | **R1.3** | Resume list via **authenticated browser read-only** — **COMPLETE · PUSHED** (OWNER ACCEPTED) |
 | **R1.4** | Active HH resume selection persisted — **COMPLETE · PUSHED** (OWNER ACCEPTED) |
-| **R1.5** | Minimal CandidateProfile / ProfileVersion linkage in Core — **READY FOR OWNER ACCEPTANCE** |
+| **R1.5** | Minimal CandidateProfile / ProfileVersion linkage in Core — **COMPLETE · PUSHED** (OWNER ACCEPTED; identifier-only) |
 | **R1.6** | Unified recovery / action-required states |
 | **R1.A** | Acceptance evidence → **Gate R1** |
 
-**Next:** owner ACCEPT for R1.5 → then **R1.6**.  
+**R1.5 architecture note:** linkage is `ProfileVersion` ↔ HH `external_resume_id`
+only. Resume **content** snapshot is **not** in R1.5. **PB-03 Scoring** must not
+consume R1.5 as candidate text; **R2 / full PB-01** must add local resume
+snapshot/version first.
+
+**Next:** **R1.6** (unified recovery / action-required).  
 **Gate critical path:** accepted resume list then active resume (403 error UX alone ≠ Gate CLOSED).  
 **Gate R1:** **OPEN**.
 
@@ -282,8 +286,14 @@ Decompose at R2 entry into vertical increments. High-level sequence:
 **Foundation scope (minimal):**
 
 ```text
-Vacancy + CandidateProfile + scoring policy → Ollama → canonical ScoringResult → Core Assessment
+Vacancy + CandidateProfile (with resume content snapshot) + scoring policy
+  → Ollama → canonical ScoringResult → Core Assessment
 ```
+
+**Dependency:** R1.5 provides only HH `external_resume_id` linkage.
+Before PB-03 / this foundation can score against the candidate, **R2 / full PB-01**
+must create or attach a local resume snapshot/version containing actual resume
+content. Do not treat R1.5 `ProfileVersion` as scoring-ready input.
 
 **Later increments (not in foundation):**
 
@@ -412,8 +422,8 @@ Execute in parallel only if it does not block R1.
 
 ## Current next step
 
-**R1.5 READY FOR OWNER ACCEPTANCE** (IMPLEMENTED · TECHNICAL PASS · COMPLETE: NO).
-**R1.6** — **NOT STARTED**. **Gate R1** remains **OPEN**.
+**R1.5 COMPLETE · PUSHED**. Next: **R1.6** (recovery / action-required) —
+**NOT STARTED**. **Gate R1** remains **OPEN**.
 
 Do not start Scoring foundation, Content, or Hermes until R1 Gate
 (or documented PO waiver).

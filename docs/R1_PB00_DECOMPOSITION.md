@@ -1,7 +1,6 @@
 # R1 / PB-00 — decomposition
 
-**Status:** R1.1–R1.4 **COMPLETE · PUSHED**; R1.5 **READY FOR OWNER ACCEPTANCE**
-(IMPLEMENTED · TECHNICAL PASS · COMPLETE: NO); R1.6 not started; **Gate R1 OPEN**
+**Status:** R1.1–R1.5 **COMPLETE · PUSHED**; R1.6 not started; **Gate R1 OPEN**
 **Date:** 2026-08-26  
 **PBI:** PB-00 (primary) + minimal PB-01 slice for local linkage only  
 **Prerequisite Gate:** PB-DATA-00 CLOSED  
@@ -63,7 +62,7 @@ vacancy ingestion redesign, browser apply productization, R2 scoring foundation.
 | **HH Resume** | External resume object from HH (`id`, title, …) | HH service (read) |
 | **Active HH resume** | Exactly one selected external resume id for the operator (or explicit none) | HH + Core linkage |
 | **CandidateProfile** | Local durable “who I am as a candidate” identity | Core |
-| **ProfileVersion** | Local snapshot/version of candidate context used for linkage (and later R2 scoring) | Core |
+| **ProfileVersion** | Local version row used as HH linkage target in R1.5 (identifier-only; content snapshot is R2 / full PB-01) | Core |
 | **SearchProfile** | Search preferences / cycle context | **R2+** — not built in R1 |
 
 `Application.resume_version` (existing Core free-text field on Journal) is **not**
@@ -83,9 +82,9 @@ the R1 linkage model. Do not overload it for active HH resume identity.
 | HH account / profile (`GET /me`) | **IMPLEMENTED** (R1.2 COMPLETE) | `account status` + `GET /api/v1/account`; Web header identity; official `/me` |
 | Resume list product surface | **IMPLEMENTED** (R1.3 COMPLETE · PUSHED) | Browser RO `resumes list` / `GET /api/v1/resumes`; official API still 403 |
 | Active HH resume select / persist | **IMPLEMENTED** (R1.4 COMPLETE) | HH state `active_resume.json`; Web strip select/clear |
-| CandidateProfile / ProfileVersion | **IMPLEMENTED** (R1.5; owner acceptance pending) | Core `candidate-context` + ActiveHhResumeLink |
-| Recovery / action-required (unified) | **PARTIAL** | R1.1–R1.5 status codes; CAPTCHA still stops apply |
-| Web HH settings / resume UI | **PARTIAL** (R1.2–R1.5) | Resume strip + active select + local linkage line |
+| CandidateProfile / ProfileVersion | **IMPLEMENTED** (R1.5 COMPLETE · PUSHED) | Identifier-only Core linkage; **not** resume content / not scoring-ready |
+| Recovery / action-required (unified) | **PARTIAL** | R1.1–R1.5 codes; R1.6 not started |
+| Web HH settings / resume UI | **PARTIAL** (R1.2–R1.5) | Resume strip + select; linkage line = acceptance/debug visibility |
 | CAPTCHA bypass | **MISSING** (intentional) | `captcha_bypass: false`; apply stops — correct safety stance |
 
 ### External constraints (not DEBT-US)
@@ -402,8 +401,8 @@ Document required env only (existing HH `.env.example` pattern). Never commit to
 | **R1.2** | HH account/profile read + display via official `GET /me` | **COMPLETE** (OWNER ACCEPTED 2026-08-26) |
 | **R1.3** | Resume list via **authenticated browser read-only** transport (owner decision) | **COMPLETE · PUSHED** (OWNER ACCEPTED 2026-08-26) |
 | **R1.4** | Active resume select + persistence (US-00.4 + US-00.5 restart) | **COMPLETE · PUSHED** (OWNER ACCEPTED 2026-08-26) |
-| **R1.5** | Minimal Core CandidateProfile/ProfileVersion linkage | **READY FOR OWNER ACCEPTANCE** |
-| **R1.6** | Unified recovery/action-required states across CLI+Web | R1.1–R1.5 (harden continuously) |
+| **R1.5** | Minimal Core CandidateProfile/ProfileVersion linkage | **COMPLETE · PUSHED** (OWNER ACCEPTED 2026-08-26) |
+| **R1.6** | Unified recovery/action-required states across CLI+Web | R1.1–R1.5 |
 | **R1.A** | Acceptance scenarios / Gate evidence | R1.1–R1.6 |
 
 **R1.2 official API:** **YES** (`GET /me` = 200) — product transport for account context.  
@@ -411,14 +410,21 @@ Document required env only (existing HH `.env.example` pattern). Never commit to
 **R1.3 transport decision:** authenticated browser session, read-only own resumes
 (**COMPLETE · PUSHED**).
 
-**R1.4 SoT:** HH state file `active_resume.json` (not Core — R1.5).
-**R1.4 persistence boundary:** reload + process/container restart (US-00.5 in this slice).
-**R1.4 stale:** stored id missing from current list → `selection.status=stale` + reselect;
-not silent fake active.
+**R1.4 SoT:** HH state file `active_resume.json` (selection); Core holds linkage (R1.5).
+**R1.5 boundary:** identifier-only linkage (`external_resume_id` + optional `title`).
+**Not** resume content. **Not** scoring-ready CandidateProfile.
+Before **PB-03 Scoring**, **R2 / full PB-01** must add a local resume content
+snapshot/version. Web «Локальная связь: активна» = acceptance/debug visibility.
 
-**Next:** owner ACCEPT for R1.5 → then **R1.6**.  
-**Gate critical path:** active resume + local linkage — a 403 error screen alone does **not** close Gate R1.  
+**Next:** **R1.6** (unified recovery / action-required).  
+**Gate critical path:** active resume + local linkage + recovery UX.  
 **Gate R1:** **OPEN**.
+
+### R1.5 OWNER ACCEPTANCE — ACCEPTED
+
+**OWNER ACCEPTED** 2026-08-26. Observable: select active HH resume → Core
+`candidate-context` linkage active; clear → cleared; survives reload.
+Slice **COMPLETE · PUSHED**. Identifier-only (no resume body ingestion).
 
 ### R1.5 OWNER ACCEPTANCE checklist
 
