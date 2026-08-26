@@ -576,20 +576,22 @@ A **supported** path must actually deliver:
 - active resume select + restore;
 - local CandidateProfile/ProfileVersion linkage.
 
-**Current official-API verdict (2026-08-25):** Gate R1 is
-**BLOCKED BY EXTERNAL CONSTRAINT** for the resume-list leg — `/me` works;
-`/resumes/mine` does not. Closing Gate R1 requires an owner-approved alternate
-transport (or HH application/permission change) **plus** implementation.
-Showing only the 403 state ≠ Gate CLOSED.
+**Official-API resume list (2026-08-25, re-confirmed 2026-08-27):** `/resumes/mine`
+remains **403 EXTERNAL_BLOCKED**. Product resume list uses **browser read-only**
+(R1.3 COMPLETE · PUSHED). Showing only the 403 state ≠ Gate CLOSED; supported
+browser path + R1.1–R1.6 + R1.A evidence are now in place.
 
-Gate checklist (all must be true to CLOSE):
+**R1.A (2026-08-27):** **TECHNICAL / INTEGRATED PASS**.  
+**Gate R1:** **READY FOR OWNER DECISION · OPEN** (not CLOSED / not ACCEPTED).
+
+Gate checklist (all must be true for owner to CLOSE Gate R1):
 
 1. HH connection state is understandable to the operator.
 2. With a working session, HH account/profile context is known **or** the blocking reason is explicit.
-3. Resume list is available on a **supported** path (not merely a documented 403).
+3. Resume list is available on a **supported** path (browser RO; not merely a documented 403).
 4. Exactly one active working resume is selected **or** explicit none/cleared.
 5. Active resume restores after restart (or stale+reselect is explicit).
-6. Local CandidateProfile/ProfileVersion linkage exists for the active resume.
+6. Local CandidateProfile/ProfileVersion linkage exists for the active resume (identifier-only).
 7. 401 / expired / CAPTCHA / 403 are presented explicitly; no silent retry loops; no captcha bypass.
 8. External permission limitation is not masked as success.
 9. Applicable tests green (`make test` workspace + HH/Core/Web gates used by the slice).

@@ -242,9 +242,9 @@ Live probe (usable OAuth session, 2026-08-25):
 **B.** Closing Gate still requires a **supported** path that actually lists resumes
 and supports active-resume + linkage.
 
-**Current official-API verdict:** Gate R1 **BLOCKED BY EXTERNAL CONSTRAINT** on
-the resume-list leg until browser RO transport (or HH app permission change)
-is implemented — without R2.
+**Current official-API resume list:** still **403 EXTERNAL_BLOCKED**.  
+**Supported product resume path:** browser read-only (R1.3).  
+**R1.A:** TECHNICAL / INTEGRATED PASS → Gate R1 **READY FOR OWNER DECISION · OPEN**.
 
 ---
 
