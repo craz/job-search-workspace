@@ -1,7 +1,7 @@
 # Состояние проекта Job Search Multirepo
 
 **Дата снимка:** 2026-08-26 (UTC+3)  
-**Workspace HEAD:** local R1.4 COMPLETE (not pushed)  
+**Workspace HEAD:** local R1.4 COMPLETE · PUSHED (pending push verify)  
 **Web submodule HEAD:** `8a877ba973c7399485e6c5e452a35c06549e2e1c`  
 **HH submodule HEAD:** `4fafa91520f810d001f41c51af79986e6d50ed46`  
 **Ветка:** `main`
@@ -19,9 +19,9 @@
 | Core + Web MVP | готово |
 | Scoring (host Ollama pipeline) | базово готово |
 | OSINT (website / people → Core) | в основном готово |
-| HH read-path | vacancies + **`GET /me` (R1.2)** + **browser RO resumes (R1.3)** + **active select (R1.4 COMPLETE)**; `/resumes/mine` **403** |
+| HH read-path | vacancies + **`GET /me` (R1.2)** + **browser RO resumes (R1.3)** + **active select (R1.4 COMPLETE · PUSHED)**; `/resumes/mine` **403** |
 | HH write-path (API) | код dual-gate готов; **production API apply заблокирован scope HH-приложения** |
-| **R1 / PB-00** | R1.1–R1.4 **COMPLETE** (R1.1–R1.3 **PUSHED**; R1.4 push on request); R1.5–R1.6 not started; **Gate R1 OPEN** |
+| **R1 / PB-00** | R1.1–R1.4 **COMPLETE · PUSHED**; R1.5–R1.6 not started; **Gate R1 OPEN** |
 | Content / Telegram §8 | не начат (submodule stub) |
 | Сквозная сборка §9 / Hermes §10 | не закрыты |
 | **Plan revisions** | **ARCHITECTURE_PLAN rev. 2** · **IMPLEMENTATION_PLAN rev. 2** |
@@ -33,11 +33,10 @@
 **Gate PB-DATA-00:** **CLOSED** (DATA-00.1–00.7).  
 **R0** больше не является текущей реализационной работой.
 
-**Главный продуктовый next:** push R1.4 on request → **R1.5** (read canonical
-Google Doc «Job Search» tabs first: Product Backlog, Roadmap, R1).  
+**Главный продуктовый next:** **R1.5** (Core CandidateProfile / ProfileVersion linkage).  
 Host-proxy: [`docs/runbooks/hh-docker-host-proxy.md`](docs/runbooks/hh-docker-host-proxy.md).  
-R1.3–R1.4: OWNER ACCEPTED / COMPLETE (2026-08-26); R1.3 PUSHED.  
-R1.4 SoT: HH `active_resume.json` (Core linkage = R1.5).  
+R1.1–R1.4: OWNER ACCEPTED / COMPLETE · PUSHED (2026-08-26).  
+R1.4 SoT selection: HH `active_resume.json`; Core linkage = R1.5.  
 Full R1: connection → profile → resume list → active resume → linkage → recovery → Gate R1.
 
 Артефакты R0:
@@ -115,8 +114,7 @@ Content/Telegram, browser HH apply и Scoring foundation **не являются
 
 ## Решение по «го» / blockers
 
-- **«Го»** = push R1.4 (HH + Web + workspace), затем старт **R1.5** только после
-  чтения canonical Google Doc «Job Search».  
+- **«Го»** = старт **R1.5** (Core CandidateProfile / ProfileVersion linkage).  
   Gate R1 остаётся OPEN до R1.5–R1.6 + R1.A.
 
 ## Как обновлять этот файл

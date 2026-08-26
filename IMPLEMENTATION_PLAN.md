@@ -2,7 +2,7 @@
 
 **Revision:** 2  
 **Basis:** UJM v1 + Product Backlog + Roadmap v1 + [`ARCHITECTURE_PLAN.md`](ARCHITECTURE_PLAN.md) rev. 2  
-**Updated:** 2026-08-26 (R1.1–R1.4 COMPLETE; R1.4 push on request; Gate R1 OPEN)
+**Updated:** 2026-08-26 (R1.1–R1.4 COMPLETE · PUSHED; Gate R1 OPEN; next R1.5)
 **Previous revision:** 1 (service bootstrap / multirepo transfer sequence)
 
 Оперативный снимок: [`PROJECT_STATUS.md`](PROJECT_STATUS.md).  
@@ -171,8 +171,7 @@ monolith, SQLite, or migration tooling. Details live outside this repository.
 
 **PBI:** PB-00 + minimally necessary PB-01.  
 **Decomposition:** [`docs/R1_PB00_DECOMPOSITION.md`](docs/R1_PB00_DECOMPOSITION.md)  
-**Implementation:** **R1.1–R1.3 COMPLETE · PUSHED**;
-**R1.4 COMPLETE** (OWNER ACCEPTED 2026-08-26; push on request);
+**Implementation:** **R1.1–R1.4 COMPLETE · PUSHED**;
 R1.5–R1.6 not started; **Gate R1 OPEN**.
 
 **Product outcome:** operator connects HH, sees account context, selects **active
@@ -213,12 +212,12 @@ TECH-US / DEBT-US / AC / BDD: see decomposition doc.
 | **R1.1** | Operator-visible HH connection/session status — **COMPLETE** (OWNER ACCEPTED) |
 | **R1.2** | Current HH profile/account context via official `GET /me` — **COMPLETE** (OWNER ACCEPTED) |
 | **R1.3** | Resume list via **authenticated browser read-only** — **COMPLETE · PUSHED** (OWNER ACCEPTED) |
-| **R1.4** | Active HH resume selection persisted — **COMPLETE** (OWNER ACCEPTED) |
+| **R1.4** | Active HH resume selection persisted — **COMPLETE · PUSHED** (OWNER ACCEPTED) |
 | **R1.5** | Minimal CandidateProfile / ProfileVersion linkage in Core |
 | **R1.6** | Unified recovery / action-required states |
 | **R1.A** | Acceptance evidence → **Gate R1** |
 
-**Next:** push R1.4 on request → **R1.5** (read canonical Google Doc first).  
+**Next:** **R1.5** (Core CandidateProfile / ProfileVersion linkage).  
 **Gate critical path:** accepted resume list then active resume (403 error UX alone ≠ Gate CLOSED).  
 **Gate R1:** **OPEN**.
 
@@ -412,8 +411,8 @@ Execute in parallel only if it does not block R1.
 
 ## Current next step
 
-**R1.4 COMPLETE** (OWNER ACCEPTED 2026-08-26; push on request).
-**R1.5** (Core linkage) — **NOT STARTED**. **Gate R1** remains **OPEN**.
+**R1.4 COMPLETE · PUSHED**. Next: **R1.5** (Core linkage) — **NOT STARTED**.
+**Gate R1** remains **OPEN**.
 
 Do not start Scoring foundation, Content, or Hermes until R1 Gate
 (or documented PO waiver).
