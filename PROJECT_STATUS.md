@@ -2,8 +2,8 @@
 
 **Дата снимка:** 2026-08-26 (UTC+3)  
 **Workspace HEAD:** local R1.4 OWNER ACCEPTANCE PENDING (not pushed)  
-**Web submodule HEAD:** local R1.4 (pending commit)  
-**HH submodule HEAD:** local R1.4 (pending commit)  
+**Web submodule HEAD:** `8a877ba973c7399485e6c5e452a35c06549e2e1c`  
+**HH submodule HEAD:** `4fafa91520f810d001f41c51af79986e6d50ed46`  
 **Ветка:** `main`
 
 Этот файл — оперативный снимок «где мы сейчас». Детальный план и gate-критерии
