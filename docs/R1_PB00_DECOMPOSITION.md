@@ -72,6 +72,9 @@ the R1 linkage model. Do not overload it for active HH resume identity.
 | Product-facing connection status (Web / unified operator report) | **IMPLEMENTED** (R1.1) | `connection status` CLI + `GET /api/v1/connection`; Web header HH signal |
 | HH account / profile (`GET /me`) | **IMPLEMENTED** (R1.2 COMPLETE) | `account status` + `GET /api/v1/account`; Web header identity; official `/me` |
 | Resume list product surface | **IMPLEMENTED** (R1.3; owner acceptance pending) | Browser RO `resumes list` / `GET /api/v1/resumes`; official API still 403 |
+| Active HH resume select / persist | **MISSING** | `resume_id` only inside apply-plan fixtures |
+| CandidateProfile / ProfileVersion | **MISSING** | No Core models/API |
+| Recovery / action-required (unified) | **PARTIAL** | R1.1–R1.3 status codes; CAPTCHA still stops apply |
 | Web HH settings / resume UI | **PARTIAL** (R1.2 account + R1.3 resume strip) | Header account + compact resume strip; no select yet |
 | CAPTCHA bypass | **MISSING** (intentional) | `captcha_bypass: false`; apply stops — correct safety stance |
 
