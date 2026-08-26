@@ -2,7 +2,7 @@
 
 **Revision:** 2  
 **Basis:** UJM v1 + Product Backlog + Roadmap v1 + [`ARCHITECTURE_PLAN.md`](ARCHITECTURE_PLAN.md) rev. 2  
-**Updated:** 2026-08-26 (R1.1–R1.3 COMPLETE · PUSHED; Gate R1 OPEN)
+**Updated:** 2026-08-26 (R1.3 COMPLETE · PUSHED; R1.4 OWNER ACCEPTANCE PENDING)
 **Previous revision:** 1 (service bootstrap / multirepo transfer sequence)
 
 Оперативный снимок: [`PROJECT_STATUS.md`](PROJECT_STATUS.md).  
@@ -171,9 +171,9 @@ monolith, SQLite, or migration tooling. Details live outside this repository.
 
 **PBI:** PB-00 + minimally necessary PB-01.  
 **Decomposition:** [`docs/R1_PB00_DECOMPOSITION.md`](docs/R1_PB00_DECOMPOSITION.md)  
-**Implementation:** **R1.1 COMPLETE · PUSHED**; **R1.2 COMPLETE · PUSHED**;
-**R1.3 COMPLETE · PUSHED** (OWNER ACCEPTED 2026-08-26);
-R1.4–R1.6 not started; **Gate R1 OPEN**.
+**Implementation:** **R1.1–R1.3 COMPLETE · PUSHED**;
+**R1.4 READY FOR OWNER ACCEPTANCE** (IMPLEMENTED · TECHNICAL PASS · COMPLETE: NO);
+R1.5–R1.6 not started; **Gate R1 OPEN**.
 
 **Product outcome:** operator connects HH, sees account context, selects **active
 HH resume**, with local linkage to profile/resume context for downstream R2.
@@ -185,11 +185,11 @@ HH resume**, with local linkage to profile/resume context for downstream R2.
 | Session / OAuth / noVNC login CLI | **IMPLEMENTED** |
 | Product-facing connection status (Web) | **IMPLEMENTED** (R1.1) |
 | HH account/profile (`/me`) | **IMPLEMENTED** (R1.2 COMPLETE); official API |
-| Resume list product surface | **IMPLEMENTED** (R1.3 COMPLETE); browser RO |
-| Active resume select/persist | **MISSING** |
-| CandidateProfile / ProfileVersion | **MISSING** |
-| Unified action-required states | **PARTIAL** (R1.1–R1.3 codes) |
-| Web HH context UI | **PARTIAL** (connection + account + resume strip; no select) |
+| Resume list product surface | **IMPLEMENTED** (R1.3 COMPLETE · PUSHED); browser RO |
+| Active resume select/persist | **IMPLEMENTED** (R1.4; owner acceptance pending); HH state file |
+| CandidateProfile / ProfileVersion | **MISSING** (R1.5) |
+| Unified action-required states | **PARTIAL** (R1.1–R1.4 codes) |
+| Web HH context UI | **PARTIAL** (connection + account + resume strip + active select) |
 
 ### Stories (summary)
 
@@ -198,8 +198,8 @@ HH resume**, with local linkage to profile/resume context for downstream R2.
 | **US-00.1** | Understand HH connection state — **DONE (R1.1)** |
 | **US-00.2** | See HH account/profile — **DONE (R1.2)** |
 | **US-00.3** | List HH resumes — **DONE (R1.3)** |
-| **US-00.4** | Select active HH resume |
-| **US-00.5** | Restore active resume after restart |
+| **US-00.4** | Select active HH resume — **IMPLEMENTED** (R1.4; acceptance pending) |
+| **US-00.5** | Restore active resume after restart — **IMPLEMENTED** (R1.4 HH state) |
 | **US-00.6** | Explicit action-required (401/expired/CAPTCHA/403) |
 | **US-01.1** | Minimal local CandidateProfile/ProfileVersion linkage |
 
@@ -213,12 +213,12 @@ TECH-US / DEBT-US / AC / BDD: see decomposition doc.
 | **R1.1** | Operator-visible HH connection/session status — **COMPLETE** (OWNER ACCEPTED) |
 | **R1.2** | Current HH profile/account context via official `GET /me` — **COMPLETE** (OWNER ACCEPTED) |
 | **R1.3** | Resume list via **authenticated browser read-only** — **COMPLETE · PUSHED** (OWNER ACCEPTED) |
-| **R1.4** | Active HH resume selection persisted |
+| **R1.4** | Active HH resume selection persisted — **READY FOR OWNER ACCEPTANCE** |
 | **R1.5** | Minimal CandidateProfile / ProfileVersion linkage in Core |
 | **R1.6** | Unified recovery / action-required states |
 | **R1.A** | Acceptance evidence → **Gate R1** |
 
-**Next:** **R1.4** (active resume select).  
+**Next:** owner ACCEPT for R1.4 → then **R1.5**.  
 **Gate critical path:** accepted resume list then active resume (403 error UX alone ≠ Gate CLOSED).  
 **Gate R1:** **OPEN**.
 
@@ -412,8 +412,8 @@ Execute in parallel only if it does not block R1.
 
 ## Current next step
 
-**R1.3 COMPLETE · PUSHED** (OWNER ACCEPTED 2026-08-26). Next: **R1.4**
-(active resume select) — **NOT STARTED**. **Gate R1** remains **OPEN**.
+**R1.4 READY FOR OWNER ACCEPTANCE** (IMPLEMENTED · TECHNICAL PASS · COMPLETE: NO).
+**R1.5** (Core linkage) — **NOT STARTED**. **Gate R1** remains **OPEN**.
 
 Do not start Scoring foundation, Content, or Hermes until R1 Gate
 (or documented PO waiver).

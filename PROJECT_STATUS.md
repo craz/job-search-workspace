@@ -1,9 +1,9 @@
 # Состояние проекта Job Search Multirepo
 
 **Дата снимка:** 2026-08-26 (UTC+3)  
-**Workspace HEAD:** local R1.3 COMPLETE · PUSHED (docs tip pending)  
-**Web submodule HEAD:** `d3df5f901026b460eb6897bf92a0517328fa24e0`  
-**HH submodule HEAD:** `d39ba5a9a246601d2e7dbeb43beac915d922e69b`  
+**Workspace HEAD:** local R1.4 OWNER ACCEPTANCE PENDING (not pushed)  
+**Web submodule HEAD:** local R1.4 (pending commit)  
+**HH submodule HEAD:** local R1.4 (pending commit)  
 **Ветка:** `main`
 
 Этот файл — оперативный снимок «где мы сейчас». Детальный план и gate-критерии
@@ -19,9 +19,9 @@
 | Core + Web MVP | готово |
 | Scoring (host Ollama pipeline) | базово готово |
 | OSINT (website / people → Core) | в основном готово |
-| HH read-path | vacancies + **`GET /me` (R1.2)** + **browser RO resumes (R1.3)**; documented Docker host-proxy bridge; `/resumes/mine` **403**; R1.1–R1.3 **COMPLETE** |
+| HH read-path | vacancies + **`GET /me` (R1.2)** + **browser RO resumes (R1.3)** + **active select (R1.4 pending ACCEPT)**; `/resumes/mine` **403** |
 | HH write-path (API) | код dual-gate готов; **production API apply заблокирован scope HH-приложения** |
-| **R1 / PB-00** | R1.1–R1.3 **COMPLETE · PUSHED**; R1.4–R1.6 not started; **Gate R1 OPEN** |
+| **R1 / PB-00** | R1.1–R1.3 **COMPLETE · PUSHED**; R1.4 **READY FOR OWNER ACCEPTANCE**; R1.5–R1.6 not started; **Gate R1 OPEN** |
 | Content / Telegram §8 | не начат (submodule stub) |
 | Сквозная сборка §9 / Hermes §10 | не закрыты |
 | **Plan revisions** | **ARCHITECTURE_PLAN rev. 2** · **IMPLEMENTATION_PLAN rev. 2** |
@@ -33,9 +33,10 @@
 **Gate PB-DATA-00:** **CLOSED** (DATA-00.1–00.7).  
 **R0** больше не является текущей реализационной работой.
 
-**Главный продуктовый next:** **R1.4** (active resume select).  
+**Главный продуктовый next:** owner **ACCEPT** для R1.4 (active resume select).  
 Host-proxy: [`docs/runbooks/hh-docker-host-proxy.md`](docs/runbooks/hh-docker-host-proxy.md).  
-R1.2–R1.3: OWNER ACCEPTED / COMPLETE · PUSHED (2026-08-26).  
+R1.3: OWNER ACCEPTED / COMPLETE · PUSHED (2026-08-26).  
+R1.4 SoT: HH `active_resume.json` (Core linkage = R1.5).  
 Full R1: connection → profile → resume list → active resume → linkage → recovery → Gate R1.
 
 Артефакты R0:
@@ -113,13 +114,10 @@ Content/Telegram, browser HH apply и Scoring foundation **не являются
 
 ## Решение по «го» / blockers
 
-- **«Го»** = старт **R1.4** (active resume select + persistence per US-00.4/00.5).  
-  Gate R1 остаётся OPEN до R1.4–R1.6 + R1.A.
+- **«Го»** = owner **ACCEPT** для R1.4 (checklist в `docs/R1_PB00_DECOMPOSITION.md`),  
+  или если скажешь — remarks. Push R1.4 — только после ACCEPT / явного запроса.
 
 ## Как обновлять этот файл
 
-После каждого завершённого зелёного среза (или явного запроса «обнови статус»):
-
-1. Обновить дату и HEAD SHA.
-2. Поправить таблицу вердикта и блок HH/блокеров по факту.
-3. Держать «Главный продуктовый next» согласованным с Roadmap и `ARCHITECTURE_PLAN.md`.
+После значимого шага обновляй дату, HEAD SHA сервисов и таблицу вердикта.
+Не дублируй полный roadmap — ссылайся на `IMPLEMENTATION_PLAN.md`.
