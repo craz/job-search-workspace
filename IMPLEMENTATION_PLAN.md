@@ -2,7 +2,7 @@
 
 **Revision:** 2  
 **Basis:** UJM v1 + Product Backlog + Roadmap v1 + [`ARCHITECTURE_PLAN.md`](ARCHITECTURE_PLAN.md) rev. 2  
-**Updated:** 2026-08-27 (R1.1–R1.6 COMPLETE · PUSHED; R1.A TECHNICAL/INTEGRATED PASS; Gate R1 READY FOR OWNER DECISION · OPEN)
+**Updated:** 2026-08-27 (R1.1–R1.6 COMPLETE · PUSHED; R1.A ACCEPTED; Gate R1 CLOSED)
 **Previous revision:** 1 (service bootstrap / multirepo transfer sequence)
 
 Оперативный снимок: [`PROJECT_STATUS.md`](PROJECT_STATUS.md).  
@@ -172,7 +172,7 @@ monolith, SQLite, or migration tooling. Details live outside this repository.
 **PBI:** PB-00 + minimally necessary PB-01.  
 **Decomposition:** [`docs/R1_PB00_DECOMPOSITION.md`](docs/R1_PB00_DECOMPOSITION.md)  
 **Implementation:** **R1.1–R1.6 COMPLETE · PUSHED**;
-**R1.A TECHNICAL / INTEGRATED PASS**; **Gate R1 READY FOR OWNER DECISION · OPEN**.
+**R1.A ACCEPTED**; **Gate R1 CLOSED** (OWNER ACCEPTED 2026-08-27).
 
 **Product outcome:** operator connects HH, sees account context, selects **active
 HH resume**, with local linkage to profile/resume context for downstream R2.
@@ -215,16 +215,15 @@ TECH-US / DEBT-US / AC / BDD: see decomposition doc.
 | **R1.4** | Active HH resume selection persisted — **COMPLETE · PUSHED** (OWNER ACCEPTED) |
 | **R1.5** | Minimal CandidateProfile / ProfileVersion linkage in Core — **COMPLETE · PUSHED** (OWNER ACCEPTED; identifier-only) |
 | **R1.6** | Unified recovery / action-required states — **COMPLETE · PUSHED** (OWNER ACCEPTED) |
-| **R1.A** | Integrated acceptance / Gate evidence — **TECHNICAL / INTEGRATED PASS** |
+| **R1.A** | Integrated acceptance / Gate evidence — **ACCEPTED** → **Gate R1 CLOSED** |
 
 **R1.5 architecture note:** linkage is `ProfileVersion` ↔ HH `external_resume_id`
 only. Resume **content** snapshot is **not** in R1.5. **PB-03 Scoring** must not
 consume R1.5 as candidate text; **R2 / full PB-01** must add local resume
 snapshot/version first.
 
-**Next:** owner **Gate R1** decision (ACCEPT / remarks). R2 **NOT STARTED**.  
-**Gate R1:** **READY FOR OWNER DECISION · OPEN** (not CLOSED).
-
+**Next:** not started — R2 awaits explicit owner start.  
+**Gate R1:** **CLOSED**. R2 **NOT STARTED**.
 ### External constraint (not «debt»)
 
 Live probe (usable OAuth session, 2026-08-25):
@@ -244,7 +243,7 @@ and supports active-resume + linkage.
 
 **Current official-API resume list:** still **403 EXTERNAL_BLOCKED**.  
 **Supported product resume path:** browser read-only (R1.3).  
-**R1.A:** TECHNICAL / INTEGRATED PASS → Gate R1 **READY FOR OWNER DECISION · OPEN**.
+**R1.A:** ACCEPTED → **Gate R1 CLOSED** (OWNER ACCEPTED 2026-08-27). R2 **NOT STARTED**.
 
 ---
 
@@ -411,7 +410,7 @@ Execute in parallel only if it does not block R1.
 |---|---|
 | **Gate R0** | **CLOSED** 2026-08-22 — dark 5-section Web, Assessment contextual, 37 tests |
 | **Gate PB-DATA-00** | **CLOSED** — one-time owner bootstrap isolated from product flow |
-| **Gate R1** | HH connected; active resume + local linkage; blocked paths documented |
+| **Gate R1** | **CLOSED** 2026-08-27 — HH connected; active resume + id-only linkage; recovery; `/resumes/mine` EXTERNAL_BLOCKED documented |
 | **Gate R2** | Score/verdict/ranking/decision in Vacancy context with profile-aware scoring |
 | **Gate R3** | Pursue → channel → optional OSINT → outreach → response |
 | **Gate R4** | Hiring process tracking |
@@ -421,10 +420,10 @@ Execute in parallel only if it does not block R1.
 
 ## Current next step
 
-**R1.5 COMPLETE · PUSHED**. Next: **R1.6** (recovery / action-required) —
-**NOT STARTED**. **Gate R1** remains **OPEN**.
+**Gate R1 CLOSED** (OWNER ACCEPTED 2026-08-27). R1.1–R1.6 COMPLETE · PUSHED.  
+**R2 NOT STARTED** — await explicit owner start.
 
-Do not start Scoring foundation, Content, or Hermes until R1 Gate
+Do not start Scoring foundation, Content, or Hermes until owner starts R2
 (or documented PO waiver).
 
 Оперативный снимок и HEAD SHA: [`PROJECT_STATUS.md`](PROJECT_STATUS.md).

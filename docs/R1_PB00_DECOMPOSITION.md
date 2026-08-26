@@ -1,6 +1,6 @@
 # R1 / PB-00 — decomposition
 
-**Status:** R1.1–R1.6 **COMPLETE · PUSHED**; **R1.A TECHNICAL / INTEGRATED PASS**; **Gate R1 READY FOR OWNER DECISION · OPEN**
+**Status:** R1.1–R1.6 **COMPLETE · PUSHED**; **R1.A ACCEPTED**; **Gate R1 CLOSED** (OWNER ACCEPTED 2026-08-27)
 **Date:** 2026-08-27  
 **PBI:** PB-00 (primary) + minimal PB-01 slice for local linkage only  
 **Prerequisite Gate:** PB-DATA-00 CLOSED  
@@ -403,7 +403,7 @@ Document required env only (existing HH `.env.example` pattern). Never commit to
 | **R1.4** | Active resume select + persistence (US-00.4 + US-00.5 restart) | **COMPLETE · PUSHED** (OWNER ACCEPTED 2026-08-26) |
 | **R1.5** | Minimal Core CandidateProfile/ProfileVersion linkage | **COMPLETE · PUSHED** (OWNER ACCEPTED 2026-08-26) |
 | **R1.6** | Unified recovery/action-required states across CLI+Web | **COMPLETE · PUSHED** (OWNER ACCEPTED 2026-08-26) |
-| **R1.A** | Integrated R1 acceptance / Gate evidence | **TECHNICAL / INTEGRATED PASS** (2026-08-27) |
+| **R1.A** | Integrated R1 acceptance / Gate evidence | **ACCEPTED** (OWNER 2026-08-27) → **Gate R1 CLOSED** |
 
 **R1.2 official API:** **YES** (`GET /me` = 200) — product transport for account context.  
 **R1.3 official API:** **NO** (`GET /resumes/mine` = 403).
@@ -420,11 +420,12 @@ snapshot/version. Web «Локальная связь: активна» = accept
 distinguishable reauth / captcha_or_action_required / external_limitation /
 network_failure; no CAPTCHA bypass; bounded polls only. **PUSHED**.
 
-**R1.A:** integrated evidence collected; **Gate R1 READY FOR OWNER DECISION**.  
-Do **not** write Gate R1 CLOSED / ACCEPTED here.  
-**Gate R1:** **OPEN**.
+### Gate R1 — CLOSED
 
-### R1.A — Gate R1 OWNER checklist (user-facing only)
+**OWNER ACCEPTED** 2026-08-27. R1.A integrated evidence accepted.  
+**Gate R1 → CLOSED.** R2 **NOT STARTED**.
+
+### R1.A — Gate R1 OWNER checklist (user-facing only) — ACCEPTED
 
 1. Открой http://127.0.0.1:18080/
 2. В шапке: HeadHunter **Подключено** и видно имя/аккаунт.
@@ -437,6 +438,10 @@ Do **not** write Gate R1 CLOSED / ACCEPTED here.
 Не нужно вручную симулировать все error states (они покрыты тестами).
 
 Reply **ACCEPT** (закрыть Gate R1) или list remarks. Gate остаётся OPEN до ACCEPT.
+
+### Gate R1 OWNER ACCEPTANCE — ACCEPTED
+
+**OWNER ACCEPTED** 2026-08-27. R1.A integrated evidence accepted. **Gate R1 CLOSED**.
 
 ### R1.6 OWNER ACCEPTANCE — ACCEPTED
 
@@ -581,10 +586,10 @@ remains **403 EXTERNAL_BLOCKED**. Product resume list uses **browser read-only**
 (R1.3 COMPLETE · PUSHED). Showing only the 403 state ≠ Gate CLOSED; supported
 browser path + R1.1–R1.6 + R1.A evidence are now in place.
 
-**R1.A (2026-08-27):** **TECHNICAL / INTEGRATED PASS**.  
-**Gate R1:** **READY FOR OWNER DECISION · OPEN** (not CLOSED / not ACCEPTED).
+**R1.A (2026-08-27):** **TECHNICAL / INTEGRATED PASS** → **OWNER ACCEPTED**.  
+**Gate R1:** **CLOSED** (OWNER ACCEPTED 2026-08-27).
 
-Gate checklist (all must be true for owner to CLOSE Gate R1):
+Gate checklist (closed on owner ACCEPT; evidence satisfied):
 
 1. HH connection state is understandable to the operator.
 2. With a working session, HH account/profile context is known **or** the blocking reason is explicit.
