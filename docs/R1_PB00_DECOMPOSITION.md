@@ -70,8 +70,8 @@ the R1 linkage model. Do not overload it for active HH resume identity.
 | HH connection / session (CLI) | **IMPLEMENTED** | `session.py` `session_status` / `auth_status`; CLI `session status`, `auth status|open-login|confirm|clear`; OAuth token store + loopback; specs/runbooks under `services/hh/docs/` |
 | Operator noVNC login | **IMPLEMENTED** | `browser.py` + `auth open-login` / `confirm`; runbook `docs/runbooks/operator-novnc-login.md` |
 | Product-facing connection status (Web / unified operator report) | **IMPLEMENTED** (R1.1) | `connection status` CLI + `GET /api/v1/connection`; Web header HH signal |
-| HH account / profile (`GET /me`) | **IMPLEMENTED** (R1.2; owner acceptance pending) | `account status` + `GET /api/v1/account`; Web header identity; normalized contract only; live `/me` 200 confirmed |
-| Resume list product surface | **PARTIAL** (API **EXTERNAL_BLOCKED**; **browser transport selected**) | Official API 403; owner decision: authenticated browser **read-only** for own resume list (not implemented yet) |
+| HH account / profile (`GET /me`) | **IMPLEMENTED** (R1.2 COMPLETE) | `account status` + `GET /api/v1/account`; Web header identity; official `/me` |
+| Resume list product surface | **IN PROGRESS** (R1.3 browser RO) | Official API 403; browser RO transport selected |
 | Active HH resume select / persist | **MISSING** | `resume_id` only inside apply-plan fixtures |
 | CandidateProfile / ProfileVersion | **MISSING** | No Core models/API |
 | Recovery / action-required (unified) | **PARTIAL** | `live_auth` login_not_ready / token missing; metrics tolerate `resumes_mine_forbidden`; apply stops on captcha/403/429 — **no** unified operator/Web contract for R1 states |
