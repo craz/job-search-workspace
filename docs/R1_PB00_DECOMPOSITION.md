@@ -404,7 +404,9 @@ Document required env only (existing HH `.env.example` pattern). Never commit to
 Open: `http://127.0.0.1:18080/` (local `WEB_PORT`; this workspace uses 18080).
 
 1. Header right: **HeadHunter** + **Подключено** (R1.1 connection).
-2. Under/near that status: connected-account identity (`display_name` and/or `email` tooltip) — answers «к какому HH-аккаунту подключён Job Search?».
+2. Under/near that status: line **«Аккаунт: …»** with connected-account identity
+   (`display_name`; hover tooltip may show `email`) — answers «к какому HH-аккаунту
+   подключён Job Search?».
 3. No raw JSON, tokens, paths, resume list, or «0 resumes» claims.
 4. Core signal still usable; nav/vacancies still work.
 5. Confirm resume list is **not** part of R1.2 (R1.3).
