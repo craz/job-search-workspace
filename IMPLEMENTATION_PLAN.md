@@ -2,7 +2,7 @@
 
 **Revision:** 2  
 **Basis:** UJM v1 + Product Backlog + Roadmap v1 + [`ARCHITECTURE_PLAN.md`](ARCHITECTURE_PLAN.md) rev. 2  
-**Updated:** 2026-08-26 (R1.1–R1.6 COMPLETE; R1.6 push pending; Gate R1 OPEN)
+**Updated:** 2026-08-27 (R1.1–R1.6 COMPLETE · PUSHED; R1.A TECHNICAL/INTEGRATED PASS; Gate R1 READY FOR OWNER DECISION · OPEN)
 **Previous revision:** 1 (service bootstrap / multirepo transfer sequence)
 
 Оперативный снимок: [`PROJECT_STATUS.md`](PROJECT_STATUS.md).  
@@ -171,8 +171,8 @@ monolith, SQLite, or migration tooling. Details live outside this repository.
 
 **PBI:** PB-00 + minimally necessary PB-01.  
 **Decomposition:** [`docs/R1_PB00_DECOMPOSITION.md`](docs/R1_PB00_DECOMPOSITION.md)  
-**Implementation:** **R1.1–R1.6 COMPLETE** (R1.1–R1.5 PUSHED; R1.6 local COMPLETE);
-**Gate R1 OPEN**.
+**Implementation:** **R1.1–R1.6 COMPLETE · PUSHED**;
+**R1.A TECHNICAL / INTEGRATED PASS**; **Gate R1 READY FOR OWNER DECISION · OPEN**.
 
 **Product outcome:** operator connects HH, sees account context, selects **active
 HH resume**, with local linkage to profile/resume context for downstream R2.
@@ -214,17 +214,16 @@ TECH-US / DEBT-US / AC / BDD: see decomposition doc.
 | **R1.3** | Resume list via **authenticated browser read-only** — **COMPLETE · PUSHED** (OWNER ACCEPTED) |
 | **R1.4** | Active HH resume selection persisted — **COMPLETE · PUSHED** (OWNER ACCEPTED) |
 | **R1.5** | Minimal CandidateProfile / ProfileVersion linkage in Core — **COMPLETE · PUSHED** (OWNER ACCEPTED; identifier-only) |
-| **R1.6** | Unified recovery / action-required states — **COMPLETE** (OWNER ACCEPTED; push pending) |
-| **R1.A** | Acceptance evidence → **Gate R1** |
+| **R1.6** | Unified recovery / action-required states — **COMPLETE · PUSHED** (OWNER ACCEPTED) |
+| **R1.A** | Integrated acceptance / Gate evidence — **TECHNICAL / INTEGRATED PASS** |
 
 **R1.5 architecture note:** linkage is `ProfileVersion` ↔ HH `external_resume_id`
 only. Resume **content** snapshot is **not** in R1.5. **PB-03 Scoring** must not
 consume R1.5 as candidate text; **R2 / full PB-01** must add local resume
 snapshot/version first.
 
-**Next:** **R1.A** (Gate evidence).  
-**Gate critical path:** R1.1–R1.6 complete; Gate pack next.  
-**Gate R1:** **OPEN**.
+**Next:** owner **Gate R1** decision (ACCEPT / remarks). R2 **NOT STARTED**.  
+**Gate R1:** **READY FOR OWNER DECISION · OPEN** (not CLOSED).
 
 ### External constraint (not «debt»)
 

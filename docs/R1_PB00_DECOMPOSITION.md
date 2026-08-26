@@ -1,7 +1,7 @@
 # R1 / PB-00 — decomposition
 
-**Status:** R1.1–R1.6 **COMPLETE** (R1.1–R1.5 PUSHED; R1.6 local COMPLETE, push pending); **Gate R1 OPEN**
-**Date:** 2026-08-26  
+**Status:** R1.1–R1.6 **COMPLETE · PUSHED**; **R1.A TECHNICAL / INTEGRATED PASS**; **Gate R1 READY FOR OWNER DECISION · OPEN**
+**Date:** 2026-08-27  
 **PBI:** PB-00 (primary) + minimal PB-01 slice for local linkage only  
 **Prerequisite Gate:** PB-DATA-00 CLOSED  
 
@@ -402,8 +402,8 @@ Document required env only (existing HH `.env.example` pattern). Never commit to
 | **R1.3** | Resume list via **authenticated browser read-only** transport (owner decision) | **COMPLETE · PUSHED** (OWNER ACCEPTED 2026-08-26) |
 | **R1.4** | Active resume select + persistence (US-00.4 + US-00.5 restart) | **COMPLETE · PUSHED** (OWNER ACCEPTED 2026-08-26) |
 | **R1.5** | Minimal Core CandidateProfile/ProfileVersion linkage | **COMPLETE · PUSHED** (OWNER ACCEPTED 2026-08-26) |
-| **R1.6** | Unified recovery/action-required states across CLI+Web | **COMPLETE** (OWNER ACCEPTED 2026-08-26; push pending) |
-| **R1.A** | Acceptance scenarios / Gate evidence | R1.1–R1.6 |
+| **R1.6** | Unified recovery/action-required states across CLI+Web | **COMPLETE · PUSHED** (OWNER ACCEPTED 2026-08-26) |
+| **R1.A** | Integrated R1 acceptance / Gate evidence | **TECHNICAL / INTEGRATED PASS** (2026-08-27) |
 
 **R1.2 official API:** **YES** (`GET /me` = 200) — product transport for account context.  
 **R1.3 official API:** **NO** (`GET /resumes/mine` = 403).
@@ -418,16 +418,30 @@ snapshot/version. Web «Локальная связь: активна» = accept
 
 **R1.6:** additive `recovery.{kind,operator_action}` on connection/account/resumes;
 distinguishable reauth / captcha_or_action_required / external_limitation /
-network_failure; no CAPTCHA bypass; bounded polls only.
+network_failure; no CAPTCHA bypass; bounded polls only. **PUSHED**.
 
-**Next:** **R1.A** (Gate evidence). Do **not** close Gate R1 here.  
+**R1.A:** integrated evidence collected; **Gate R1 READY FOR OWNER DECISION**.  
+Do **not** write Gate R1 CLOSED / ACCEPTED here.  
 **Gate R1:** **OPEN**.
+
+### R1.A — Gate R1 OWNER checklist (user-facing only)
+
+1. Открой http://127.0.0.1:18080/
+2. В шапке: HeadHunter **Подключено** и видно имя/аккаунт.
+3. В блоке **«Резюме HH»** видны реальные названия твоих резюме.
+4. Выбери рабочее резюме — оно явно active (✓ / выделение).
+5. Reload страницы — выбор остаётся.
+6. Нет ошибок вместо рабочего resume context.
+7. По желанию: **«Сбросить выбор»** → выбрать снова.
+
+Не нужно вручную симулировать все error states (они покрыты тестами).
+
+Reply **ACCEPT** (закрыть Gate R1) или list remarks. Gate остаётся OPEN до ACCEPT.
 
 ### R1.6 OWNER ACCEPTANCE — ACCEPTED
 
 **OWNER ACCEPTED** 2026-08-26. Happy-path Web check: connected + resume list intact;
-login CTA intentionally hidden while authorized. Slice **COMPLETE** (local;
-push when requested).
+login CTA intentionally hidden while authorized. Slice **COMPLETE · PUSHED**.
 
 ### R1.6 OWNER ACCEPTANCE checklist
 
