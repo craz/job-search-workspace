@@ -1,10 +1,10 @@
 # Состояние проекта Job Search Multirepo
 
 **Дата снимка:** 2026-08-26 (UTC+3)  
-**Workspace HEAD:** local R1.2 TECHNICAL PASS after host-proxy remarks (not pushed)  
+**Workspace HEAD:** local R1.2 COMPLETE (push in progress / pending verify)  
 **Web submodule HEAD:** `e1031b7fe581fed74d41b7ef9cfe8ce345c69b1b`  
 **HH submodule HEAD:** `5726fafa8e7d8f0f58ea7df98e18779901c977e5`  
-**Ветка:** `main` (R1.1 on `origin/main` @ `f50c2aa`; R1.2 + remarks local-only until re-ACCEPT + push)
+**Ветка:** `main`
 
 Этот файл — оперативный снимок «где мы сейчас». Детальный план и gate-критерии
 живут в [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md); архитектура — в
@@ -21,7 +21,7 @@
 | OSINT (website / people → Core) | в основном готово |
 | HH read-path | vacancies + **`GET /me` (R1.2)** + documented Docker host-proxy bridge; `/resumes/mine` **403**; R1.1 **COMPLETE** |
 | HH write-path (API) | код dual-gate готов; **production API apply заблокирован scope HH-приложения** |
-| **R1 / PB-00** | R1.1 **COMPLETE**; R1.2 **READY FOR OWNER ACCEPTANCE** (remarks fixed; **COMPLETE: NO**); R1.3 **NOT STARTED**; **Gate R1 OPEN** |
+| **R1 / PB-00** | R1.1 **COMPLETE**; R1.2 **COMPLETE** (OWNER ACCEPTED); R1.3 **IN PROGRESS**; **Gate R1 OPEN** |
 | Content / Telegram §8 | не начат (submodule stub) |
 | Сквозная сборка §9 / Hermes §10 | не закрыты |
 | **Plan revisions** | **ARCHITECTURE_PLAN rev. 2** · **IMPLEMENTATION_PLAN rev. 2** |
@@ -33,9 +33,9 @@
 **Gate PB-DATA-00:** **CLOSED** (DATA-00.1–00.7).  
 **R0** больше не является текущей реализационной работой.
 
-**Главный продуктовый next:** owner **re-ACCEPT** для R1.2 после host-proxy remarks, затем push по запросу; далее **R1.3**.  
+**Главный продуктовый next:** **R1.3** — browser read-only own resume list.  
 Host-proxy: [`docs/runbooks/hh-docker-host-proxy.md`](docs/runbooks/hh-docker-host-proxy.md).  
-R1.3: authenticated browser read-only own resume list (not started).  
+R1.2: OWNER ACCEPTED / COMPLETE (2026-08-26).  
 Full R1: connection → profile → resume list → active resume → linkage → recovery → Gate R1.
 
 Артефакты R0:
@@ -113,8 +113,8 @@ Content/Telegram, browser HH apply и Scoring foundation **не являются
 
 ## Решение по «го» / blockers
 
-- **«Го»** = owner **ACCEPT** для R1.2 (checklist в `docs/R1_PB00_DECOMPOSITION.md`),  
-  или если скажешь — remarks. Push — только по явному запросу. R1.3 не стартовать.
+- **«Го»** = продолжить **R1.3** (browser RO resume list),  
+  или если скажешь — пауза / другой фокус. Push R1.3 — только после ACCEPT.
 
 ## Как обновлять этот файл
 

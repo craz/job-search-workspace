@@ -1,6 +1,6 @@
 # R1 / PB-00 — decomposition
 
-**Status:** R1.1 **COMPLETE**; R1.2 **IMPLEMENTED · TECHNICAL PASS · OWNER ACCEPTANCE PENDING** (remarks fixed 2026-08-26); R1.3–R1.6 not started; **Gate R1 OPEN**  
+**Status:** R1.1 **COMPLETE**; R1.2 **OWNER ACCEPTED** / **COMPLETE** (2026-08-26); R1.3 in progress; R1.4–R1.6 not started; **Gate R1 OPEN**  
 **Date:** 2026-08-26  
 **PBI:** PB-00 (primary) + minimal PB-01 slice for local linkage only  
 **Prerequisite Gate:** PB-DATA-00 CLOSED  
@@ -21,10 +21,8 @@ proxy-bridge because Docker cannot TCP to host loopback HTTP proxy. **Not COMPLE
 [`docs/runbooks/hh-docker-host-proxy.md`](../docs/runbooks/hh-docker-host-proxy.md)
 (`hh-egress` + `.local` Unix socket). Temporary acceptance sidecar removed.
 
-**Current status:** IMPLEMENTED · TECHNICAL PASS · **OWNER ACCEPTANCE PENDING**
-(re-acceptance after remarks). **COMPLETE: NO.**
-
-Transport: official HH API `GET /me` only (no browser). R1.3 remains browser RO resume list.
+**OWNER ACCEPTED** 2026-08-26 (re-acceptance after host-proxy remarks + UI identity).
+Slice **COMPLETE**. Transport: official API `GET /me` only (no browser).
 
 ---
 
@@ -390,8 +388,8 @@ Document required env only (existing HH `.env.example` pattern). Never commit to
 | Task | Delivers | Depends on |
 |---|---|---|
 | **R1.1** | Operator-visible HH connection/session status (CLI + HTTP + Web) | **COMPLETE** (OWNER ACCEPTED 2026-08-25) |
-| **R1.2** | HH account/profile read + display via official `GET /me` | **IMPLEMENTED · TECHNICAL PASS · OWNER ACCEPTANCE PENDING** |
-| **R1.3** | Resume list via **authenticated browser read-only** transport (owner decision) | **NOT STARTED** |
+| **R1.2** | HH account/profile read + display via official `GET /me` | **COMPLETE** (OWNER ACCEPTED 2026-08-26) |
+| **R1.3** | Resume list via **authenticated browser read-only** transport (owner decision) | **IN PROGRESS** |
 | **R1.4** | Active resume select + persistence | R1.3 with a working list path |
 | **R1.5** | Minimal Core CandidateProfile/ProfileVersion linkage | R1.4 |
 | **R1.6** | Unified recovery/action-required states across CLI+Web | R1.1–R1.3 (harden continuously) |
@@ -401,8 +399,8 @@ Document required env only (existing HH `.env.example` pattern). Never commit to
 **R1.3 official API:** **NO** (`GET /resumes/mine` = 403).  
 **R1.3 transport decision:** authenticated browser session, read-only own resumes (**not started**).
 
-**Next:** owner re-ACCEPT for R1.2 (after host-proxy remarks), then push on request; then **R1.3**.  
-**Gate critical path:** R1.3 browser resume-list — a 403 error screen alone does **not** close Gate R1.  
+**Next:** **R1.3** browser RO own resume list.  
+**Gate critical path:** R1.3 — a 403 error screen alone does **not** close Gate R1.  
 **Gate R1:** **OPEN**.
 
 ### R1.2 OWNER ACCEPTANCE checklist (re-acceptance)
