@@ -107,7 +107,8 @@ operator's own resume list only. Product/domain layers must consume a stable
 HH-normalized resume-summary contract (not DOM details). This does **not** approve
 browser apply, resume edits, negotiations scrape, arbitrary scraping, CAPTCHA
 bypass, or auth/permission bypass — those need separate decisions.
-Implementation of the browser resume list is **R1.3** (not started).
+Implementation of the browser resume list is **R1.3** (**IMPLEMENTED**;
+owner acceptance pending after product UX remark).
 
 ---
 
@@ -396,27 +397,34 @@ Document required env only (existing HH `.env.example` pattern). Never commit to
 | **R1.A** | Acceptance scenarios / Gate evidence | R1.1–R1.6 |
 
 **R1.2 official API:** **YES** (`GET /me` = 200) — product transport for account context.  
-**R1.3 official API:** **NO** (`GET /resumes/mine` = 403).  
-**R1.3 transport decision:** authenticated browser session, read-only own resumes (**not started**).
+**R1.3 official API:** **NO** (`GET /resumes/mine` = 403).
+**R1.3 transport decision:** authenticated browser session, read-only own resumes
+(**IMPLEMENTED**; owner acceptance pending after UX remark).
 
 **Next:** owner ACCEPT for R1.3, then push on request; then **R1.4**.  
 **Gate critical path:** R1.3 acceptance then active resume — a 403 error screen alone does **not** close Gate R1.  
 **Gate R1:** **OPEN**.
 
-### R1.3 OWNER ACCEPTANCE checklist
+### R1.3 OWNER ACCEPTANCE checklist (product)
 
-Prerequisite: `make up` (incl. `hh-egress` when loopback proxy is configured).
+Prerequisite: локальный Job Search уже запущен (`make up`).
 
-1. Ensure Chromium profile is logged into HH as applicant via noVNC
-   (`auth open-login` → login → `auth confirm`). Marker alone is not enough if
-   cookies expired — list must not show fake empty success.
-2. Open `http://127.0.0.1:18080/`.
-3. Header: HH connection + account (R1.1/R1.2).
-4. Strip **«Резюме HH»**: either titles listed, or explicit
-   «Нужен вход в браузерной сессии HH» / unavailable — **never** silent empty success on auth fail.
-5. Optional: `curl -sS http://127.0.0.1:8092/api/v1/resumes` → `transport=browser_readonly`;
-   items only `external_id`+`title` when available.
-6. Active resume select is **not** in R1.3 (R1.4).
+1. Открой Job Search: http://127.0.0.1:18080/
+2. В блоке **«Резюме HH»** прочитай причину и нажми кнопку **«Войти в HeadHunter»**
+   (если список уже с вашими названиями — вход не нужен).
+3. После клика откроется окно входа HeadHunter (обычно
+   http://127.0.0.1:6080/). Это удалённый браузер Job Search: через него
+   приложение получает вашу сессию HeadHunter, чтобы прочитать список резюме.
+4. В открывшемся HH войдите в свой аккаунт соискателя (логин/пароль или уже
+   сохранённая сессия). Успех: видна страница HH под вашим аккаунтом, не форма входа.
+5. Вернитесь во вкладку Job Search. Нажмите **«Я вошёл — показать резюме»**.
+6. Окно входа можно закрыть. Обновлять страницу Job Search вручную не обязательно.
+7. В блоке **«Резюме HH»** должны появиться **реальные названия** ваших резюме
+   (не пустой «успех» и не только техническая ошибка).
+8. Если списка нет: ещё раз нажмите **«Я вошёл — показать резюме»**. Если снова
+   нет — напишите замечание владельцу/агенту с тем, что видите в блоке «Резюме HH».
+
+Выбор активного резюме (**R1.4**) в этот checklist не входит.
 
 STOP until owner says `ACCEPT` / «принимаю».
 
