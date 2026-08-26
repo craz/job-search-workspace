@@ -135,6 +135,7 @@ services:
       HH_NOVNC_PORT: "6080"
       HH_VNC_PORT: "5900"
       HH_DISPLAY: ":99"
+      DISPLAY: ":99"
       HH_API_PORT: "8092"
       # Keep Docker DNS / loopback out of the operator proxy; external HH API may still use it.
       # Loopback host HTTP proxies are bridged by `make up` via hh-egress (see

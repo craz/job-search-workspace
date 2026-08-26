@@ -1,6 +1,6 @@
 # R1 / PB-00 — decomposition
 
-**Status:** R1.1 **COMPLETE**; R1.2 **OWNER ACCEPTED** / **COMPLETE** (2026-08-26); R1.3 in progress; R1.4–R1.6 not started; **Gate R1 OPEN**  
+**Status:** R1.1 **COMPLETE**; R1.2 **COMPLETE**; R1.3 **IMPLEMENTED · TECHNICAL PASS · OWNER ACCEPTANCE PENDING**; R1.4–R1.6 not started; **Gate R1 OPEN**
 **Date:** 2026-08-26  
 **PBI:** PB-00 (primary) + minimal PB-01 slice for local linkage only  
 **Prerequisite Gate:** PB-DATA-00 CLOSED  
@@ -71,11 +71,8 @@ the R1 linkage model. Do not overload it for active HH resume identity.
 | Operator noVNC login | **IMPLEMENTED** | `browser.py` + `auth open-login` / `confirm`; runbook `docs/runbooks/operator-novnc-login.md` |
 | Product-facing connection status (Web / unified operator report) | **IMPLEMENTED** (R1.1) | `connection status` CLI + `GET /api/v1/connection`; Web header HH signal |
 | HH account / profile (`GET /me`) | **IMPLEMENTED** (R1.2 COMPLETE) | `account status` + `GET /api/v1/account`; Web header identity; official `/me` |
-| Resume list product surface | **IN PROGRESS** (R1.3 browser RO) | Official API 403; browser RO transport selected |
-| Active HH resume select / persist | **MISSING** | `resume_id` only inside apply-plan fixtures |
-| CandidateProfile / ProfileVersion | **MISSING** | No Core models/API |
-| Recovery / action-required (unified) | **PARTIAL** | `live_auth` login_not_ready / token missing; metrics tolerate `resumes_mine_forbidden`; apply stops on captcha/403/429 — **no** unified operator/Web contract for R1 states |
-| Web HH settings / resume UI | **PARTIAL** (R1.2 account identity; no resume UI) | Header HH connection + account label; no resume list/select |
+| Resume list product surface | **IMPLEMENTED** (R1.3; owner acceptance pending) | Browser RO `resumes list` / `GET /api/v1/resumes`; official API still 403 |
+| Web HH settings / resume UI | **PARTIAL** (R1.2 account + R1.3 resume strip) | Header account + compact resume strip; no select yet |
 | CAPTCHA bypass | **MISSING** (intentional) | `captcha_bypass: false`; apply stops — correct safety stance |
 
 ### External constraints (not DEBT-US)
@@ -389,7 +386,7 @@ Document required env only (existing HH `.env.example` pattern). Never commit to
 |---|---|---|
 | **R1.1** | Operator-visible HH connection/session status (CLI + HTTP + Web) | **COMPLETE** (OWNER ACCEPTED 2026-08-25) |
 | **R1.2** | HH account/profile read + display via official `GET /me` | **COMPLETE** (OWNER ACCEPTED 2026-08-26) |
-| **R1.3** | Resume list via **authenticated browser read-only** transport (owner decision) | **IN PROGRESS** |
+| **R1.3** | Resume list via **authenticated browser read-only** transport (owner decision) | **IMPLEMENTED · TECHNICAL PASS · OWNER ACCEPTANCE PENDING** |
 | **R1.4** | Active resume select + persistence | R1.3 with a working list path |
 | **R1.5** | Minimal Core CandidateProfile/ProfileVersion linkage | R1.4 |
 | **R1.6** | Unified recovery/action-required states across CLI+Web | R1.1–R1.3 (harden continuously) |
@@ -399,9 +396,26 @@ Document required env only (existing HH `.env.example` pattern). Never commit to
 **R1.3 official API:** **NO** (`GET /resumes/mine` = 403).  
 **R1.3 transport decision:** authenticated browser session, read-only own resumes (**not started**).
 
-**Next:** **R1.3** browser RO own resume list.  
-**Gate critical path:** R1.3 — a 403 error screen alone does **not** close Gate R1.  
+**Next:** owner ACCEPT for R1.3, then push on request; then **R1.4**.  
+**Gate critical path:** R1.3 acceptance then active resume — a 403 error screen alone does **not** close Gate R1.  
 **Gate R1:** **OPEN**.
+
+### R1.3 OWNER ACCEPTANCE checklist
+
+Prerequisite: `make up` (incl. `hh-egress` when loopback proxy is configured).
+
+1. Ensure Chromium profile is logged into HH as applicant via noVNC
+   (`auth open-login` → login → `auth confirm`). Marker alone is not enough if
+   cookies expired — list must not show fake empty success.
+2. Open `http://127.0.0.1:18080/`.
+3. Header: HH connection + account (R1.1/R1.2).
+4. Strip **«Резюме HH»**: either titles listed, or explicit
+   «Нужен вход в браузерной сессии HH» / unavailable — **never** silent empty success on auth fail.
+5. Optional: `curl -sS http://127.0.0.1:8092/api/v1/resumes` → `transport=browser_readonly`;
+   items only `external_id`+`title` when available.
+6. Active resume select is **not** in R1.3 (R1.4).
+
+STOP until owner says `ACCEPT` / «принимаю».
 
 ### R1.2 OWNER ACCEPTANCE checklist (re-acceptance)
 

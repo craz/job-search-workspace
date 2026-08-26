@@ -21,7 +21,7 @@
 | OSINT (website / people → Core) | в основном готово |
 | HH read-path | vacancies + **`GET /me` (R1.2)** + documented Docker host-proxy bridge; `/resumes/mine` **403**; R1.1 **COMPLETE** |
 | HH write-path (API) | код dual-gate готов; **production API apply заблокирован scope HH-приложения** |
-| **R1 / PB-00** | R1.1 **COMPLETE**; R1.2 **COMPLETE** (OWNER ACCEPTED); R1.3 **IN PROGRESS**; **Gate R1 OPEN** |
+| **R1 / PB-00** | R1.1–R1.2 **COMPLETE**; R1.3 **READY FOR OWNER ACCEPTANCE**; **Gate R1 OPEN** |
 | Content / Telegram §8 | не начат (submodule stub) |
 | Сквозная сборка §9 / Hermes §10 | не закрыты |
 | **Plan revisions** | **ARCHITECTURE_PLAN rev. 2** · **IMPLEMENTATION_PLAN rev. 2** |
@@ -33,7 +33,7 @@
 **Gate PB-DATA-00:** **CLOSED** (DATA-00.1–00.7).  
 **R0** больше не является текущей реализационной работой.
 
-**Главный продуктовый next:** **R1.3** — browser read-only own resume list.  
+**Главный продуктовый next:** owner **ACCEPT** для R1.3 (browser RO resume list), затем push; далее **R1.4**.  
 Host-proxy: [`docs/runbooks/hh-docker-host-proxy.md`](docs/runbooks/hh-docker-host-proxy.md).  
 R1.2: OWNER ACCEPTED / COMPLETE (2026-08-26).  
 Full R1: connection → profile → resume list → active resume → linkage → recovery → Gate R1.
@@ -113,8 +113,8 @@ Content/Telegram, browser HH apply и Scoring foundation **не являются
 
 ## Решение по «го» / blockers
 
-- **«Го»** = продолжить **R1.3** (browser RO resume list),  
-  или если скажешь — пауза / другой фокус. Push R1.3 — только после ACCEPT.
+- **«Го»** = owner **ACCEPT** для R1.3 (checklist в `docs/R1_PB00_DECOMPOSITION.md`),  
+  или если скажешь — remarks. Push R1.3 — только после ACCEPT.
 
 ## Как обновлять этот файл
 
