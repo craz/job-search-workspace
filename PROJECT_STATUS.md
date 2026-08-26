@@ -1,10 +1,10 @@
 # Состояние проекта Job Search Multirepo
 
 **Дата снимка:** 2026-08-27 (UTC+3)  
-**Workspace HEAD:** `44a69e7` (+ local R1.A docs pending commit)  
+**Workspace HEAD:** local R1.A docs (ahead of origin; R1.6 baseline `44a69e7` pushed)  
 **Web submodule HEAD:** `7bc0bd5`  
 **HH submodule HEAD:** `5163196`  
-**Core submodule HEAD:** `053e7d9` / `4d6ba54` lineage (candidate-context)  
+**Core submodule HEAD:** `053e7d9`  
 **Ветка:** `main`
 
 Этот файл — оперативный снимок «где мы сейчас». Детальный план и gate-критерии
