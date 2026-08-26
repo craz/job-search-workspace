@@ -186,6 +186,9 @@ HH resume**, with local linkage to profile/resume context for downstream R2.
 | Product-facing connection status (Web) | **IMPLEMENTED** (R1.1) |
 | HH account/profile (`/me`) | **IMPLEMENTED** (R1.2 COMPLETE); official API |
 | Resume list product surface | **IMPLEMENTED** (R1.3; owner acceptance pending); browser RO |
+| Active resume select/persist | **MISSING** |
+| CandidateProfile / ProfileVersion | **MISSING** |
+| Unified action-required states | **PARTIAL** (R1.1–R1.3 codes) |
 | Web HH context UI | **PARTIAL** (connection + account + resume strip; no select) |
 
 ### Stories (summary)
