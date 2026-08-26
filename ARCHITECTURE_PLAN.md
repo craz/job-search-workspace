@@ -261,7 +261,8 @@ HH session/auth
   → current HH account/profile
   → resume list
   → active HH resume
-  → linkage to local CandidateProfile / ResumeVersion context
+  → linkage to local CandidateProfile / ProfileVersion (R1.5: id only)
+  → (R2 / full PB-01) local ResumeVersion content snapshot before PB-03 Scoring
 ```
 
 **Scope reality (verified):** applicant token may be alive (`GET /me` → 200), но
