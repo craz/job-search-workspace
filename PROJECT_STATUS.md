@@ -1,9 +1,9 @@
 # Состояние проекта Job Search Multirepo
 
 **Дата снимка:** 2026-08-26 (UTC+3)  
-**Workspace HEAD:** local R1.2 COMPLETE (push in progress / pending verify)  
-**Web submodule HEAD:** `e1031b7fe581fed74d41b7ef9cfe8ce345c69b1b`  
-**HH submodule HEAD:** `5726fafa8e7d8f0f58ea7df98e18779901c977e5`  
+**Workspace HEAD:** local R1.3 COMPLETE (docs pending commit; push on request)  
+**Web submodule HEAD:** `d3df5f901026b460eb6897bf92a0517328fa24e0`  
+**HH submodule HEAD:** `d39ba5a9a246601d2e7dbeb43beac915d922e69b`  
 **Ветка:** `main`
 
 Этот файл — оперативный снимок «где мы сейчас». Детальный план и gate-критерии
@@ -19,9 +19,9 @@
 | Core + Web MVP | готово |
 | Scoring (host Ollama pipeline) | базово готово |
 | OSINT (website / people → Core) | в основном готово |
-| HH read-path | vacancies + **`GET /me` (R1.2)** + documented Docker host-proxy bridge; `/resumes/mine` **403**; R1.1 **COMPLETE** |
+| HH read-path | vacancies + **`GET /me` (R1.2)** + **browser RO resumes (R1.3)**; documented Docker host-proxy bridge; `/resumes/mine` **403**; R1.1–R1.3 **COMPLETE** |
 | HH write-path (API) | код dual-gate готов; **production API apply заблокирован scope HH-приложения** |
-| **R1 / PB-00** | R1.1–R1.2 **COMPLETE**; R1.3 **READY FOR OWNER ACCEPTANCE**; **Gate R1 OPEN** |
+| **R1 / PB-00** | R1.1–R1.3 **COMPLETE**; R1.4–R1.6 not started; **Gate R1 OPEN** |
 | Content / Telegram §8 | не начат (submodule stub) |
 | Сквозная сборка §9 / Hermes §10 | не закрыты |
 | **Plan revisions** | **ARCHITECTURE_PLAN rev. 2** · **IMPLEMENTATION_PLAN rev. 2** |
@@ -33,9 +33,9 @@
 **Gate PB-DATA-00:** **CLOSED** (DATA-00.1–00.7).  
 **R0** больше не является текущей реализационной работой.
 
-**Главный продуктовый next:** owner **ACCEPT** для R1.3 (browser RO resume list), затем push; далее **R1.4**.  
+**Главный продуктовый next:** push R1.3 on request → **R1.4** (active resume select).  
 Host-proxy: [`docs/runbooks/hh-docker-host-proxy.md`](docs/runbooks/hh-docker-host-proxy.md).  
-R1.2: OWNER ACCEPTED / COMPLETE (2026-08-26).  
+R1.2–R1.3: OWNER ACCEPTED / COMPLETE (2026-08-26).  
 Full R1: connection → profile → resume list → active resume → linkage → recovery → Gate R1.
 
 Артефакты R0:
@@ -113,8 +113,8 @@ Content/Telegram, browser HH apply и Scoring foundation **не являются
 
 ## Решение по «го» / blockers
 
-- **«Го»** = owner **ACCEPT** для R1.3 (checklist в `docs/R1_PB00_DECOMPOSITION.md`),  
-  или если скажешь — remarks. Push R1.3 — только после ACCEPT.
+- **«Го»** = push R1.3 (HH + Web + workspace docs) on request, затем старт **R1.4**.  
+  Gate R1 остаётся OPEN до R1.4–R1.6 + R1.A.
 
 ## Как обновлять этот файл
 

@@ -1,6 +1,6 @@
 # R1 / PB-00 — decomposition
 
-**Status:** R1.1 **COMPLETE**; R1.2 **COMPLETE**; R1.3 **IMPLEMENTED · TECHNICAL PASS · OWNER ACCEPTANCE PENDING**; R1.4–R1.6 not started; **Gate R1 OPEN**
+**Status:** R1.1 **COMPLETE**; R1.2 **COMPLETE**; R1.3 **COMPLETE**; R1.4–R1.6 not started; **Gate R1 OPEN**
 **Date:** 2026-08-26  
 **PBI:** PB-00 (primary) + minimal PB-01 slice for local linkage only  
 **Prerequisite Gate:** PB-DATA-00 CLOSED  
@@ -23,6 +23,15 @@ proxy-bridge because Docker cannot TCP to host loopback HTTP proxy. **Not COMPLE
 
 **OWNER ACCEPTED** 2026-08-26 (re-acceptance after host-proxy remarks + UI identity).
 Slice **COMPLETE**. Transport: official API `GET /me` only (no browser).
+
+### R1.3 owner acceptance
+
+**OWNER ACCEPTED** 2026-08-26 (product review of http://127.0.0.1:18080/
+«Резюме HH» with real resume titles after browser login). Slice **COMPLETE**.
+
+Transport: authenticated **browser** session, **read-only** own resume list
+(`GET /resumes/mine` remains 403 / EXTERNAL_BLOCKED). Web strip shows clean
+titles; login CTA opens noVNC desktop; sticky mid-login CTAs auto-refresh.
 
 ---
 
@@ -71,11 +80,11 @@ the R1 linkage model. Do not overload it for active HH resume identity.
 | Operator noVNC login | **IMPLEMENTED** | `browser.py` + `auth open-login` / `confirm`; runbook `docs/runbooks/operator-novnc-login.md` |
 | Product-facing connection status (Web / unified operator report) | **IMPLEMENTED** (R1.1) | `connection status` CLI + `GET /api/v1/connection`; Web header HH signal |
 | HH account / profile (`GET /me`) | **IMPLEMENTED** (R1.2 COMPLETE) | `account status` + `GET /api/v1/account`; Web header identity; official `/me` |
-| Resume list product surface | **IMPLEMENTED** (R1.3; owner acceptance pending) | Browser RO `resumes list` / `GET /api/v1/resumes`; official API still 403 |
+| Resume list product surface | **IMPLEMENTED** (R1.3 COMPLETE) | Browser RO `resumes list` / `GET /api/v1/resumes`; official API still 403 |
 | Active HH resume select / persist | **MISSING** | `resume_id` only inside apply-plan fixtures |
 | CandidateProfile / ProfileVersion | **MISSING** | No Core models/API |
 | Recovery / action-required (unified) | **PARTIAL** | R1.1–R1.3 status codes; CAPTCHA still stops apply |
-| Web HH settings / resume UI | **PARTIAL** (R1.2 account + R1.3 resume strip) | Header account + compact resume strip; no select yet |
+| Web HH settings / resume UI | **PARTIAL** (R1.2 account + R1.3 resume strip COMPLETE) | Header account + compact resume strip; no select yet |
 | CAPTCHA bypass | **MISSING** (intentional) | `captcha_bypass: false`; apply stops — correct safety stance |
 
 ### External constraints (not DEBT-US)
@@ -107,8 +116,8 @@ operator's own resume list only. Product/domain layers must consume a stable
 HH-normalized resume-summary contract (not DOM details). This does **not** approve
 browser apply, resume edits, negotiations scrape, arbitrary scraping, CAPTCHA
 bypass, or auth/permission bypass — those need separate decisions.
-Implementation of the browser resume list is **R1.3** (**IMPLEMENTED**;
-owner acceptance pending after product UX remark).
+Implementation of the browser resume list is **R1.3** (**COMPLETE**;
+OWNER ACCEPTED 2026-08-26).
 
 ---
 
@@ -390,7 +399,7 @@ Document required env only (existing HH `.env.example` pattern). Never commit to
 |---|---|---|
 | **R1.1** | Operator-visible HH connection/session status (CLI + HTTP + Web) | **COMPLETE** (OWNER ACCEPTED 2026-08-25) |
 | **R1.2** | HH account/profile read + display via official `GET /me` | **COMPLETE** (OWNER ACCEPTED 2026-08-26) |
-| **R1.3** | Resume list via **authenticated browser read-only** transport (owner decision) | **IMPLEMENTED · TECHNICAL PASS · OWNER ACCEPTANCE PENDING** |
+| **R1.3** | Resume list via **authenticated browser read-only** transport (owner decision) | **COMPLETE** (OWNER ACCEPTED 2026-08-26) |
 | **R1.4** | Active resume select + persistence | R1.3 with a working list path |
 | **R1.5** | Minimal Core CandidateProfile/ProfileVersion linkage | R1.4 |
 | **R1.6** | Unified recovery/action-required states across CLI+Web | R1.1–R1.3 (harden continuously) |
@@ -399,38 +408,26 @@ Document required env only (existing HH `.env.example` pattern). Never commit to
 **R1.2 official API:** **YES** (`GET /me` = 200) — product transport for account context.  
 **R1.3 official API:** **NO** (`GET /resumes/mine` = 403).
 **R1.3 transport decision:** authenticated browser session, read-only own resumes
-(**IMPLEMENTED**; owner acceptance pending after UX remark).
+(**COMPLETE**).
 
-**Next:** owner ACCEPT for R1.3, then push on request; then **R1.4**.  
-**Gate critical path:** R1.3 acceptance then active resume — a 403 error screen alone does **not** close Gate R1.  
+**Next:** push R1.3 on request; then **R1.4** (active resume select).  
+**Gate critical path:** active resume — a 403 error screen alone does **not** close Gate R1.  
 **Gate R1:** **OPEN**.
 
-### R1.3 OWNER ACCEPTANCE checklist (product)
+### R1.3 OWNER ACCEPTANCE — ACCEPTED
 
-Prerequisite: локальный Job Search уже запущен (`make up`).
+**OWNER ACCEPTED** 2026-08-26. Observable: http://127.0.0.1:18080/ strip
+**«Резюме HH»** shows real resume title(s) via browser RO transport.
 
-1. Открой Job Search: http://127.0.0.1:18080/ (при необходимости обнови страницу).
-2. В блоке **«Резюме HH»** под текстом должна быть кнопка **«Войти в HeadHunter»**.
-   Если уже видны названия ваших резюме — вход не нужен.
-3. Нажми **«Войти в HeadHunter»**. Должна открыться **новая вкладка** с экраном
-   входа (адрес вида
-   `http://127.0.0.1:6080/vnc.html?autoconnect=1&resize=scale`).
-   Если вкладка не появилась — проверьте, что браузер не блокирует новую вкладку,
-   и нажмите кнопку ещё раз.
-4. Это окно удалённого браузера Job Search: через него приложение получает
-   вашу сессию HeadHunter, чтобы прочитать список резюме.
-5. В открывшемся HH войдите в аккаунт соискателя. Успех: видна страница HH
-   под вашим аккаунтом, не форма входа.
-6. Вернитесь в Job Search. Под текстом нажмите **«Я вошёл — показать резюме»**
-   (кнопка **«Войти в HeadHunter»** тоже остаётся, если окно закрыли).
-7. Окно входа можно закрыть. Обновлять Job Search вручную не обязательно.
-8. В **«Резюме HH»** должны появиться **реальные названия** ваших резюме.
-9. Если списка нет: ещё раз **«Я вошёл — показать резюме»**. Если снова нет —
-   напишите замечание с текстом, который видите в блоке «Резюме HH».
-
-Выбор активного резюме (**R1.4**) в этот checklist не входит.
-
-STOP until owner says `ACCEPT` / «принимаю».
+Delivered and accepted:
+- HH browser RO scrape of own resumes (`resumes list` / `GET /api/v1/resumes`);
+  official `GET /resumes/mine` remains 403.
+- Product CTAs: «Войти в HeadHunter» (noVNC) → «Я вошёл — показать резюме»;
+  auto-refresh when session becomes available.
+- Clean titles (no bump/автоподнятие chrome); statuses for not logged in /
+  blocked / unavailable without fake empty list.
+- OAuth header «Подключено» / account identity remains R1.2 context (API),
+  separate from browser resume session.
 
 ### R1.2 OWNER ACCEPTANCE checklist (re-acceptance)
 
