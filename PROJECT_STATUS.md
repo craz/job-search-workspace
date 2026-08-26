@@ -1,10 +1,10 @@
 # Состояние проекта Job Search Multirepo
 
 **Дата снимка:** 2026-08-26 (UTC+3)  
-**Workspace HEAD:** `cd10c8f4df416b5a439ccd942ff12bf9093fa0b0` (local; not pushed)
-**HH submodule HEAD:** `5726fafa8e7d8f0f58ea7df98e18779901c977e5`
-**Web submodule HEAD:** `e1031b7fe581fed74d41b7ef9cfe8ce345c69b1b`
-**Ветка:** `main` (R1.1 on `origin/main` @ `f50c2aa`; R1.2 + remarks commits local-only)
+**Workspace HEAD:** local R1.2 TECHNICAL PASS after host-proxy remarks (not pushed)  
+**Web submodule HEAD:** `e1031b7fe581fed74d41b7ef9cfe8ce345c69b1b`  
+**HH submodule HEAD:** `5726fafa8e7d8f0f58ea7df98e18779901c977e5`  
+**Ветка:** `main` (R1.1 on `origin/main` @ `f50c2aa`; R1.2 + remarks local-only until re-ACCEPT + push)
 
 Этот файл — оперативный снимок «где мы сейчас». Детальный план и gate-критерии
 живут в [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md); архитектура — в
@@ -29,15 +29,91 @@
 | **R0 / PB-UX-00 Web redesign** | **CLOSED — Gate R0 ACCEPTED WITH NON-BLOCKING DEBT (2026-08-22)** |
 
 **Gate R0:** **ACCEPTED WITH NON-BLOCKING DEBT** (product owner, 2026-08-22).  
-**PB-UX-00:** **CLOSED**.  
-**Gate PB-DATA-00:** **CLOSED**.  
+**PB-UX-00:** **CLOSED** (T-UX-00.1 … T-UX-00.9 complete).  
+**Gate PB-DATA-00:** **CLOSED** (DATA-00.1–00.7).  
+**R0** больше не является текущей реализационной работой.
 
-**Главный продуктовый next:** owner **re-ACCEPT** для R1.2, затем push по запросу; далее **R1.3**.  
-Host-proxy: [`docs/runbooks/hh-docker-host-proxy.md`](docs/runbooks/hh-docker-host-proxy.md).
+**Главный продуктовый next:** owner **re-ACCEPT** для R1.2 после host-proxy remarks, затем push по запросу; далее **R1.3**.  
+Host-proxy: [`docs/runbooks/hh-docker-host-proxy.md`](docs/runbooks/hh-docker-host-proxy.md).  
+R1.3: authenticated browser read-only own resume list (not started).  
+Full R1: connection → profile → resume list → active resume → linkage → recovery → Gate R1.
+
+Артефакты R0:
+- [`DESIGN.md`](DESIGN.md) — normative visual system (Calm Dense Productivity, dark primary)
+- [`docs/R0_ACCEPTANCE.md`](docs/R0_ACCEPTANCE.md) — Gate R0 acceptance record
+- [`docs/R0_DESIGN.md`](docs/R0_DESIGN.md) — PB-UX-00 closed
+- Screenshots: `docs/r0/screenshots/t-ux-00.8-ia5/`
+- Web: `services/web/.../static/` @ `86f37cb`
+
+Content/Telegram, browser HH apply и Scoring foundation **не являются immediate next** — см. Roadmap R1+.
+
+## Gate R0 — accepted state (2026-08-22)
+
+- Calm Dense Productivity; primary R0 scheme: **dark**
+- **5 top-level workspaces:** Vacancies, Journal, Metrics, People, Hypotheses
+- Assessment / ScoringResult — **contextual to Vacancy**, not standalone workspace
+- Web tests: **37 passed** @ Web `86f37cb`
+- Gate has **no blockers**
+
+**Known non-blocking debt** (не reopen R0 без architecture blocker):
+- ~~workspace cursor-rule test involving `12-no-choice-menus.mdc`~~ — **RESOLVED** (single global `alwaysApply`: `00-project-context.mdc`);
+- legacy naming (`panel-eyebrow`, metrics class naming);
+- duplicate smoke/demo Core data;
+- repository housekeeping / old untracked R0 artifacts (`t-ux-00.8-final/`, `review2/`, prompts).
+
+## По этапам плана
+
+### 0–2. Workspace, inventory, каркасы
+
+- Multirepo + submodules + bootstrap/doctor — работают.
+- Исторический code inventory монолита зафиксирован в `docs/inventory/*`.
+- Продуктовые реpositories существуют; эталон качества — Core.
+
+### 3. Core
+
+- PostgreSQL/Alembic, Company/Vacancy/Application/metrics/people/hypotheses/assessments — публичный HTTP/JSON API.
+- Consumers ходят только через контракты, без shared DB.
+
+### 4. Web
+
+- HTTP-only Core consumer; OSINT research view; R0 IA и visual system приняты Gate R0.
+
+### 5. HH — подробно
+
+**Read-ready:** `services/hh/docs/runbooks/hh-read-gate.md`.
+
+**Production API apply blocker:** `GET /negotiations`, `GET /resumes/mine` → **403**
+для текущего HH-приложения; browser apply transport не реализован.
+
+### 6. Scoring
+
+- JSON queue, host Ollama, Assessment → Core — базовый pipeline есть; R2 redesign deferred.
+
+### 7. OSINT
+
+- Website / mirrors / people research / confirm → Core; manual/on-demand triggers.
+
+### 8–11. Ещё впереди
+
+- §8 Content + Telegram — stub submodule, не в compose.
+- §9 Compose E2E / backup / doctor расширения.
+- §10 Hermes compatibility — отложен.
+
+## Локальный runtime (ориентир)
+
+| Сервис | Порт / заметка |
+|---|---|
+| Core | `127.0.0.1:18000` |
+| Web | `127.0.0.1:18080` |
+| HH noVNC | `127.0.0.1:6080` |
+| HH OAuth publish | `127.0.0.1:8767` |
+| Host Ollama | `127.0.0.1:11434` |
+
+Не коммитить: `services/hh/.env`, `services/hh/.local/**`, токены, cookies, profile.
 
 ## Решение по «го» / blockers
 
-- **«Го»** = owner **ACCEPT** для R1.2 после checklist в `docs/R1_PB00_DECOMPOSITION.md`,  
+- **«Го»** = owner **ACCEPT** для R1.2 (checklist в `docs/R1_PB00_DECOMPOSITION.md`),  
   или если скажешь — remarks. Push — только по явному запросу. R1.3 не стартовать.
 
 ## Как обновлять этот файл
