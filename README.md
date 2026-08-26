@@ -55,13 +55,20 @@ Cursor Rules находятся в [`.cursor/rules`](.cursor/rules). Они за
 git clone --recurse-submodules <workspace-url>
 make bootstrap  # инициализировать отсутствующие submodules
 make doctor     # проверить Docker, конфигурацию и host Ollama
-make dev        # поднять dev stack с hot reload
+make up         # ensure HH host-proxy bridge (если нужен) + поднять stack
+make dev        # то же в foreground с hot reload
 make logs       # посмотреть состояние сервисов
 make test       # запустить общий набор проверок
-make dev        # собрать и поднять PostgreSQL, Core и Web
 make compose-smoke  # проверить все реализованные Core/Web ресурсы
-make down       # остановить контейнеры, сохранив PostgreSQL volume
+make down       # остановить контейнеры и HH host-proxy relay
 ```
+
+`make up` / `make dev` перед Compose вызывают
+`scripts/host_http_proxy_socket.py ensure`: если в `services/hh/.env` указан
+**loopback HTTP proxy**, он пробрасывается в Docker через Unix socket + сервис
+`hh-egress` (см. [`docs/runbooks/hh-docker-host-proxy.md`](docs/runbooks/hh-docker-host-proxy.md)).
+Не используйте голый `docker compose up` с `HTTP_PROXY=http://127.0.0.1:…` —
+контейнеры обычно не видят host loopback.
 
 `make dev` монтирует `services/core/src` и `services/web/src` в контейнеры,
 перезапускает затронутый Uvicorn-процесс после изменения Python и автоматически
@@ -70,7 +77,7 @@ make down       # остановить контейнеры, сохранив Po
 пересборки через повторный `make dev`.
 
 Доступны `make bootstrap`, `make doctor`, `make doctor-offline`, `make unit`,
-`make bdd`, `make test`, `make build`, `make dev`, `make logs`, `make down` и
+`make bdd`, `make test`, `make build`, `make up`, `make dev`, `make logs`, `make down` и
 `make compose-smoke`. Backup/restore будут добавлены отдельным инкрементом 0B.
 
 Зафиксированный workspace commit содержит точные gitlink SHA сервисов. Изменение

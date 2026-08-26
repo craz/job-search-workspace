@@ -1,7 +1,7 @@
 # R1 / PB-00 — decomposition
 
-**Status:** R1.1 **COMPLETE**; R1.2 **IMPLEMENTED · TECHNICAL PASS · OWNER ACCEPTANCE PENDING**; R1.3–R1.6 not started; **Gate R1 OPEN**  
-**Date:** 2026-08-25  
+**Status:** R1.1 **COMPLETE**; R1.2 **IMPLEMENTED · TECHNICAL PASS · OWNER ACCEPTANCE PENDING** (remarks fixed 2026-08-26); R1.3–R1.6 not started; **Gate R1 OPEN**  
+**Date:** 2026-08-26  
 **PBI:** PB-00 (primary) + minimal PB-01 slice for local linkage only  
 **Prerequisite Gate:** PB-DATA-00 CLOSED  
 
@@ -12,13 +12,19 @@ This document owns the detailed US / AC / BDD / Tasks for R1 entry.
 
 **OWNER ACCEPTED** 2026-08-25 (manual review of http://127.0.0.1:18080/). Slice **COMPLETE**.
 
-### R1.2 owner acceptance (pending)
+### R1.2 owner acceptance
 
-**Status:** IMPLEMENTED · TECHNICAL PASS · **OWNER ACCEPTANCE PENDING** (2026-08-25).
+**2026-08-26 REMARK (not ACCEPT):** live `/me` depended on a manual temporary
+proxy-bridge because Docker cannot TCP to host loopback HTTP proxy. **Not COMPLETE.**
+
+**Fix (2026-08-26):** documented `make up` / `make dev` path via
+[`docs/runbooks/hh-docker-host-proxy.md`](../docs/runbooks/hh-docker-host-proxy.md)
+(`hh-egress` + `.local` Unix socket). Temporary acceptance sidecar removed.
+
+**Current status:** IMPLEMENTED · TECHNICAL PASS · **OWNER ACCEPTANCE PENDING**
+(re-acceptance after remarks). **COMPLETE: NO.**
 
 Transport: official HH API `GET /me` only (no browser). R1.3 remains browser RO resume list.
-
-Checklist: see § «R1.2 OWNER ACCEPTANCE checklist» below and the agent final report.
 
 ---
 
@@ -395,21 +401,22 @@ Document required env only (existing HH `.env.example` pattern). Never commit to
 **R1.3 official API:** **NO** (`GET /resumes/mine` = 403).  
 **R1.3 transport decision:** authenticated browser session, read-only own resumes (**not started**).
 
-**Next:** owner ACCEPT for R1.2, then push on request; then **R1.3**.  
+**Next:** owner re-ACCEPT for R1.2 (after host-proxy remarks), then push on request; then **R1.3**.  
 **Gate critical path:** R1.3 browser resume-list — a 403 error screen alone does **not** close Gate R1.  
 **Gate R1:** **OPEN**.
 
-### R1.2 OWNER ACCEPTANCE checklist
+### R1.2 OWNER ACCEPTANCE checklist (re-acceptance)
 
-Open: `http://127.0.0.1:18080/` (local `WEB_PORT`; this workspace uses 18080).
+Prerequisite: stack via **documented** `make up` (or `make dev`) — not a manual socat sidecar.
 
-1. Header right: **HeadHunter** + **Подключено** (R1.1 connection).
-2. Under/near that status: line **«Аккаунт: …»** with connected-account identity
-   (`display_name`; hover tooltip may show `email`) — answers «к какому HH-аккаунту
-   подключён Job Search?».
-3. No raw JSON, tokens, paths, resume list, or «0 resumes» claims.
-4. Core signal still usable; nav/vacancies still work.
-5. Confirm resume list is **not** part of R1.2 (R1.3).
+1. Confirm `docker compose ps` shows `hh-egress` when HH `.env` has a loopback HTTP proxy
+   (or that `JOB_SEARCH_HH_HOST_PROXY_MODE=off` and direct egress works in your env).
+2. Open `http://127.0.0.1:18080/` (this workspace `WEB_PORT=18080`).
+3. Header: **HeadHunter** + **Подключено**.
+4. Line **«Аккаунт: …»** with identity (`display_name`; tooltip may show `email`).
+5. No raw JSON / tokens / resume list / «0 resumes».
+6. Optional: `curl -sS http://127.0.0.1:8092/api/v1/account` → `status=available` (no PII in notes).
+7. Resume list is **not** in R1.2.
 
 STOP until owner says `ACCEPT` / «принимаю».
 

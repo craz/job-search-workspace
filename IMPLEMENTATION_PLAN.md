@@ -2,7 +2,7 @@
 
 **Revision:** 2  
 **Basis:** UJM v1 + Product Backlog + Roadmap v1 + [`ARCHITECTURE_PLAN.md`](ARCHITECTURE_PLAN.md) rev. 2  
-**Updated:** 2026-08-25 (R1.2 TECHNICAL PASS / OWNER ACCEPTANCE PENDING; R1.1 COMPLETE)  
+**Updated:** 2026-08-26 (R1.2 remarks: HH Docker host-proxy path; re-acceptance pending)  
 **Previous revision:** 1 (service bootstrap / multirepo transfer sequence)
 
 Оперативный снимок: [`PROJECT_STATUS.md`](PROJECT_STATUS.md).  
@@ -171,7 +171,9 @@ monolith, SQLite, or migration tooling. Details live outside this repository.
 
 **PBI:** PB-00 + minimally necessary PB-01.  
 **Decomposition:** [`docs/R1_PB00_DECOMPOSITION.md`](docs/R1_PB00_DECOMPOSITION.md)  
-**Implementation:** **R1.1 COMPLETE**; **R1.2 READY FOR OWNER ACCEPTANCE** (IMPLEMENTED · TECHNICAL PASS); R1.3–R1.6 not started; **Gate R1 OPEN**.
+**Implementation:** **R1.1 COMPLETE**; **R1.2 READY FOR OWNER ACCEPTANCE** after
+host-proxy remarks fix (IMPLEMENTED · TECHNICAL PASS · COMPLETE: NO);
+R1.3–R1.6 not started; **Gate R1 OPEN**.
 
 **Product outcome:** operator connects HH, sees account context, selects **active
 HH resume**, with local linkage to profile/resume context for downstream R2.
@@ -410,11 +412,9 @@ Execute in parallel only if it does not block R1.
 
 ## Current next step
 
-**Owner ACCEPT for R1.2** (HH account/profile via official `GET /me`), then push
-on request. **R1.3** (browser RO resume list) is **NOT STARTED**.
-
-R1.1 is **COMPLETE**. R1.2 is **READY FOR OWNER ACCEPTANCE** (not COMPLETE).
-Until R1.3 lands, **Gate R1** remains **OPEN** / cannot CLOSE.
+**Owner re-ACCEPT for R1.2** after Docker host-proxy remarks fix
+(`make up` + `docs/runbooks/hh-docker-host-proxy.md`), then push on request.
+**R1.3** is **NOT STARTED**. **Gate R1** remains **OPEN**.
 
 Do not start Scoring foundation, Content, or Hermes until R1 Gate
 (or documented PO waiver).

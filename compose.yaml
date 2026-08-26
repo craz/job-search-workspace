@@ -137,6 +137,8 @@ services:
       HH_DISPLAY: ":99"
       HH_API_PORT: "8092"
       # Keep Docker DNS / loopback out of the operator proxy; external HH API may still use it.
+      # Loopback host HTTP proxies are bridged by `make up` via hh-egress (see
+      # docs/runbooks/hh-docker-host-proxy.md) — do not rely on 127.0.0.1 from the container.
       NO_PROXY: "127.0.0.1,localhost,hh,core,web,osint,postgres,searxng"
       no_proxy: "127.0.0.1,localhost,hh,core,web,osint,postgres,searxng"
       # Redirect comes from services/hh/.env (archive-registered URI).
