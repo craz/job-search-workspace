@@ -1,7 +1,7 @@
 # Состояние проекта Job Search Multirepo
 
 **Дата снимка:** 2026-08-26 (UTC+3)  
-**Workspace HEAD:** local R1.3 COMPLETE (docs pending commit; push on request)  
+**Workspace HEAD:** local R1.3 COMPLETE · PUSHED (docs tip pending)  
 **Web submodule HEAD:** `d3df5f901026b460eb6897bf92a0517328fa24e0`  
 **HH submodule HEAD:** `d39ba5a9a246601d2e7dbeb43beac915d922e69b`  
 **Ветка:** `main`
@@ -21,7 +21,7 @@
 | OSINT (website / people → Core) | в основном готово |
 | HH read-path | vacancies + **`GET /me` (R1.2)** + **browser RO resumes (R1.3)**; documented Docker host-proxy bridge; `/resumes/mine` **403**; R1.1–R1.3 **COMPLETE** |
 | HH write-path (API) | код dual-gate готов; **production API apply заблокирован scope HH-приложения** |
-| **R1 / PB-00** | R1.1–R1.3 **COMPLETE**; R1.4–R1.6 not started; **Gate R1 OPEN** |
+| **R1 / PB-00** | R1.1–R1.3 **COMPLETE · PUSHED**; R1.4–R1.6 not started; **Gate R1 OPEN** |
 | Content / Telegram §8 | не начат (submodule stub) |
 | Сквозная сборка §9 / Hermes §10 | не закрыты |
 | **Plan revisions** | **ARCHITECTURE_PLAN rev. 2** · **IMPLEMENTATION_PLAN rev. 2** |
@@ -33,9 +33,9 @@
 **Gate PB-DATA-00:** **CLOSED** (DATA-00.1–00.7).  
 **R0** больше не является текущей реализационной работой.
 
-**Главный продуктовый next:** push R1.3 on request → **R1.4** (active resume select).  
+**Главный продуктовый next:** **R1.4** (active resume select).  
 Host-proxy: [`docs/runbooks/hh-docker-host-proxy.md`](docs/runbooks/hh-docker-host-proxy.md).  
-R1.2–R1.3: OWNER ACCEPTED / COMPLETE (2026-08-26).  
+R1.2–R1.3: OWNER ACCEPTED / COMPLETE · PUSHED (2026-08-26).  
 Full R1: connection → profile → resume list → active resume → linkage → recovery → Gate R1.
 
 Артефакты R0:
@@ -113,7 +113,7 @@ Content/Telegram, browser HH apply и Scoring foundation **не являются
 
 ## Решение по «го» / blockers
 
-- **«Го»** = push R1.3 (HH + Web + workspace docs) on request, затем старт **R1.4**.  
+- **«Го»** = старт **R1.4** (active resume select + persistence per US-00.4/00.5).  
   Gate R1 остаётся OPEN до R1.4–R1.6 + R1.A.
 
 ## Как обновлять этот файл

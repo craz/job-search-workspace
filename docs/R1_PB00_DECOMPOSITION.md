@@ -1,6 +1,7 @@
 # R1 / PB-00 — decomposition
 
-**Status:** R1.1 **COMPLETE**; R1.2 **COMPLETE**; R1.3 **COMPLETE**; R1.4–R1.6 not started; **Gate R1 OPEN**
+**Status:** R1.1 **COMPLETE · PUSHED**; R1.2 **COMPLETE · PUSHED**;
+R1.3 **COMPLETE · PUSHED**; R1.4–R1.6 not started; **Gate R1 OPEN**
 **Date:** 2026-08-26  
 **PBI:** PB-00 (primary) + minimal PB-01 slice for local linkage only  
 **Prerequisite Gate:** PB-DATA-00 CLOSED  
@@ -399,7 +400,7 @@ Document required env only (existing HH `.env.example` pattern). Never commit to
 |---|---|---|
 | **R1.1** | Operator-visible HH connection/session status (CLI + HTTP + Web) | **COMPLETE** (OWNER ACCEPTED 2026-08-25) |
 | **R1.2** | HH account/profile read + display via official `GET /me` | **COMPLETE** (OWNER ACCEPTED 2026-08-26) |
-| **R1.3** | Resume list via **authenticated browser read-only** transport (owner decision) | **COMPLETE** (OWNER ACCEPTED 2026-08-26) |
+| **R1.3** | Resume list via **authenticated browser read-only** transport (owner decision) | **COMPLETE · PUSHED** (OWNER ACCEPTED 2026-08-26) |
 | **R1.4** | Active resume select + persistence | R1.3 with a working list path |
 | **R1.5** | Minimal Core CandidateProfile/ProfileVersion linkage | R1.4 |
 | **R1.6** | Unified recovery/action-required states across CLI+Web | R1.1–R1.3 (harden continuously) |
@@ -410,7 +411,7 @@ Document required env only (existing HH `.env.example` pattern). Never commit to
 **R1.3 transport decision:** authenticated browser session, read-only own resumes
 (**COMPLETE**).
 
-**Next:** push R1.3 on request; then **R1.4** (active resume select).  
+**Next:** **R1.4** (active resume select).  
 **Gate critical path:** active resume — a 403 error screen alone does **not** close Gate R1.  
 **Gate R1:** **OPEN**.
 
