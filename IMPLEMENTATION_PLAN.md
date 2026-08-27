@@ -254,10 +254,9 @@ and supports active-resume + linkage.
 **Decomposition (R2.1):** [`docs/R2_PB01_DECOMPOSITION.md`](docs/R2_PB01_DECOMPOSITION.md).
 
 **Status:** Gate R1 **CLOSED**. R2 planning **active**.  
-**R2.1 DECOMPOSITION:** **OWNER ACCEPTED** (2026-08-27).  
-**R2.1.1–R2.1.5:** **OWNER ACCEPTED · COMPLETE · PUSHED**.  
-**R2.1.A:** **TECHNICAL / INTEGRATED PASS** (local docs; not pushed).  
-**R2.1:** **READY FOR OWNER DECISION**. **R2.2+:** **NOT STARTED**.
+**R2.1:** **COMPLETE · OWNER ACCEPTED · PUSHED** (incl. R2.1.A evidence `5df713c`).  
+**R2.2 DECOMPOSITION:** **READY FOR OWNER REVIEW** — [`docs/R2_2_DECOMPOSITION.md`](docs/R2_2_DECOMPOSITION.md).  
+**R2.2 production / R2.3+:** **NOT STARTED**.
 
 **User chain:**
 
@@ -275,8 +274,8 @@ local ResumeVersion (working resume content)
 
 | Phase | Focus | Status |
 |---|---|---|
-| **R2.1** | Local ResumeVersion / content snapshot of active HH resume | R2.1.1–R2.1.5 **COMPLETE · PUSHED**; R2.1.A **INTEGRATED PASS**; **READY FOR OWNER DECISION** |
-| **R2.2** | Search context + HH vacancy ingestion / normalization / dedupe | NOT STARTED |
+| **R2.1** | Local ResumeVersion / content snapshot of active HH resume | **COMPLETE · OWNER ACCEPTED · PUSHED** |
+| **R2.2** | Search context + HH vacancy ingestion / normalization / dedupe | **DECOMPOSITION READY FOR OWNER REVIEW**; production **NOT STARTED** |
 | **R2.3** | **SCORING_SERVICE_FOUNDATION** (PB-03) | NOT STARTED |
 | **R2.4** | Mass score/verdict in Vacancy + list prioritization | NOT STARTED |
 | **R2.5** | Detailed scoring in Vacancy context | NOT STARTED |
@@ -438,11 +437,11 @@ Execute in parallel only if it does not block R1.
 
 ## Current next step
 
-**Gate R1 CLOSED.** R2.1 DECOMPOSITION **OWNER ACCEPTED**.  
-**R2.1.1–R2.1.5 OWNER ACCEPTED · COMPLETE · PUSHED**.  
-**R2.1.A TECHNICAL / INTEGRATED PASS** — evidence [`docs/R2_1A_INTEGRATED_EVIDENCE.md`](docs/R2_1A_INTEGRATED_EVIDENCE.md).  
-**R2.1 READY FOR OWNER DECISION**. **R2.2+:** **NOT STARTED**.
+**Gate R1 CLOSED.**  
+**R2.1 COMPLETE · OWNER ACCEPTED · PUSHED.**  
+**R2.2 DECOMPOSITION READY FOR OWNER REVIEW** — [`docs/R2_2_DECOMPOSITION.md`](docs/R2_2_DECOMPOSITION.md).  
+**R2.2 production / R2.3+:** **NOT STARTED**.
 
-Do not start R2.2 until the owner closes R2.1.
+Do not start R2.2 production until owner ACCEPTs the R2.2 decomposition and resolves its open decisions.
 
 Оперативный снимок и HEAD SHA: [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
