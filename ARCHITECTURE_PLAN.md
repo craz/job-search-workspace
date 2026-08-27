@@ -1,9 +1,9 @@
 # План архитектуры Job Search Multirepo
 
-**Revision:** 2  
+**Revision:** 3  
 **Aligned with:** UJM v1 + Product Backlog + Roadmap v1  
-**Updated:** 2026-08-22  
-**Previous revision:** 1 (initial multirepo split plan, workspace bootstrap era)
+**Updated:** 2026-08-28 (R2.2 CLOSED; R2.3 Scoring foundation architecture)  
+**Previous revision:** 2 (R1 closed; R2.2 decomposition)
 
 Продуктовый workspace `job_search_ref` самодостаточен. Репозитории не
 импортируют Python-код друг друга и не получают прямой доступ к чужим хранилищам.
@@ -108,7 +108,7 @@ Developer experience: `make dev` поднимает stack; Web на loopback; HH
 | `job-search-core` | PostgreSQL, домен, Alembic, `/api/v1`, JSON CLI | **Implemented** |
 | `job-search-web` | Static SPA + HTTP proxy | **Implemented** (R0 IA accepted) |
 | `job-search-hh` | HH integration, Chromium, volumes | **Implemented** (read-ready) |
-| `job-search-scoring` | Queue, Ollama, Assessment writeback | **Partial** (basic pipeline) |
+| `job-search-scoring` | Queue, Ollama, Assessment writeback | **Partial** (bootstrap worker; R2.3 foundation designed) |
 | `job-search-osint` | Research API/CLI, provenance cache | **Implemented** (on-demand) |
 | `job-search-content` | Drafts, Telegram | **Stub** (empty submodule, not in compose) |
 | `job-search-hermes` | Audit CLI consumer | **Deferred** |
@@ -175,13 +175,9 @@ plus R1.5 `CandidateProfile` / `ProfileVersion` / `ActiveHhResumeLink`
 
 **Target concepts (Roadmap; детальные схемы — позже):**
 
-- `SearchProfile` + `SearchRun` (+ `SearchRunItem`) — R2.2 DECOMPOSITION
-  (**READY FOR OWNER ACCEPTANCE**): SearchProfile = semantic search intent only;
-  execution knobs (order/page_size/max_pages/…) live in SearchRun
-  `execution_snapshot`; criteria in `criteria_snapshot`; per-vacancy run
-  provenance via SearchRunItem; vacancy upsert by `(source, external_id)` +
-  source `content_hash`; discovery list-first with detail fetch when list lacks
-  scoring-ready content; see [`docs/R2_2_DECOMPOSITION.md`](docs/R2_2_DECOMPOSITION.md);
+- `SearchProfile` + `SearchRun` (+ `SearchRunItem`) — **R2.2 COMPLETE**
+  (resume_suitable primary path, temporal provenance, HH egress guard); see
+  [`docs/evidence/R2_2_A_INTEGRATED_ACCEPTANCE.md`](docs/evidence/R2_2_A_INTEGRATED_ACCEPTANCE.md);
 - richer `CandidateProfile` / `ProfileVersion` (beyond R1/R2.1 minimum);
 - `ResumeVersion` (local **content** snapshot) — R2.1 **COMPLETE**:
   separate immutable Core entity (JSONB schema-versioned); R1.5 remains
@@ -285,39 +281,49 @@ PB-00 (live HH ingestion) — architectural dependency для R1; см. HH runbo
 
 Volumes `hh-state`, `hh-profile` — exclusive HH ownership.
 
-## 10. Scoring service (R2)
+## 10. Scoring service (R2.3 foundation)
 
 Scoring — **standalone service** (не часть Core, не top-level Web workspace).
 
-**Target conceptual pipeline (R2; detailed design — later artifact):**
+**Canonical design:** [`docs/SCORING_SERVICE.md`](docs/SCORING_SERVICE.md)  
+**ADRs:** [005](docs/adr/005-scoring-service-boundary-and-ownership.md),
+[006](docs/adr/006-scoring-result-policy-identity.md),
+[007](docs/adr/007-llm-provider-boundary-ollama.md)
+
+**Target pipeline (Roadmap v1):**
 
 ```text
-Vacancy + CandidateProfile
-  → deterministic signals
-  → semantic signals / retrieval (embeddings as signals, not automatic verdict)
-  → relevant profile context
-  → LLM score (host Ollama)
-  → ScoringResult → Core Assessment
+Vacancy + scoring-ready Candidate context (ResumeVersion)
+  → deterministic signals (PASS/FAIL/UNKNOWN)
+  → ContextRetriever (relevant resume slices)
+  → semantic signals / embeddings (later; not verdict)
+  → LLM score via LlmBackend (Ollama v1)
+  → structured ScoringResult → Core Assessment
 ```
 
 **Rules:**
 
-- Canonical output: **score + verdict** (`apply` / `maybe` / `skip` conceptually).
-- Fast batch score vs detailed analysis — **different use cases**.
-- Scoring **policy versionable** separately from model and CandidateProfile version.
+- Canonical output: **score** (0–100) + **verdict** (`apply` / `maybe` / `skip`).
+- **ScoringPolicy** versioned separately (`policy_id`, `policy_version`, `policy_hash`).
+- **Fast** vs **detailed** modes — separate templates and identity; R2.4 batch vs
+  R2.5 expand UX.
+- **Current result** identity uses `vacancy_content_hash`, resume/profile versions,
+  policy hash, model, mode (ADR-006). Vacancy content change invalidates current
+  score without noisy UI.
 - Web presents score/verdict **in Vacancy context**; user decision **separate**
-  from LLM recommendation (R2/PB-04).
+  from LLM recommendation (R2.6 / PB-04).
 
-**Implemented now (basic):**
+**Implemented now (bootstrap — to be adapted in R2.3):**
 
 - JSON file queue in `scoring-state`;
-- worker reads Vacancy from Core HTTP;
-- Ollama call; raw stored locally;
+- CLI worker reads Vacancy from Core HTTP (list-all workaround);
+- embedded resume in Ollama Modelfile (`data/`);
+- Ollama `/api/generate`; raw stored locally;
 - normalized `POST /api/v1/assessments` with `source: job-search-scoring`.
 
-**Not in scope of this document:** full `SCORING_SERVICE_FOUNDATION` — см. future
-`services/scoring/docs/SCORING_SERVICE.md` and ADRs. Rev. 2 фиксирует boundary,
-principles, reproducibility expectation (raw + normalized lineage), link requirement.
+**R2.3 foundation (NOT STARTED):** contracts, Core context assembly, policy,
+`LlmBackend`, minimal HTTP, idempotent current-result semantics.  
+**R2.4:** mass score + list prioritization. **R2.5:** detailed scoring UX.
 
 ## 11. OSINT (R3 behavior)
 
@@ -378,7 +384,8 @@ has **no** runtime or setup dependency on a sibling monolith or SQLite archive.
 | Assessment in Vacancy context (R0) | ✓ | | |
 | HH read sync + session | ✓ | | |
 | HH production API apply | | ✓ (dual-gate code; 403 scope) | browser transport option |
-| Scoring basic pipeline | | ✓ | R2 full pipeline + policy versioning |
+| Scoring bootstrap pipeline | | ✓ | R2.3 foundation designed; R2.4+ product integration |
+| SearchProfile / SearchRun / resume_suitable | ✓ | | |
 | OSINT on-demand research | ✓ | | R3 outreach-integrated UX |
 | Content / Telegram | | | R? / §8 |
 | PB-DATA-00 bootstrap | ✓ isolated | | one-time; not a product feature |

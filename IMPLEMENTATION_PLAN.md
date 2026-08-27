@@ -1,9 +1,9 @@
 # План реализации Job Search Multirepo
 
-**Revision:** 2  
-**Basis:** UJM v1 + Product Backlog + Roadmap v1 + [`ARCHITECTURE_PLAN.md`](ARCHITECTURE_PLAN.md) rev. 2  
-**Updated:** 2026-08-27 (Gate R1 CLOSED; R2.1 DECOMPOSITION OWNER ACCEPTED; R2.1.1 NOT STARTED)
-**Previous revision:** 1 (service bootstrap / multirepo transfer sequence)
+**Revision:** 3  
+**Basis:** UJM v1 + Product Backlog + Roadmap v1 + [`ARCHITECTURE_PLAN.md`](ARCHITECTURE_PLAN.md) rev. 3  
+**Updated:** 2026-08-28 (R2.2 CLOSED; R2.3 architecture ready for owner review)  
+**Previous revision:** 2 (R1 closed; R2.2 decomposition)
 
 Оперативный снимок: [`PROJECT_STATUS.md`](PROJECT_STATUS.md).  
 Архитектура: [`ARCHITECTURE_PLAN.md`](ARCHITECTURE_PLAN.md).  
@@ -104,10 +104,12 @@ R5 — offer + finish search (PB-09, PB-10, final PB-11)
 
 ### Scoring
 
-- **Basic executable pipeline:** JSON queue worker, host Ollama, raw store in
+- **Bootstrap pipeline:** JSON queue worker, host Ollama, raw store in
   `scoring-state`, normalized Assessment → Core
-- **Not** target R2 scoring architecture (no CandidateProfile context, policy
-  versioning, ranking, batch vs detailed modes)
+- **R2.3 foundation designed** — see [`docs/SCORING_SERVICE.md`](docs/SCORING_SERVICE.md);
+  **implementation NOT STARTED**
+- **Not yet:** scoring-ready Core context assembly, ScoringPolicy versioning,
+  `LlmBackend`, HTTP product surface, current-result identity, R2.4 batch UI
 
 ### OSINT
 
@@ -253,11 +255,8 @@ and supports active-resume + linkage.
 **Canonical SoT:** Google Drive **Job Search** → Roadmap / R2 tab.  
 **Decomposition (R2.1):** [`docs/R2_PB01_DECOMPOSITION.md`](docs/R2_PB01_DECOMPOSITION.md).
 
-**Status:** Gate R1 **CLOSED**. R2 planning **active**.  
-**R2.1:** **COMPLETE · OWNER ACCEPTED · PUSHED** (incl. R2.1.A evidence `5df713c`).  
-**R2.2 DECOMPOSITION:** **OWNER ACCEPTED · PUSHED** (`2876c2e`).  
-**R2.2.1:** **READY FOR OWNER ACCEPTANCE** (Core SearchProfile + SearchRun + SearchRunItem).  
-**R2.2.2+ production / R2.3+:** **NOT STARTED**.
+**Status:** Gate R1 **CLOSED**. R2.2 **CLOSED** (R2.2.A integrated acceptance).  
+**R2.3:** architecture / decomposition **READY FOR OWNER REVIEW** — **NOT STARTED**.
 
 **User chain:**
 
@@ -275,14 +274,14 @@ local ResumeVersion (working resume content)
 
 | Phase | Focus | Status |
 |---|---|---|
-| **R2.1** | Local ResumeVersion / content snapshot of active HH resume | **COMPLETE · OWNER ACCEPTED · PUSHED** |
-| **R2.2** | Minimal SearchProfile + SearchRun/Item + HH vacancy upsert | DECOMPOSITION **OWNER ACCEPTED · PUSHED**; **R2.2.1 READY FOR OWNER ACCEPTANCE**; R2.2.2+ **NOT STARTED** |
-| **R2.3** | **SCORING_SERVICE_FOUNDATION** (PB-03) | NOT STARTED |
+| **R2.1** | Local ResumeVersion / content snapshot of active HH resume | **COMPLETE · PUSHED** |
+| **R2.2** | SearchRun + resume_suitable acquisition + ingest/dedupe/temporal + Web primary UX | **COMPLETE · PUSHED** (evidence `R2_2_A`) |
+| **R2.3** | **SCORING_SERVICE_FOUNDATION** (PB-03) | architecture **READY FOR REVIEW**; impl **NOT STARTED** |
 | **R2.4** | Mass score/verdict in Vacancy + list prioritization | NOT STARTED |
 | **R2.5** | Detailed scoring in Vacancy context | NOT STARTED |
 | **R2.6** | Explicit user decision (PB-04) | NOT STARTED |
 | **R2.7** | Basic PB-11 metrics slice | NOT STARTED |
-| **Gate R2** | Owner Gate decision after R2.1–R2.7 evidence | OPEN (not ready) |
+| **Gate R2** | Owner Gate decision after R2.1–R2.7 evidence | OPEN |
 
 ### R2.1 — Local ResumeVersion (accepted decisions)
 
@@ -299,29 +298,38 @@ schema-versioned snapshot; candidate-context shows metadata only; keep
 
 **Internal slices (do not start until owner says):** R2.1.1 → R2.1.5.
 
-### SCORING_SERVICE_FOUNDATION (R2.3 — not started)
+### SCORING_SERVICE_FOUNDATION (R2.3)
 
-**Prerequisite:** R2.1 ResumeVersion content snapshot. Do **not** treat R1.5
-identifier-only `ProfileVersion` as scoring-ready input.
+**Prerequisite:** R2.1 ResumeVersion + R2.2 scoring-ready Vacancy ingest — **met**.
 
-Before R2.3 implementation:
-
-- create `docs/SCORING_SERVICE.md` (or `services/scoring/docs/SCORING_SERVICE.md`)
-- ADR(s) only for truly fundamental decisions
+**Canonical design:** [`docs/SCORING_SERVICE.md`](docs/SCORING_SERVICE.md)  
+**ADRs:** 005 (boundary), 006 (policy/result identity), 007 (LlmBackend/Ollama)
 
 **Foundation scope (minimal):**
 
 ```text
-Vacancy + CandidateProfile + attached ResumeVersion + scoring policy
-  → Ollama → canonical ScoringResult → Core Assessment
+Vacancy + scoring-ready ResumeVersion + ScoringPolicy
+  → LlmBackend (Ollama)
+  → structured ScoringResult
+  → Core Assessment (with provenance / current-result identity)
 ```
 
-**Later increments (not in foundation):** deterministic/hard signals; embeddings /
-retrieval; fast batch vs detailed analysis; cache; policy versioning separate
-from model and profile version.
+**Implementation slices (do not start until owner accepts architecture):**
 
-**Canonical output:** score + verdict (`apply` / `maybe` / `skip` conceptually).
-Current basic worker is **bootstrap only**.
+| Slice | Focus |
+|---|---|
+| **R2.3.1** | Canonical contracts: ScoringPolicy, ScoringResult schema, `scoring_identity_hash`, Core Assessment provenance extension (migration) |
+| **R2.3.2** | Scoring-ready context assembly: Core GET vacancy-by-id, resume content read; retire private `data/resume.txt` as sole source |
+| **R2.3.3** | `LlmBackend` protocol + `OllamaBackend` (`/api/generate`; embed interface stub) |
+| **R2.3.4** | Single-vacancy **fast** scoring E2E: minimal HTTP + worker path + Core write |
+| **R2.3.5** | Job lifecycle hardening: current-result skip, re-score on `content_hash` change, observability |
+| **R2.3.A** | Integrated foundation acceptance (live + tests) |
+
+**Later (not R2.3):** deterministic signals implementation, embeddings retrieval,
+batch enqueue (R2.4), detailed mode UX (R2.5).
+
+**Canonical output:** score 0–100 + verdict (`apply` / `maybe` / `skip`). Bootstrap
+worker is **adaptation baseline**, not target architecture.
 
 ### Gate R2
 
@@ -438,13 +446,11 @@ Execute in parallel only if it does not block R1.
 
 ## Current next step
 
-**Gate R1 CLOSED.**  
-**R2.1 COMPLETE · OWNER ACCEPTED · PUSHED.**  
-**R2.2 DECOMPOSITION OWNER ACCEPTED · PUSHED.**  
-**R2.2.1 READY FOR OWNER ACCEPTANCE** (Core SearchProfile / SearchRun / SearchRunItem).  
-**R2.2.2+ / R2.3+:** **NOT STARTED**.
+**R2.2 CLOSED · PUSHED.**  
+**R2.3 architecture / decomposition — READY FOR OWNER REVIEW.**  
+**R2.3 implementation — NOT STARTED** (wait for owner ACCEPT on architecture).
 
-Do not start R2.2.2 until owner ACCEPTs R2.2.1.
+Do not start R2.3.1 until owner accepts R2.3 design.
 
 
 Оперативный снимок и HEAD SHA: [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
