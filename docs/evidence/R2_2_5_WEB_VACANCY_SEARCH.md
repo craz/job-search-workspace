@@ -63,13 +63,21 @@ Live example:
 
 New HH-ingested vacancies remain structurally OSINT-compatible (UUID, company FK, source/external_id); OSINT POST uses the same contract once `website_url` is set. Full website discovery is R3 scope.
 
+## HH egress misconfiguration guard (R2.2.5)
+
+Root cause of false «сеть или временный сбой» on resume list: `HTTP_PROXY=http://127.0.0.1:2080` inside `hh` container (loopback ≠ host proxy).
+
+**Fix:** canonical `make up` applies `hh-egress` override → `http://hh-egress:3128`.
+
+**Hardening:** `browser_proxy_unavailable` / recovery `local_egress_unavailable`; `/health/ready` exposes `egress.proxy_url` and fails when loopback proxy is configured.
+
 ## Gates
 
 | Repo | Result |
 |---|---|
 | Core | unit 55 · integration 27 · contract 9 · bdd 18 |
-| HH | unit 132 (+1 skip) · contract 16 · bdd 13 |
-| Web | unit 5 · integration 36 · contract 10 · bdd 10 |
+| HH | unit 140 (+1 skip) · contract 16 · bdd 13 |
+| Web | unit 5 · integration 36 · contract 11 · bdd 10 |
 
 ## Owner UI feedback (final small correction)
 
