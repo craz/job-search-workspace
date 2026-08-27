@@ -1,9 +1,9 @@
 # Состояние проекта Job Search Multirepo
 
 **Дата снимка:** 2026-08-27 (UTC+3)  
-**Workspace HEAD:** `cf1c86a` (+ local R2.1.2 status docs)  
+**Workspace HEAD:** `f27675a` (ahead of origin; R2.1.2 docs)  
 **Web submodule HEAD:** `7bc0bd5`  
-**HH submodule HEAD:** local R2.1.2 (unpushed)  
+**HH submodule HEAD:** `5b7a7a8` (ahead of origin; R2.1.2)  
 **Core submodule HEAD:** `9ab1e7d` (== origin/main)  
 **Ветка:** `main`
 
