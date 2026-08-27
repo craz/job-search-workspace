@@ -33,6 +33,8 @@ R2.2 decomposition: [`docs/R2_2_DECOMPOSITION.md`](docs/R2_2_DECOMPOSITION.md).
 
 - R2.1 closed and pushed.
 - **«Го»** = `ACCEPT` декомпозиции R2.2 (или замечания).
-- Live `GET /vacancies` → **403** (scaffold ≠ capability); browser vacancy search
-  не авто-разрешён.
+- Model boundaries: SearchProfile = criteria only; execution → SearchRun
+  `execution_snapshot`; per-vacancy **SearchRunItem**; list-first + detail when
+  needed for scoring-ready content.
+- Live `GET /vacancies` → **403**; browser vacancy search не авто-разрешён.
 - Production R2.2 / R2.3 — **не** начинать до OWNER ACCEPTED декомпозиции.

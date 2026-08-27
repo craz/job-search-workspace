@@ -255,7 +255,8 @@ and supports active-resume + linkage.
 
 **Status:** Gate R1 **CLOSED**. R2 planning **active**.  
 **R2.1:** **COMPLETE · OWNER ACCEPTED · PUSHED** (incl. R2.1.A evidence `5df713c`).  
-**R2.2 DECOMPOSITION:** **READY FOR OWNER ACCEPTANCE** — [`docs/R2_2_DECOMPOSITION.md`](docs/R2_2_DECOMPOSITION.md) (SearchProfile + SearchRun + upsert).  
+**R2.2 DECOMPOSITION:** **READY FOR OWNER ACCEPTANCE** — [`docs/R2_2_DECOMPOSITION.md`](docs/R2_2_DECOMPOSITION.md)
+(SearchProfile criteria-only; SearchRun + SearchRunItem; list-first + detail when needed).  
 **R2.2 production / R2.3+:** **NOT STARTED**.
 
 **User chain:**
@@ -275,7 +276,7 @@ local ResumeVersion (working resume content)
 | Phase | Focus | Status |
 |---|---|---|
 | **R2.1** | Local ResumeVersion / content snapshot of active HH resume | **COMPLETE · OWNER ACCEPTED · PUSHED** |
-| **R2.2** | Minimal SearchProfile + SearchRun + HH vacancy upsert / dedupe | **DECOMPOSITION READY FOR OWNER ACCEPTANCE**; production **NOT STARTED** |
+| **R2.2** | Minimal SearchProfile + SearchRun/Item + HH vacancy upsert | **DECOMPOSITION READY FOR OWNER ACCEPTANCE**; production **NOT STARTED** |
 | **R2.3** | **SCORING_SERVICE_FOUNDATION** (PB-03) | NOT STARTED |
 | **R2.4** | Mass score/verdict in Vacancy + list prioritization | NOT STARTED |
 | **R2.5** | Detailed scoring in Vacancy context | NOT STARTED |

@@ -175,11 +175,13 @@ plus R1.5 `CandidateProfile` / `ProfileVersion` / `ActiveHhResumeLink`
 
 **Target concepts (Roadmap; детальные схемы — позже):**
 
-- `SearchProfile` + `SearchRun` — R2.2 DECOMPOSITION (READY FOR OWNER ACCEPTANCE):
-  minimal persisted search criteria (**not** derived from ResumeVersion);
-  SearchRun stores immutable criteria snapshot + run counts/status;
-  vacancy ingest uses `(source, external_id)` upsert + source `content_hash`;
-  see [`docs/R2_2_DECOMPOSITION.md`](docs/R2_2_DECOMPOSITION.md);
+- `SearchProfile` + `SearchRun` (+ `SearchRunItem`) — R2.2 DECOMPOSITION
+  (**READY FOR OWNER ACCEPTANCE**): SearchProfile = semantic search intent only;
+  execution knobs (order/page_size/max_pages/…) live in SearchRun
+  `execution_snapshot`; criteria in `criteria_snapshot`; per-vacancy run
+  provenance via SearchRunItem; vacancy upsert by `(source, external_id)` +
+  source `content_hash`; discovery list-first with detail fetch when list lacks
+  scoring-ready content; see [`docs/R2_2_DECOMPOSITION.md`](docs/R2_2_DECOMPOSITION.md);
 - richer `CandidateProfile` / `ProfileVersion` (beyond R1/R2.1 minimum);
 - `ResumeVersion` (local **content** snapshot) — R2.1 **COMPLETE**:
   separate immutable Core entity (JSONB schema-versioned); R1.5 remains
