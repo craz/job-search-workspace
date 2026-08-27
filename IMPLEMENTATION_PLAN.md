@@ -2,7 +2,7 @@
 
 **Revision:** 2  
 **Basis:** UJM v1 + Product Backlog + Roadmap v1 + [`ARCHITECTURE_PLAN.md`](ARCHITECTURE_PLAN.md) rev. 2  
-**Updated:** 2026-08-27 (R1.1–R1.6 COMPLETE · PUSHED; R1.A ACCEPTED; Gate R1 CLOSED)
+**Updated:** 2026-08-27 (Gate R1 CLOSED; R2.1 DECOMPOSITION OWNER ACCEPTED; R2.1.1 NOT STARTED)
 **Previous revision:** 1 (service bootstrap / multirepo transfer sequence)
 
 Оперативный снимок: [`PROJECT_STATUS.md`](PROJECT_STATUS.md).  
@@ -249,34 +249,60 @@ and supports active-resume + linkage.
 
 ## R2 — Find → score → decide
 
-**PBI:** PB-01, PB-02, PB-03, PB-04, initial PB-11.
+**PBI:** PB-01, PB-02, PB-03, PB-04, initial PB-11.  
+**Canonical SoT:** Google Drive **Job Search** → Roadmap / R2 tab.  
+**Decomposition (R2.1):** [`docs/R2_PB01_DECOMPOSITION.md`](docs/R2_PB01_DECOMPOSITION.md).
+
+**Status:** Gate R1 **CLOSED**. R2 planning **active**.  
+**R2.1 DECOMPOSITION:** **OWNER ACCEPTED** (2026-08-27).  
+**Production implementation:** **NOT STARTED**. **R2.1.1:** **NOT STARTED**.
 
 **User chain:**
 
 ```text
-profile/resume context
+local ResumeVersion (working resume content)
   → vacancy ingestion / normalization / dedupe
-  → scoring
+  → scoring against that ResumeVersion
   → score + verdict in Vacancy (no Assessments workspace)
   → ranking
   → scoring details in Vacancy expand
   → explicit user decision (separate from LLM verdict)
 ```
 
-Decompose at R2 entry into vertical increments. High-level sequence:
+### Execution sequence (canonical)
 
-| Phase | Focus |
-|---|---|
-| **R2.1** | Vacancy ingestion/normalization improvements (PB-01/02) |
-| **R2.2** | **SCORING_SERVICE_FOUNDATION** (PB-03) — see below |
-| **R2.3** | Score/verdict/ranking in Vacancy Web context |
-| **R2.4** | Scoring details UX in Vacancy |
-| **R2.5** | User decision on Vacancy (PB-04) |
-| **R2.6** | Initial analytics slice (PB-11) |
+| Phase | Focus | Status |
+|---|---|---|
+| **R2.1** | Local ResumeVersion / content snapshot of active HH resume | DECOMPOSITION **OWNER ACCEPTED**; impl **NOT STARTED** |
+| **R2.2** | Search context + HH vacancy ingestion / normalization / dedupe | NOT STARTED |
+| **R2.3** | **SCORING_SERVICE_FOUNDATION** (PB-03) | NOT STARTED |
+| **R2.4** | Mass score/verdict in Vacancy + list prioritization | NOT STARTED |
+| **R2.5** | Detailed scoring in Vacancy context | NOT STARTED |
+| **R2.6** | Explicit user decision (PB-04) | NOT STARTED |
+| **R2.7** | Basic PB-11 metrics slice | NOT STARTED |
+| **Gate R2** | Owner Gate decision after R2.1–R2.7 evidence | OPEN (not ready) |
 
-### SCORING_SERVICE_FOUNDATION (R2.2 — not started)
+### R2.1 — Local ResumeVersion (accepted decisions)
 
-**Do not implement until R2.** Before implementation:
+Detailed US / TECH-US / slices: [`docs/R2_PB01_DECOMPOSITION.md`](docs/R2_PB01_DECOMPOSITION.md).
+
+**Product outcome:** immutable local snapshot of the working HH resume content,
+manual sync only, usable later by PB-03.
+
+**Key decisions:** manual sync only; no fake empty versions; return to prior
+resume reuses latest local copy; allowlist fields (no contacts/PII); JSONB
+schema-versioned snapshot; candidate-context shows metadata only; keep
+`ProfileVersion`=`r1-default`; **no** mandatory active-pointer table
+(current = active HH link + latest `ResumeVersion` for that `external_resume_id`).
+
+**Internal slices (do not start until owner says):** R2.1.1 → R2.1.5.
+
+### SCORING_SERVICE_FOUNDATION (R2.3 — not started)
+
+**Prerequisite:** R2.1 ResumeVersion content snapshot. Do **not** treat R1.5
+identifier-only `ProfileVersion` as scoring-ready input.
+
+Before R2.3 implementation:
 
 - create `docs/SCORING_SERVICE.md` (or `services/scoring/docs/SCORING_SERVICE.md`)
 - ADR(s) only for truly fundamental decisions
@@ -284,32 +310,22 @@ Decompose at R2 entry into vertical increments. High-level sequence:
 **Foundation scope (minimal):**
 
 ```text
-Vacancy + CandidateProfile (with resume content snapshot) + scoring policy
+Vacancy + CandidateProfile + attached ResumeVersion + scoring policy
   → Ollama → canonical ScoringResult → Core Assessment
 ```
 
-**Dependency:** R1.5 provides only HH `external_resume_id` linkage.
-Before PB-03 / this foundation can score against the candidate, **R2 / full PB-01**
-must create or attach a local resume snapshot/version containing actual resume
-content. Do not treat R1.5 `ProfileVersion` as scoring-ready input.
-
-**Later increments (not in foundation):**
-
-- deterministic/hard signals
-- embeddings / retrieval (signals, not automatic verdict)
-- fast batch scoring vs detailed analysis
-- cache / reproducibility improvements
-- policy versioning separate from model and profile version
+**Later increments (not in foundation):** deterministic/hard signals; embeddings /
+retrieval; fast batch vs detailed analysis; cache; policy versioning separate
+from model and profile version.
 
 **Canonical output:** score + verdict (`apply` / `maybe` / `skip` conceptually).
-
-Current basic worker is **bootstrap only** — do not treat as R2 architecture.
+Current basic worker is **bootstrap only**.
 
 ### Gate R2
 
-Operator can ingest vacancies, run scoring with profile context, see score/verdict
-and details in Vacancy, rank results, and record **explicit user decision**
-distinct from LLM recommendation.
+Operator can ingest vacancies, run scoring with **local ResumeVersion** context,
+see score/verdict and details in Vacancy, rank results, and record **explicit
+user decision** distinct from LLM recommendation.
 
 ---
 
@@ -420,10 +436,11 @@ Execute in parallel only if it does not block R1.
 
 ## Current next step
 
-**Gate R1 CLOSED** (OWNER ACCEPTED 2026-08-27). R1.1–R1.6 COMPLETE · PUSHED.  
-**R2 NOT STARTED** — await explicit owner start.
+**Gate R1 CLOSED.** R2.1 DECOMPOSITION **OWNER ACCEPTED** (docs synced).  
+**Next production slice:** **R2.1.1** only after explicit owner go.  
+**R2.1.1 / production R2:** **NOT STARTED**.
 
-Do not start Scoring foundation, Content, or Hermes until owner starts R2
-(or documented PO waiver).
+Do not start R2.2+, Scoring foundation, Content, or Hermes until the accepted
+R2 sequence reaches them (or documented PO waiver).
 
 Оперативный снимок и HEAD SHA: [`PROJECT_STATUS.md`](PROJECT_STATUS.md).

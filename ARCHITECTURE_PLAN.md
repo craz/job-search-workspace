@@ -176,9 +176,12 @@ plus R1.5 `CandidateProfile` / `ProfileVersion` / `ActiveHhResumeLink`
 **Target concepts (Roadmap; детальные схемы — позже):**
 
 - `SearchProfile`, richer `CandidateProfile` / `ProfileVersion`;
-- `ResumeVersion` (local **content** snapshot) + linkage к active HH resume;
-  R1.5 only stores `external_resume_id` linkage — **not** scoring-ready text;
-  before **PB-03 Scoring**, R2 / full PB-01 must add content snapshot;
+- `ResumeVersion` (local **content** snapshot) — R2.1 DECOMPOSITION ACCEPTED:
+  separate immutable Core entity (JSONB schema-versioned); R1.5 remains
+  identifier-only; current local copy = active HH link + **latest**
+  `ResumeVersion` for that `external_resume_id` (no mandatory pointer table);
+  `ProfileVersion` stays `r1-default` in R2.1; before **PB-03 / R2.3 Scoring**
+  this snapshot must exist;
 - user **decision** on Vacancy (отдельно от LLM verdict — R2/PB-04);
 - hiring pipeline, `Offer`, `SearchCycle` (R4–R5).
 
@@ -263,7 +266,7 @@ HH session/auth
   → active HH resume
   → linkage to local CandidateProfile / ProfileVersion (R1.5: id only)
   → unified recovery / action-required states (R1.6)
-  → (R2 / full PB-01) local ResumeVersion content snapshot before PB-03 Scoring
+  → (R2.1) local ResumeVersion content snapshot (manual sync) before R2.3 / PB-03 Scoring
 ```
 
 **Scope reality (verified):** applicant token may be alive (`GET /me` → 200), но
