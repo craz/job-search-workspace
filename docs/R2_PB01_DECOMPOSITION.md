@@ -2,8 +2,9 @@
 
 **Status:** R2.1 DECOMPOSITION **OWNER ACCEPTED** (2026-08-27);  
 **R2.1.1–R2.1.5 / R2.1.A / R2.1:** **OWNER ACCEPTED · COMPLETE · PUSHED**  
-**R2.2 DECOMPOSITION:** **READY FOR OWNER ACCEPTANCE** — [`R2_2_DECOMPOSITION.md`](R2_2_DECOMPOSITION.md)  
-**R2.2 production / R2.3+:** **NOT STARTED**  
+**R2.2 DECOMPOSITION:** **OWNER ACCEPTED · PUSHED** — [`R2_2_DECOMPOSITION.md`](R2_2_DECOMPOSITION.md)  
+**R2.2.1:** **READY FOR OWNER ACCEPTANCE**  
+**R2.2.2+ / R2.3+:** **NOT STARTED**  
 **Gate R1:** **CLOSED**  
 **Canonical product SoT:** Google Drive doc **Job Search** (tabs Product Backlog, Roadmap, R2)
 

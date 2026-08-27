@@ -1,10 +1,10 @@
 # Состояние проекта Job Search Multirepo
 
 **Дата снимка:** 2026-08-27 (UTC+3)  
-**Workspace HEAD:** local R2.2 decomposition (ahead of origin after docs commit)  
+**Workspace HEAD:** local R2.2.1 (ahead of origin after Core gitlink + status)  
 **Web submodule HEAD:** `9abe407` (== origin/main; R2.1.5)  
 **HH submodule HEAD:** `737ac9d` (== origin/main)  
-**Core submodule HEAD:** `aa81914` (== origin/main)  
+**Core submodule HEAD:** local R2.2.1 (ahead of origin; SearchProfile/SearchRun)  
 **Ветка:** `main`
 
 Этот файл — оперативный снимок «где мы сейчас». Детальный план и gate-критерии
@@ -21,20 +21,15 @@
 | OSINT | в основном готово |
 | HH read-path | R1.1–R1.6 **COMPLETE · PUSHED** |
 | **R1 / PB-00** | **COMPLETE · Gate R1 CLOSED** (OWNER ACCEPTED 2026-08-27) |
-| **R2** | **R2.1 COMPLETE · OWNER ACCEPTED · PUSHED**; **R2.2 DECOMPOSITION READY FOR OWNER ACCEPTANCE**; production R2.2 **NOT STARTED**; R2.3+ **NOT STARTED** |
+| **R2** | **R2.1 COMPLETE · PUSHED**; **R2.2 DECOMPOSITION OWNER ACCEPTED · PUSHED**; **R2.2.1 READY FOR OWNER ACCEPTANCE**; R2.2.2+ / R2.3 **NOT STARTED** |
 | Content / Telegram §8 | не начат |
 | **PB-DATA-00** | **COMPLETE — Gate CLOSED** |
 | **R0** | **CLOSED — Gate R0 ACCEPTED WITH NON-BLOCKING DEBT** |
 
-R2.1 evidence: [`docs/R2_1A_INTEGRATED_EVIDENCE.md`](docs/R2_1A_INTEGRATED_EVIDENCE.md) (`5df713c` pushed).  
-R2.2 decomposition: [`docs/R2_2_DECOMPOSITION.md`](docs/R2_2_DECOMPOSITION.md).
+R2.2 decomposition: [`docs/R2_2_DECOMPOSITION.md`](docs/R2_2_DECOMPOSITION.md) (`2876c2e` pushed).  
+R2.2.1 Core spec: `services/core/docs/specs/search-profile-run.md`.
 
 ## Решение по «го» / blockers
 
-- R2.1 closed and pushed.
-- **«Го»** = `ACCEPT` декомпозиции R2.2 (или замечания).
-- Model boundaries: SearchProfile = criteria only; execution → SearchRun
-  `execution_snapshot`; per-vacancy **SearchRunItem**; list-first + detail when
-  needed for scoring-ready content.
-- Live `GET /vacancies` → **403**; browser vacancy search не авто-разрешён.
-- Production R2.2 / R2.3 — **не** начинать до OWNER ACCEPTED декомпозиции.
+- **«Го»** = `ACCEPT` R2.2.1 (или замечания).
+- R2.2.2 / HH `GET /vacancies` / browser vacancy — **не** начинать до ACCEPT R2.2.1.
