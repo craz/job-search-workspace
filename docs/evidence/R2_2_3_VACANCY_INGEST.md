@@ -22,4 +22,10 @@ No `Idempotency-Key`. Core owns `content_hash`.
 
 Gates: Core unit 45 · integration 27 · contract 9 · bdd 18; HH unit 113+1skip · contract 13 · bdd 13.
 
-Migration head: **`20260827_11`**.
+Migration head: **`20260827_11`** (unchanged; company identity fix is mapper/semantics only).
+
+## Company identity (owner remark)
+
+- Stable employer id → `Company(hh, <employer_id>)`, shared across vacancies.
+- No employer id → `Company(hh, vacancy:<vacancy_external_id>:employer)` —
+  same display name on different vacancies never merges.
