@@ -2,7 +2,8 @@
 
 **Status:** R2.1 DECOMPOSITION **OWNER ACCEPTED** (2026-08-27);  
 **R2.1.1–R2.1.4:** **OWNER ACCEPTED · COMPLETE · PUSHED**  
-**R2.1.5:** **READY FOR OWNER ACCEPTANCE** (human-readable resume sync UX)  
+**R2.1.5:** **READY FOR OWNER ACCEPTANCE** (human-readable resume sync UX; live Web sync PASS after transient HH egress SSL recovered)  
+**R2.1.A / Gate R2.1 integrated:** **NOT STARTED**  
 **R2.2+:** **NOT STARTED**  
 **Gate R1:** **CLOSED**  
 **Canonical product SoT:** Google Drive doc **Job Search** (tabs Product Backlog, Roadmap, R2)

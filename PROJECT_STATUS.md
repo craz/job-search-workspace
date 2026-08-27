@@ -30,6 +30,9 @@ Decomposition: [`docs/R2_PB01_DECOMPOSITION.md`](docs/R2_PB01_DECOMPOSITION.md).
 
 ## Решение по «го» / blockers
 
-- **«Го»** после ACCEPT R2.1.5 = отдельный **integrated R2.1 acceptance** (не авто-закрытие Gate R2.1), затем только по решению — R2.2.
-- Или если скажешь **push** — push Web + workspace R2.1.5 baseline.
+- R2.1.5 live Web sync blocker cleared (transient HH egress SSL; recovered via
+  normal `make up`; no product-code change). **READY FOR OWNER ACCEPTANCE.**
+- **«Го»** после ACCEPT R2.1.5 = отдельный **integrated R2.1 acceptance**
+  (R2.1.A), не авто-закрытие Gate R2.1 и не R2.2.
+- Или если скажешь **push** — push Web `9abe407` + workspace (current local).
 - R2.2 / vacancy / Scoring — **не** до ACCEPT R2.1.5 + integrated R2.1.

@@ -51,3 +51,25 @@ make down                   # compose down + stop socket relay
 If the host proxy or `hh-egress` path is down, HH `GET /api/v1/account` returns
 normalized `status=unavailable` / upstream failure — not a fake empty account
 and not `not_authorized` from a missing profile.
+
+### Transient TLS through `hh-egress`
+
+Symptoms: container `curl -x http://hh-egress:3128 https://hh.ru/` or Chromium
+RO fails with `SSL_ERROR_SYSCALL` / handshake timeout, while the **same** host
+proxy (`http://127.0.0.1:…`) still returns HTTP 200 from the host.
+
+This is usually a **transient** host-proxy / bridge interruption, not a missing
+Compose override. Preferred recovery on the normal path:
+
+```bash
+make up
+```
+
+Confirm with:
+
+```bash
+docker compose exec -T hh curl -sS -o /dev/null -w '%{http_code}\n' \
+  --max-time 20 -x http://hh-egress:3128 https://hh.ru/
+```
+
+Expect `302`/`200`. Do **not** add a temporary sidecar; keep using `make up`.
