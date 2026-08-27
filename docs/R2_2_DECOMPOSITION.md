@@ -1,7 +1,7 @@
 # R2.2 — SearchProfile + HH vacancy ingestion / normalization / dedupe
 
-**Status:** decomposition **OWNER ACCEPTED · PUSHED**; **R2.2.1 COMPLETE · PUSHED**;
-**R2.2.2 READY FOR OWNER ACCEPTANCE** (browser RO vacancy transport)  
+**Status:** decomposition **OWNER ACCEPTED · PUSHED**; **R2.2.1–R2.2.2 COMPLETE · PUSHED**;
+**R2.2.3 READY FOR OWNER ACCEPTANCE** (Vacancy ingest + content_hash)  
 **R2.1:** **COMPLETE · OWNER ACCEPTED · PUSHED**  
 **R2.3:** **NOT STARTED**
 
@@ -18,16 +18,14 @@ migrations, or API changes until **OWNER ACCEPTED**.
 
 ```text
 R2.1 = COMPLETE · OWNER ACCEPTED · PUSHED
-R2.2 decomposition = OWNER ACCEPTED · PUSHED
 R2.2.1 = COMPLETE · OWNER ACCEPTED · PUSHED
-R2.2.2 = READY FOR OWNER ACCEPTANCE (browser RO vacancy acquire)
-R2.2.3+ = NOT STARTED
+R2.2.2 = COMPLETE · OWNER ACCEPTED · PUSHED
+R2.2.3 = READY FOR OWNER ACCEPTANCE
+R2.2.4+ = NOT STARTED
 R2.3 = NOT STARTED
 ```
 
-Evidence:
-- Official API 403: [`docs/evidence/R2_2_2_HH_VACANCY_API_PROBE.md`](evidence/R2_2_2_HH_VACANCY_API_PROBE.md)
-- Browser acquire: [`docs/evidence/R2_2_2_BROWSER_VACANCY_ACQUIRE.md`](evidence/R2_2_2_BROWSER_VACANCY_ACQUIRE.md)
+Evidence: [`docs/evidence/R2_2_3_VACANCY_INGEST.md`](evidence/R2_2_3_VACANCY_INGEST.md).
 
 ---
 
