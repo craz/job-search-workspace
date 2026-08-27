@@ -255,8 +255,9 @@ and supports active-resume + linkage.
 
 **Status:** Gate R1 **CLOSED**. R2 planning **active**.  
 **R2.1 DECOMPOSITION:** **OWNER ACCEPTED** (2026-08-27).  
-**R2.1.1–R2.1.4:** **OWNER ACCEPTED · COMPLETE · PUSHED**.  
-**R2.1.5:** **READY FOR OWNER ACCEPTANCE**. **R2.2+:** **NOT STARTED**.
+**R2.1.1–R2.1.5:** **OWNER ACCEPTED · COMPLETE · PUSHED**.  
+**R2.1.A:** **TECHNICAL / INTEGRATED PASS** (local docs; not pushed).  
+**R2.1:** **READY FOR OWNER DECISION**. **R2.2+:** **NOT STARTED**.
 
 **User chain:**
 
@@ -274,7 +275,7 @@ local ResumeVersion (working resume content)
 
 | Phase | Focus | Status |
 |---|---|---|
-| **R2.1** | Local ResumeVersion / content snapshot of active HH resume | DECOMPOSITION **OWNER ACCEPTED**; R2.1.1–R2.1.4 **COMPLETE**; R2.1.5 **READY FOR OWNER ACCEPTANCE** |
+| **R2.1** | Local ResumeVersion / content snapshot of active HH resume | R2.1.1–R2.1.5 **COMPLETE · PUSHED**; R2.1.A **INTEGRATED PASS**; **READY FOR OWNER DECISION** |
 | **R2.2** | Search context + HH vacancy ingestion / normalization / dedupe | NOT STARTED |
 | **R2.3** | **SCORING_SERVICE_FOUNDATION** (PB-03) | NOT STARTED |
 | **R2.4** | Mass score/verdict in Vacancy + list prioritization | NOT STARTED |
@@ -438,10 +439,10 @@ Execute in parallel only if it does not block R1.
 ## Current next step
 
 **Gate R1 CLOSED.** R2.1 DECOMPOSITION **OWNER ACCEPTED**.  
-**R2.1.1–R2.1.4 OWNER ACCEPTED · COMPLETE · PUSHED**.  
-**R2.1.5 READY FOR OWNER ACCEPTANCE** (Web human-readable resume sync UX).  
-**R2.2+:** **NOT STARTED**.
+**R2.1.1–R2.1.5 OWNER ACCEPTED · COMPLETE · PUSHED**.  
+**R2.1.A TECHNICAL / INTEGRATED PASS** — evidence [`docs/R2_1A_INTEGRATED_EVIDENCE.md`](docs/R2_1A_INTEGRATED_EVIDENCE.md).  
+**R2.1 READY FOR OWNER DECISION**. **R2.2+:** **NOT STARTED**.
 
-Do not start R2.2 until owner ACCEPTs R2.1.5 and a separate integrated R2.1 acceptance.
+Do not start R2.2 until the owner closes R2.1.
 
 Оперативный снимок и HEAD SHA: [`PROJECT_STATUS.md`](PROJECT_STATUS.md).

@@ -1,9 +1,9 @@
 # R2.1 / PB-01 slice — local ResumeVersion (decomposition)
 
 **Status:** R2.1 DECOMPOSITION **OWNER ACCEPTED** (2026-08-27);  
-**R2.1.1–R2.1.4:** **OWNER ACCEPTED · COMPLETE · PUSHED**  
-**R2.1.5:** **READY FOR OWNER ACCEPTANCE** (human-readable resume sync UX; live Web sync PASS after transient HH egress SSL recovered)  
-**R2.1.A / Gate R2.1 integrated:** **NOT STARTED**  
+**R2.1.1–R2.1.5:** **OWNER ACCEPTED · COMPLETE · PUSHED**  
+**R2.1.A / Gate R2.1 integrated:** **TECHNICAL / INTEGRATED PASS** (evidence: [`docs/R2_1A_INTEGRATED_EVIDENCE.md`](R2_1A_INTEGRATED_EVIDENCE.md); docs **not** pushed)  
+**R2.1:** **READY FOR OWNER DECISION** (not auto-COMPLETE / Gate not CLOSED)  
 **R2.2+:** **NOT STARTED**  
 **Gate R1:** **CLOSED**  
 **Canonical product SoT:** Google Drive doc **Job Search** (tabs Product Backlog, Roadmap, R2)
@@ -303,9 +303,10 @@ Scenario: Return to previously synced resume without HH fetch
 | **R2.1.2** | HH read-only extracts resume content | **OWNER ACCEPTED · COMPLETE · PUSHED** |
 | **R2.1.3** | First end-to-end manual sync | **OWNER ACCEPTED · COMPLETE · PUSHED** |
 | **R2.1.4** | Version / dedup behaviour | **OWNER ACCEPTED · COMPLETE · PUSHED** |
-| **R2.1.5** | Human-readable Web state | **READY FOR OWNER ACCEPTANCE** |
+| **R2.1.5** | Human-readable Web state | **OWNER ACCEPTED · COMPLETE · PUSHED** (`9abe407`) |
+| **R2.1.A** | Integrated acceptance / Gate evidence | **TECHNICAL / INTEGRATED PASS** (local docs only) |
 
-Do **not** start R2.2 until owner ACCEPTs R2.1.5 **and** integrated R2.1 acceptance.
+**R2.1** is **READY FOR OWNER DECISION**. Do **not** start R2.2 until the owner closes R2.1.
 
 ---
 
