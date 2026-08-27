@@ -255,9 +255,8 @@ and supports active-resume + linkage.
 
 **Status:** Gate R1 **CLOSED**. R2 planning **active**.  
 **R2.1 DECOMPOSITION:** **OWNER ACCEPTED** (2026-08-27).  
-**R2.1.1:** **OWNER ACCEPTED · COMPLETE · PUSHED**.  
-**R2.1.2:** **OWNER ACCEPTED · COMPLETE · PUSHED**.  
-**R2.1.3:** **READY FOR OWNER ACCEPTANCE**. **R2.1.4+:** **NOT STARTED**.
+**R2.1.1–R2.1.3:** **OWNER ACCEPTED · COMPLETE · PUSHED**.  
+**R2.1.4:** **READY FOR OWNER ACCEPTANCE**. **R2.1.5+:** **NOT STARTED**.
 
 **User chain:**
 
@@ -275,7 +274,7 @@ local ResumeVersion (working resume content)
 
 | Phase | Focus | Status |
 |---|---|---|
-| **R2.1** | Local ResumeVersion / content snapshot of active HH resume | DECOMPOSITION **OWNER ACCEPTED**; R2.1.1–R2.1.2 **COMPLETE**; R2.1.3 **READY FOR OWNER ACCEPTANCE** |
+| **R2.1** | Local ResumeVersion / content snapshot of active HH resume | DECOMPOSITION **OWNER ACCEPTED**; R2.1.1–R2.1.3 **COMPLETE**; R2.1.4 **READY FOR OWNER ACCEPTANCE** |
 | **R2.2** | Search context + HH vacancy ingestion / normalization / dedupe | NOT STARTED |
 | **R2.3** | **SCORING_SERVICE_FOUNDATION** (PB-03) | NOT STARTED |
 | **R2.4** | Mass score/verdict in Vacancy + list prioritization | NOT STARTED |
@@ -439,10 +438,10 @@ Execute in parallel only if it does not block R1.
 ## Current next step
 
 **Gate R1 CLOSED.** R2.1 DECOMPOSITION **OWNER ACCEPTED**.  
-**R2.1.1–R2.1.2 OWNER ACCEPTED · COMPLETE · PUSHED**.  
-**R2.1.3 READY FOR OWNER ACCEPTANCE** (HH→Core manual sync).  
-**R2.1.4+:** **NOT STARTED**.
+**R2.1.1–R2.1.3 OWNER ACCEPTED · COMPLETE · PUSHED**.  
+**R2.1.4 READY FOR OWNER ACCEPTANCE** (history / version semantics).  
+**R2.1.5+:** **NOT STARTED**.
 
-Do not start R2.1.4 until owner ACCEPTs R2.1.3.
+Do not start R2.1.5 until owner ACCEPTs R2.1.4.
 
 Оперативный снимок и HEAD SHA: [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
