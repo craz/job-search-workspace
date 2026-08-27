@@ -44,13 +44,41 @@ http://127.0.0.1:18080/#vacancies
 
 Example after repeat: rank-0 `first_seen=20:44:14`; rechecked row `first_seen=20:14:57`, `last_seen=21:38:46`, rank=4.
 
+## OSINT / mirrors visibility (not a regression)
+
+Web `vacancyRow()` shows collapsible **«OSINT и зеркала»** only when:
+
+```text
+item.company.website_url  OR  existing evidenceCount > 0
+```
+
+Workflow status (`new` vs `reviewing`) is **not** a gate.
+
+Live example:
+
+| Vacancy | status | `company.website_url` | OSINT section |
+|---|---|---|---|
+| Synthetic Integration Engineer | reviewing | `https://workspace-smoke.example/` | visible |
+| Product Manager (HH ingest) | new | `null` | hidden |
+
+New HH-ingested vacancies remain structurally OSINT-compatible (UUID, company FK, source/external_id); OSINT POST uses the same contract once `website_url` is set. Full website discovery is R3 scope.
+
 ## Gates
 
 | Repo | Result |
 |---|---|
 | Core | unit 55 · integration 27 · contract 9 · bdd 18 |
 | HH | unit 132 (+1 skip) · contract 16 · bdd 13 |
-| Web | unit 5 · integration 36 · contract 6 · bdd 10 |
+| Web | unit 5 · integration 36 · contract 10 · bdd 10 |
+
+## Owner UI feedback (final small correction)
+
+| Item | Change |
+|---|---|
+| «Получена» | `DD.MM.YYYY, HH:MM` via `formatFirstSeen()` — year always shown |
+| Hierarchy | Vacancy title stronger; company/description secondary; meta `#b4bcc8`; subtle row hover |
+| Workflow badges | `new→accent`, `reviewing→info`, `shortlisted→success`, `rejected→danger`; source `hh` stays `neutral` |
+| Scoring | No score/verdict styling (reserved for R2.4) |
 
 Migration head: **`20260828_13`**
 
