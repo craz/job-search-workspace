@@ -20,8 +20,8 @@ surface.
 1. **Scoring remains a standalone service** — not part of Core or Web.
 2. **Core owns canonical domain persistence:**
    - `Vacancy`, `CandidateProfile`, `ProfileVersion`, `ResumeVersion`
-   - normalized **`Assessment`** as the durable ScoringResult store (extended in
-     R2.3.1 for provenance/current-result metadata as needed)
+   - normalized **`Assessment`** as the durable ScoringResult store (**hybrid**
+     columns + JSONB detail per ADR-006; extended in R2.3.1)
 3. **Scoring owns orchestration and private artifacts:**
    - signal calculation (future), context assembly, prompt construction
    - LLM calls via provider abstraction
@@ -36,8 +36,9 @@ surface.
 - Scoring must assemble **scoring-ready context** from Core public contracts
   (`/api/v1/candidate-context`, vacancy read, resume version content) — not from
   private `data/resume.txt` alone.
-- Assessment rows remain the audit/history anchor; **current result** selection
-  is explicit (see ADR-006), not “latest row wins” implicitly.
+- Assessment rows remain the audit/history anchor; **current result** is determined
+  by matching `scoring_identity_hash` to present material inputs (ADR-006), not a
+  mutable `is_current` flag or “latest row wins”.
 - Queue/worker model is retained for local single-user batch evolution (R2.4);
   no Kafka/Celery/RabbitMQ.
 - Detailed design: [`docs/SCORING_SERVICE.md`](../SCORING_SERVICE.md).

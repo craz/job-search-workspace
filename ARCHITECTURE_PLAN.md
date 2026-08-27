@@ -2,7 +2,7 @@
 
 **Revision:** 3  
 **Aligned with:** UJM v1 + Product Backlog + Roadmap v1  
-**Updated:** 2026-08-28 (R2.2 CLOSED; R2.3 Scoring foundation architecture)  
+**Updated:** 2026-08-28 (R2.2 CLOSED; R2.3 architecture owner review corrections)  
 **Previous revision:** 2 (R1 closed; R2.2 decomposition)
 
 Продуктовый workspace `job_search_ref` самодостаточен. Репозитории не
@@ -293,37 +293,34 @@ Scoring — **standalone service** (не часть Core, не top-level Web wor
 **Target pipeline (Roadmap v1):**
 
 ```text
-Vacancy + scoring-ready Candidate context (ResumeVersion)
-  → deterministic signals (PASS/FAIL/UNKNOWN)
-  → ContextRetriever (relevant resume slices)
-  → semantic signals / embeddings (later; not verdict)
-  → LLM score via LlmBackend (Ollama v1)
-  → structured ScoringResult → Core Assessment
+Vacancy + scoring-ready ResumeVersion + ScoringPolicy
+  → deterministic signals (PASS/FAIL/UNKNOWN; no FAIL→verdict override in v1)
+  → ContextRetriever (section-aware v1)
+  → GenerationBackend (Ollama /api/generate)
+  → relevance_score + structured explanation
+  → policy-derived verdict (apply/maybe/skip)
+  → hybrid Core Assessment (columns + JSONB detail)
 ```
 
 **Rules:**
 
-- Canonical output: **score** (0–100) + **verdict** (`apply` / `maybe` / `skip`).
-- **ScoringPolicy** versioned separately (`policy_id`, `policy_version`, `policy_hash`).
-- **Fast** vs **detailed** modes — separate templates and identity; R2.4 batch vs
-  R2.5 expand UX.
-- **Current result** identity uses `vacancy_content_hash`, resume/profile versions,
-  policy hash, model, mode (ADR-006). Vacancy content change invalidates current
-  score without noisy UI.
-- Web presents score/verdict **in Vacancy context**; user decision **separate**
-  from LLM recommendation (R2.6 / PB-04).
+- **Score** 0–100 from LLM; **verdict** derived by **ScoringPolicy thresholds**
+  (LLM verdict is diagnostic only, not canonical).
+- **ScoringPolicy** versioned (`policy_id`, `policy_version`, `policy_hash`).
+- **Current result** = matching `scoring_identity_hash` to present material inputs
+  (no primary `is_current` flag); unique successful result per identity.
+- **model_fingerprint** (not tag alone) in identity hash.
+- **Fast** async HTTP (`202 Accepted`) in R2.3.4; **detailed** in R2.5.
+- Core **`GET /api/v1/vacancies/{id}`** approved prerequisite (R2.3.2).
 
-**Implemented now (bootstrap — to be adapted in R2.3):**
+**Implemented now (bootstrap — adapt in R2.3):**
 
-- JSON file queue in `scoring-state`;
-- CLI worker reads Vacancy from Core HTTP (list-all workaround);
-- embedded resume in Ollama Modelfile (`data/`);
-- Ollama `/api/generate`; raw stored locally;
-- normalized `POST /api/v1/assessments` with `source: job-search-scoring`.
+- JSON file queue; CLI worker; list-all vacancy fetch; embedded resume in Modelfile;
+  Ollama generate; `POST /api/v1/assessments`.
+- Legacy `normalize()` — **remove after R2.3.A**, not before.
 
-**R2.3 foundation (NOT STARTED):** contracts, Core context assembly, policy,
-`LlmBackend`, minimal HTTP, idempotent current-result semantics.  
-**R2.4:** mass score + list prioritization. **R2.5:** detailed scoring UX.
+**R2.3 foundation:** hybrid Assessment, policy verdict, generation backend,
+context from Core, async fast score HTTP. **NOT STARTED.**
 
 ## 11. OSINT (R3 behavior)
 

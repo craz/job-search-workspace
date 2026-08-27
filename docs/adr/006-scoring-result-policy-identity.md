@@ -1,84 +1,165 @@
 # ADR-006: ScoringResult, ScoringPolicy versioning, and current-result identity
 
-- Status: accepted (R2.3 architecture)
+- Status: accepted (R2.3 architecture, owner review corrections 2026-08-28)
 - Date: 2026-08-28
 
 ## Context
 
 Scoring must answer: “Does this Vacancy already have a valid **current** score for
-this exact inputs?” Re-scoring must be traceable when vacancy content, resume
-snapshot, policy, model, or mode changes.
+this exact material context?” Re-scoring must be traceable when vacancy content,
+resume snapshot, policy, model fingerprint, or mode changes.
 
-Today Core `Assessment` stores normalized output but lacks explicit policy
-identity, scoring mode (fast/detailed), candidate/resume provenance, and a
-first-class **current vs historical** distinction. `prompt_version` is a loose
-string tied to embedded Modelfile names.
+Today Core `Assessment` stores normalized output but lacks explicit policy identity,
+scoring mode, resume/profile provenance, `scoring_identity_hash`, and
+`model_fingerprint`. `prompt_version` is a loose string tied to embedded Modelfile
+names. Verdict may be implied from LLM output — **not acceptable** for canonical
+product semantics.
 
 ## Decision
 
-### ScoringPolicy (logical artifact)
+### Assessment persistence (hybrid — Core)
+
+**Assessment remains the canonical Core entity** for Roadmap v1. No separate
+ScoringResult store.
+
+Use **hybrid persistence**:
+
+- **Explicit columns** for query-critical / identity-critical fields.
+- **JSONB** for structured, versioned explanation detail.
+
+Minimum columns (names may follow Core conventions):
+
+| Column | Role |
+|---|---|
+| `vacancy_id` | FK (existing) |
+| `vacancy_content_hash` | material vacancy input at score time |
+| `profile_version_id` | candidate profile version |
+| `resume_version_id` | scored resume snapshot |
+| `scoring_mode` | `fast` \| `detailed` |
+| `relevance_score` | 0–100 (existing) |
+| `verdict` | `apply` \| `maybe` \| `skip` (policy-derived) |
+| `policy_id` | human-stable policy name |
+| `policy_version` | monotonic int |
+| `policy_hash` | content-addressed policy identity |
+| `model_fingerprint` | material inference identity (see below) |
+| `scoring_identity_hash` | exact-context identity |
+| `schema_version` | Assessment detail schema version |
+| `assessed_at` | score timestamp (existing) |
+| `source`, `external_id`, `idempotency_key` | integration fields (existing) |
+
+JSONB detail (e.g. `detail` or `explanation_json`) holds evolving fields:
+
+- `reason`, `risk`, `action`
+- `strengths`, `gaps`
+- `deterministic_signals` (when present)
+- optional `provider_diagnostic` (e.g. LLM-returned verdict — **not canonical**)
+- other versioned explanation fields
+
+Legacy top-level `reason` / `risk` / `action` columns may remain during migration
+or move into JSONB in R2.3.1 — implementation chooses least-breaking path.
+
+### ScoringPolicy
 
 - **Separate** from LLM model, `CandidateProfile`, and `ResumeVersion`.
-- Identified by `policy_id` + monotonic `policy_version` (or content-addressed
-  `policy_hash`).
-- Changes to rules, prompt contract, weighting/thresholds, or verdict mapping
-  **must** change `policy_hash` even if the human-readable `policy_id` stays the
-  same.
-- Policy body is structured (JSON/YAML in repo or Scoring config dir) — not
-  buried only inside free-form prompt text.
+- `policy_id` + `policy_version` + **`policy_hash`**.
+- **`policy_hash`** is computed from **canonical serialized material policy**:
+  threshold values, scoring rules, prompt/template contract references,
+  result schema expectations, and (when added) deterministic weighting/override
+  rules. Formatting, comments, and file path **must not** change `policy_hash`
+  if semantic policy is identical.
+- Policy body is structured (JSON/YAML in Scoring config) — not buried only in
+  free-form prompt text.
 
-### ScoringResult (logical contract)
+### Canonical verdict (policy-derived, not LLM)
 
-Canonical machine fields (mapped to Core `Assessment` + extension metadata):
+The LLM produces:
 
-| Field group | Examples |
-|---|---|
-| Decision | `relevance_score` 0–100, `verdict` ∈ {apply, maybe, skip} |
-| Explanation | structured `reason`, optional `risk`, recommended `action` (bounded text) |
-| Confidence | optional 0–1 when model supplies calibrated confidence |
-| Provenance | `vacancy_id`, `vacancy_content_hash`, `profile_version_id`, `resume_version_id`, `hh_resume_external_id` |
-| Policy | `policy_id`, `policy_version`, `policy_hash` |
-| Model | `model_id`, `provider` (=ollama v1), `prompt_template_version` |
-| Mode | `fast` \| `detailed` |
-| Lifecycle | `assessed_at`, `schema_version`, `is_current` (or separate current-pointer) |
-| Errors | stable `error_code` + `recovery_kind` when scoring failed |
+- `relevance_score` (0–100)
+- structured explanation fields
 
-Free-form LLM prose is **not** the canonical store; only normalized fields pass
-validation.
-
-### Current-result identity
-
-A scoring run is **identical** (eligible for skip / idempotent no-op) when all
-material inputs match:
+**Canonical stored `verdict` is derived only by ScoringPolicy thresholds:**
 
 ```text
-identity = H(
+if relevance_score >= apply_min  → apply
+elif relevance_score >= maybe_min → maybe
+else                              → skip
+```
+
+Thresholds live in ScoringPolicy, not hardcoded in orchestration.
+
+If the provider returns its own verdict, it may be stored only under
+`provider_diagnostic` in JSONB — **never** as canonical `verdict`.
+
+**Guarantee:** same `relevance_score` + same `policy_hash` → same `verdict`.
+
+**R2.3 foundation:** deterministic signal `FAIL` does **not** override verdict.
+No hidden `FAIL → skip`. Override/weighting semantics are explicit policy v2+.
+
+**Confidence:** generic LLM self-confidence is **not** canonical in v1. May be
+parsed into `provider_diagnostic` if returned; not used for ranking or decision.
+
+### Scoring identity (exact context)
+
+```text
+scoring_identity_hash = H(
   vacancy_content_hash,
   profile_version_id,
   resume_version_id,
   policy_hash,
-  model_id,
+  model_fingerprint,
   scoring_mode
 )
 ```
 
-- Stored as `scoring_identity_hash` on Assessment (or companion table) in R2.3.1.
-- **Vacancy UUID stable + `content_hash` changed** → previous results remain
-  historical but are **not current**; vacancy is eligible for re-score (technical
-  invalidation only — no “vacancy changed” UI in R2.3).
-- Idempotent Core writes continue to use integration `idempotency_key`; scoring
-  identity is orthogonal and used for “already current?” checks.
+- `hh_resume_external_id` is **provenance only** — **not** part of identity when
+  `resume_version_id` identifies the scored content.
+- If future material versioned inputs are added, identity evolves with explicit
+  `schema_version` / ADR amendment.
 
-### Verdict semantics
+### Model fingerprint
 
-- `relevance_score`: integer **0–100** inclusive (higher = better fit).
-- `verdict`: derived by policy thresholds from score **and** optional deterministic
-  signal gates; LLM may propose verdict but policy validates/overrides mapping.
-- Threshold defaults documented in ScoringPolicy v1; adjustable per policy version.
+Do not rely on mutable model name/tag alone.
+
+```text
+model_fingerprint = H(
+  ollama_model_name_or_tag,
+  ollama_model_digest,          # when available from Ollama show/inspect
+  material_generation_config      # canonical hash of temperature, seed (if used),
+)                                 # num_predict, and other context-relevant options
+```
+
+Same tag + different digest → different fingerprint → eligible new score.
+Incidental runtime metadata is excluded from the hash.
+
+### Current result and Core idempotency
+
+**Do not use mutable `is_current=true` as the primary mechanism.**
+
+A result is **current** when its `scoring_identity_hash` equals the identity
+computed from **present** material inputs (vacancy hash, resume version, policy,
+model fingerprint, mode). Historical rows with older identities remain.
+
+**Successful-result uniqueness (Core):**
+
+- Same `scoring_identity_hash` → **at most one canonical successful Assessment**
+  (unique partial index or equivalent invariant).
+- Repeat request with identical context → **return/reuse** existing result; **do
+  not** call Ollama by default; **do not** create duplicate Assessment.
+- HTTP `Idempotency-Key` / job UUID handles **transport retry** only — orthogonal
+  to `scoring_identity_hash`.
+
+Failed jobs may retry without creating a successful duplicate.
+
+### Re-score / invalidation
+
+When material inputs change (e.g. vacancy `content_hash`, new `resume_version_id`,
+`policy_hash`, `model_fingerprint`), prior Assessments remain historical; the
+vacancy is eligible for a new score. No “vacancy changed” UI in R2.3.
 
 ## Consequences
 
-- R2.3.1 extends Core Assessment (or adds `assessment_provenance` JSONB) — migration
-  required before R2.4 UI.
-- Re-score creates new Assessment row; marking prior rows non-current is explicit.
-- Bootstrap worker `normalize()` legacy schema branch is removed after R2.3.3.
+- R2.3.1 Core migration: hybrid Assessment columns + JSONB detail + unique
+  successful `scoring_identity_hash`.
+- Scoring orchestration must compute policy verdict **after** LLM score parse.
+- Bootstrap `normalize()` legacy compatibility: **REMOVE AFTER / AS PART OF
+  POST-R2.3.A CLEANUP** — not before R2.3.A passes.

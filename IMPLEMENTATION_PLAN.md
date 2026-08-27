@@ -2,7 +2,7 @@
 
 **Revision:** 3  
 **Basis:** UJM v1 + Product Backlog + Roadmap v1 + [`ARCHITECTURE_PLAN.md`](ARCHITECTURE_PLAN.md) rev. 3  
-**Updated:** 2026-08-28 (R2.2 CLOSED; R2.3 architecture ready for owner review)  
+**Updated:** 2026-08-28 (R2.3 architecture owner review corrections)  
 **Previous revision:** 2 (R1 closed; R2.2 decomposition)
 
 Оперативный снимок: [`PROJECT_STATUS.md`](PROJECT_STATUS.md).  
@@ -108,8 +108,8 @@ R5 — offer + finish search (PB-09, PB-10, final PB-11)
   `scoring-state`, normalized Assessment → Core
 - **R2.3 foundation designed** — see [`docs/SCORING_SERVICE.md`](docs/SCORING_SERVICE.md);
   **implementation NOT STARTED**
-- **Not yet:** scoring-ready Core context assembly, ScoringPolicy versioning,
-  `LlmBackend`, HTTP product surface, current-result identity, R2.4 batch UI
+- **Not yet:** hybrid Assessment migration, scoring-ready context, `GenerationBackend`,
+  async HTTP fast score, identity-based reuse — **implementation NOT STARTED**
 
 ### OSINT
 
@@ -256,7 +256,7 @@ and supports active-resume + linkage.
 **Decomposition (R2.1):** [`docs/R2_PB01_DECOMPOSITION.md`](docs/R2_PB01_DECOMPOSITION.md).
 
 **Status:** Gate R1 **CLOSED**. R2.2 **CLOSED** (R2.2.A integrated acceptance).  
-**R2.3:** architecture / decomposition **READY FOR OWNER REVIEW** — **NOT STARTED**.
+**R2.3:** architecture — **READY FOR OWNER ACCEPTANCE**; implementation **NOT STARTED**.
 
 **User chain:**
 
@@ -276,7 +276,7 @@ local ResumeVersion (working resume content)
 |---|---|---|
 | **R2.1** | Local ResumeVersion / content snapshot of active HH resume | **COMPLETE · PUSHED** |
 | **R2.2** | SearchRun + resume_suitable acquisition + ingest/dedupe/temporal + Web primary UX | **COMPLETE · PUSHED** (evidence `R2_2_A`) |
-| **R2.3** | **SCORING_SERVICE_FOUNDATION** (PB-03) | architecture **READY FOR REVIEW**; impl **NOT STARTED** |
+| **R2.3** | **SCORING_SERVICE_FOUNDATION** (PB-03) | architecture **READY FOR ACCEPTANCE**; impl **NOT STARTED** |
 | **R2.4** | Mass score/verdict in Vacancy + list prioritization | NOT STARTED |
 | **R2.5** | Detailed scoring in Vacancy context | NOT STARTED |
 | **R2.6** | Explicit user decision (PB-04) | NOT STARTED |
@@ -303,33 +303,30 @@ schema-versioned snapshot; candidate-context shows metadata only; keep
 **Prerequisite:** R2.1 ResumeVersion + R2.2 scoring-ready Vacancy ingest — **met**.
 
 **Canonical design:** [`docs/SCORING_SERVICE.md`](docs/SCORING_SERVICE.md)  
-**ADRs:** 005 (boundary), 006 (policy/result identity), 007 (LlmBackend/Ollama)
+**ADRs:** 005 (boundary), 006 (hybrid Assessment, policy verdict, identity), 007
+(GenerationBackend; EmbeddingBackend future)
 
-**Foundation scope (minimal):**
+**Foundation scope:**
 
 ```text
-Vacancy + scoring-ready ResumeVersion + ScoringPolicy
-  → LlmBackend (Ollama)
-  → structured ScoringResult
-  → Core Assessment (with provenance / current-result identity)
+Vacancy + ResumeVersion + ScoringPolicy
+  → GenerationBackend (Ollama)
+  → policy-derived verdict + hybrid Core Assessment
 ```
 
-**Implementation slices (do not start until owner accepts architecture):**
+**Implementation slices:**
 
 | Slice | Focus |
 |---|---|
-| **R2.3.1** | Canonical contracts: ScoringPolicy, ScoringResult schema, `scoring_identity_hash`, Core Assessment provenance extension (migration) |
-| **R2.3.2** | Scoring-ready context assembly: Core GET vacancy-by-id, resume content read; retire private `data/resume.txt` as sole source |
-| **R2.3.3** | `LlmBackend` protocol + `OllamaBackend` (`/api/generate`; embed interface stub) |
-| **R2.3.4** | Single-vacancy **fast** scoring E2E: minimal HTTP + worker path + Core write |
-| **R2.3.5** | Job lifecycle hardening: current-result skip, re-score on `content_hash` change, observability |
-| **R2.3.A** | Integrated foundation acceptance (live + tests) |
+| **R2.3.1** | Hybrid Core Assessment extension + ScoringPolicy/identity contracts; unique successful `scoring_identity_hash` |
+| **R2.3.2** | Core `GET /vacancies/{id}` + scoring-ready context from `ResumeVersion` |
+| **R2.3.3** | `GenerationBackend` + Ollama generation (**no mandatory embeddings**) |
+| **R2.3.4** | Single-vacancy **fast** E2E + **async** HTTP (`202 Accepted`) |
+| **R2.3.5** | Job hardening, identity reuse/skip, stale-on-input-change, bounded raw retention |
+| **R2.3.A** | Integrated foundation acceptance |
 
-**Later (not R2.3):** deterministic signals implementation, embeddings retrieval,
-batch enqueue (R2.4), detailed mode UX (R2.5).
-
-**Canonical output:** score 0–100 + verdict (`apply` / `maybe` / `skip`). Bootstrap
-worker is **adaptation baseline**, not target architecture.
+**Later:** deterministic signal implementation, embeddings, batch (R2.4), detailed
+(R2.5). Bootstrap `normalize()` — **remove after R2.3.A only**.
 
 ### Gate R2
 
@@ -447,10 +444,8 @@ Execute in parallel only if it does not block R1.
 ## Current next step
 
 **R2.2 CLOSED · PUSHED.**  
-**R2.3 architecture / decomposition — READY FOR OWNER REVIEW.**  
-**R2.3 implementation — NOT STARTED** (wait for owner ACCEPT on architecture).
-
-Do not start R2.3.1 until owner accepts R2.3 design.
+**R2.3 architecture — READY FOR OWNER ACCEPTANCE.**  
+**R2.3 implementation — NOT STARTED.**
 
 
 Оперативный снимок и HEAD SHA: [`PROJECT_STATUS.md`](PROJECT_STATUS.md).

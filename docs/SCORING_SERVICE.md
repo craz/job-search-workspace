@@ -1,6 +1,6 @@
 # Scoring service — canonical design (R2.3 foundation)
 
-**Status:** architecture / decomposition (R2.3) — **implementation NOT STARTED**  
+**Status:** architecture / decomposition — **READY FOR OWNER ACCEPTANCE** (impl NOT STARTED)  
 **Aligned with:** Google Doc *Job Search* → PB-03, Roadmap R2, R2 tab  
 **ADRs:** [005](adr/005-scoring-service-boundary-and-ownership.md), [006](adr/006-scoring-result-policy-identity.md), [007](adr/007-llm-provider-boundary-ollama.md)
 
@@ -9,12 +9,12 @@
 ## 1. Purpose
 
 Score **Vacancies** against the operator’s **scoring-ready candidate context**
-using local LLM inference, producing a structured **ScoringResult** persisted in
-Core as **Assessment**.
+using local LLM inference, producing a structured result persisted in Core as
+**Assessment** (canonical ScoringResult for Roadmap v1).
 
 R2.3 establishes contracts, ownership, policy identity, provider boundary, and
-single-vacancy fast scoring E2E. R2.4 adds mass batch + list prioritization UI.
-R2.5 adds detailed scoring UX in Vacancy expand.
+single-vacancy **fast** scoring E2E (async HTTP). R2.4 adds mass batch + list
+prioritization UI. R2.5 adds **detailed** scoring UX in Vacancy expand.
 
 ---
 
@@ -22,39 +22,31 @@ R2.5 adds detailed scoring UX in Vacancy expand.
 
 ### In scope (R2.3 foundation)
 
-- Architecture, contracts, policy/result identity, idempotency rules
-- `LlmBackend` + Ollama implementation design
-- Context assembly from Core (`ResumeVersion` content — not identifier-only)
-- Reuse/adapt JSON file queue + worker where sound
-- Minimal HTTP product surface for score-one / job status
-- Extension plan for Core `Assessment` provenance fields
+- Hybrid Core `Assessment` extension (ADR-006)
+- Policy-derived verdict; `scoring_identity_hash` uniqueness
+- `GenerationBackend` + Ollama generation (R2.3.3)
+- Context assembly from Core `ResumeVersion`
+- Core `GET /api/v1/vacancies/{id}` (approved R2.3.2 prerequisite)
+- Async `POST /api/v1/score/fast` (202 Accepted)
+- Queue/worker reuse where sound
 
-### Out of scope (later slices)
+### Out of scope
 
 | Area | Slice |
 |---|---|
-| Vacancy list ranking UI, batch enqueue UX | R2.4 |
-| Detailed scoring expand UX | R2.5 |
-| User decision (PB-04) | R2.6 |
-| Auto-apply, HH writes | — |
-| OSINT | R3 |
-| Embeddings implementation, vector DB | R2.4+ signals (interface only in R2.3) |
-| Cloud LLMs, fine-tuning | — |
+| Batch enqueue + list ranking UI | R2.4 |
+| Detailed scoring HTTP implementation | R2.5 (contract may be documented) |
+| `EmbeddingBackend` implementation | R2.4+ |
+| Deterministic FAIL → verdict override | policy v2+ |
+| LLM self-confidence as product signal | not v1 |
+| Vector DB | — |
 
 ---
 
 ## 3. Product role in UJM
 
-UJM stage 4 — **AI-оценка и приоритизация**:
-
-```text
-Active HH resume → suitable vacancies ingested (R2.2)
-  → Scoring evaluates each Vacancy vs ResumeVersion
-  → score + verdict in Vacancy row (R2.4)
-  → operator reviews details / decides (R2.5–R2.6)
-```
-
-Scoring is **not** a top-level Web workspace. Results are **contextual to Vacancy**.
+UJM stage 4 — AI-оценка и приоритизация. Scoring is **contextual to Vacancy**,
+not a top-level workspace.
 
 ---
 
@@ -62,140 +54,113 @@ Scoring is **not** a top-level Web workspace. Results are **contextual to Vacanc
 
 | Input | Source | Required |
 |---|---|---|
-| `vacancy_id` | Core | yes |
-| Vacancy canonical fields + `content_hash` | Core `Vacancy` | yes |
-| `profile_version_id` | Core candidate context | yes |
-| `resume_version_id` | Core `ResumeVersion` snapshot | yes |
-| `hh_resume_external_id` | Core `ActiveHhResumeLink` | yes (provenance) |
-| `ScoringPolicy` | Scoring config (versioned) | yes |
-| `scoring_mode` | `fast` \| `detailed` | yes |
-| Deterministic signal config | ScoringPolicy | optional v1 |
-
-**Not sufficient:** R1.5 identifier-only `ProfileVersion` without `ResumeVersion`
-body (R2.1 resolved this).
+| `vacancy_id` + `content_hash` | Core `GET /vacancies/{id}` | yes |
+| `profile_version_id` | candidate context | yes |
+| `resume_version_id` | Core `ResumeVersion` | yes |
+| `hh_resume_external_id` | provenance only (not in identity hash) | yes |
+| `ScoringPolicy` | Scoring config | yes |
+| `scoring_mode` | `fast` \| `detailed` | yes (`fast` in R2.3.4) |
 
 ---
 
 ## 5. Candidate context
 
-**Scoring-ready context** =
+Assembly (R2.3.2):
 
-```text
-CandidateProfile
-  → ProfileVersion (label, id)
-  → ActiveHhResumeLink (external_id, title, status)
-  → ResumeVersion (schema_version, content JSONB, content_hash, captured_at)
-```
-
-Assembly:
-
-1. `GET /api/v1/candidate-context` (existing Web/Core contract)
-2. `GET /api/v1/resume-versions/{id}` or embedded content endpoint (R2.3.2 —
-   add Core read if missing)
-3. `GET /api/v1/vacancies/{id}` (R2.3.2 — add Core read-by-id; today Scoring
-   list-filters client-side — **ADAPT**)
-
-`ContextRetriever` (§10) selects **relevant slices** of resume content for the
-vacancy; v1 may pass summary + top sections; must not assume full dump forever.
+1. `GET /api/v1/candidate-context`
+2. `GET /api/v1/resume-versions/{id}` (or equivalent content read)
+3. **`GET /api/v1/vacancies/{id}`** — **approved**; Scoring must **not** list-all
+   and filter client-side.
 
 ---
 
 ## 6. ScoringPolicy
 
-Logical versioned artifact:
-
 ```json
 {
   "policy_id": "default-v1",
   "policy_version": 1,
-  "policy_hash": "<sha256 of canonical policy body>",
-  "mode_configs": {
-    "fast": { "max_tokens": 400, "template": "fast-v1" },
-    "detailed": { "max_tokens": 1200, "template": "detailed-v1" }
-  },
+  "policy_hash": "<sha256 canonical material policy>",
   "verdict_thresholds": { "apply_min": 75, "maybe_min": 50 },
-  "deterministic_signals": { "enabled": ["salary", "location", "experience"] }
+  "mode_configs": {
+    "fast": { "template": "fast-v1", "max_tokens": 400 }
+  },
+  "deterministic_signals": { "enabled": [] }
 }
 ```
 
-- **policy_hash** changes when rules/thresholds/templates change — independent of
-  Ollama model tag.
-- `prompt_template_version` references structured templates on disk, not inline
-  prose in policy file.
+### policy_hash semantics
+
+`policy_hash` covers **all material policy behavior**:
+
+- threshold values (`apply_min`, `maybe_min`, …)
+- scoring rules and mode configs
+- prompt/template contract references
+- result schema expectations
+- deterministic weighting/override rules **when they exist**
+
+Computed from **canonical serialized policy** (stable key order). Comments,
+formatting, and file path **must not** change the hash if semantics are identical.
 
 ---
 
 ## 7. Fast vs detailed
 
-| Mode | Use | Prompt depth | When |
-|---|---|---|---|
-| **fast** | Rank many vacancies cheaply | Short reason, compact fields | R2.4 batch, default queue |
-| **detailed** | Operator opened one Vacancy | Richer explanation, risks, gaps | R2.5 on-demand |
+| Mode | R2 slice | Notes |
+|---|---|---|
+| **fast** | R2.3.4 + R2.4 batch | async HTTP in foundation |
+| **detailed** | R2.5 | contract documented; impl deferred |
 
-Separate templates and `scoring_mode` in identity hash. **Do not** merge into one
-mega-prompt/API.
+Separate templates; separate `scoring_mode` in identity hash.
 
 ---
 
 ## 8. Deterministic signals
 
-Pre-LLM **signals** (extensible):
+Per signal: `PASS` | `FAIL` | `UNKNOWN`. Missing data → **UNKNOWN**.
 
-| Signal | Example output |
-|---|---|
-| salary compatibility | PASS / FAIL / UNKNOWN |
-| location / work format | PASS / FAIL / UNKNOWN |
-| experience mismatch | PASS / FAIL / UNKNOWN |
-| required skills presence | PASS / FAIL / UNKNOWN |
-| role title mismatch | PASS / FAIL / UNKNOWN |
+**R2.3 foundation:** signals may inform LLM context and be stored in JSONB detail.
+**FAIL does not override canonical verdict.** No hidden `FAIL → skip` in policy v1.
 
-Contract per signal:
+---
 
-```json
-{ "signal": "salary", "result": "UNKNOWN", "detail": "vacancy has no salary" }
+## 9. Embeddings (future)
+
+- Semantic signal / retrieval — **not** verdict.
+- **`EmbeddingBackend`** (future) → Ollama `POST /api/embed`.
+- **Not implemented in R2.3.3**; must not block foundation.
+- No vector DB in R2.3.
+
+---
+
+## 10. ContextRetriever v1
+
+**No arbitrary raw character/token truncation as the primary strategy.**
+
+```text
+if normalized ResumeVersion fits context budget:
+  → use scoring-relevant normalized snapshot in full
+else:
+  → deterministic section-aware selection
 ```
 
-Rules:
-
-- **UNKNOWN** when data missing — never silent `FAIL`.
-- Signals inform LLM context and may **bound** verdict; no hard auto-skip in R2.3
-  unless policy explicitly maps FAIL+confidence (deferred).
+Prefer sections: summary/profile, relevant experience, skills, education when
+relevant, scoring-relevant preferences. Extensible for embedding retrieval later.
 
 ---
 
-## 9. Embeddings semantics
-
-- **Semantic signal**, not verdict.
-- `LlmBackend.embed()` → vectors for vacancy text and resume sections.
-- Similarity supports retrieval ranking — **not** stored as final score.
-- Storage: in-memory or PostgreSQL-compatible later; **no vector DB** in R2.3.
-- `/api/embed` architected; implementation optional in first foundation slice.
-
----
-
-## 10. ContextRetriever
-
-```python
-class ContextRetriever(Protocol):
-    def select(self, *, vacancy: VacancyRead, resume: ResumeVersionRead, mode: ScoringMode) -> CandidateContextSlice: ...
-```
-
-v1: truncate + section allowlist from `ResumeVersion.content`.  
-Later: embedding-based section pick, keyword overlap, deterministic signal hints.
-
----
-
-## 11. LLM / provider boundary
+## 11. Provider boundary
 
 See ADR-007.
 
 ```text
 ScoringOrchestrator
-  → DeterministicSignalEngine (optional)
+  → DeterministicSignalEngine (optional, v1+)
   → ContextRetriever
-  → PromptBuilder(policy, mode)
-  → LlmBackend.generate_structured()
-  → ScoringResultValidator
+  → PromptBuilder(policy, mode)          # prompt built in memory; not durably stored
+  → GenerationBackend.generate_structured()
+  → parse relevance_score + explanation
+  → PolicyVerdictDeriver(thresholds)     # canonical verdict
   → Core Assessment write
 ```
 
@@ -203,196 +168,213 @@ ScoringOrchestrator
 
 ## 12. Ollama implementation
 
-| API | Use |
-|---|---|
-| `POST /api/generate` | fast + detailed structured JSON |
-| `POST /api/embed` | future semantic retrieval |
+| Capability | API | R2.3 |
+|---|---|---|
+| Generation | `POST /api/generate` | **required** (R2.3.3) |
+| Embeddings | `POST /api/embed` | documented only |
 
-- Host: `127.0.0.1:11434` via Scoring **host network** (compose).
-- Modelfile build/verify CLI **retained** but resume moves from static `data/` to
-  Core-sourced context in prompts (ADAPT `models.py`).
-- Default model: operator-configured (`JOB_SEARCH_SCORING_MODEL`).
+`model_fingerprint` uses model tag + digest (when available) + material generation
+config hash (temperature, seed if used, num_predict, …).
 
 ---
 
-## 13. ScoringResult schema
+## 13. Assessment hybrid schema (Core — R2.3.1)
 
-`schema_version`: **1**
+**Assessment is the canonical store.** Hybrid persistence:
+
+### Explicit columns (query / identity)
+
+| Column | Type / notes |
+|---|---|
+| `id` | UUID PK |
+| `vacancy_id` | FK |
+| `vacancy_content_hash` | string(64) |
+| `profile_version_id` | UUID |
+| `resume_version_id` | UUID |
+| `scoring_mode` | enum `fast` \| `detailed` |
+| `relevance_score` | int 0–100 |
+| `verdict` | enum `apply` \| `maybe` \| `skip` (**policy-derived**) |
+| `policy_id` | string |
+| `policy_version` | int |
+| `policy_hash` | string(64) |
+| `model_fingerprint` | string(64) |
+| `scoring_identity_hash` | string(64), **unique among successful results** |
+| `schema_version` | int |
+| `assessed_at` | timestamptz |
+| `source`, `external_id`, `idempotency_key` | integration (existing) |
+| `model` | display name optional (human-readable; fingerprint is identity) |
+
+### JSONB detail (evolving explanation)
+
+Column e.g. `detail` (name TBD in migration):
 
 ```json
 {
-  "schema_version": 1,
-  "relevance_score": 72,
-  "verdict": "maybe",
   "reason": "…",
   "risk": "…",
-  "action": "Review risks manually",
-  "confidence": 0.81,
-  "structured": {
-    "strengths": ["…"],
-    "gaps": ["…"],
-    "deterministic_signals": []
-  },
-  "provenance": {
-    "vacancy_id": "…",
-    "vacancy_content_hash": "…",
-    "profile_version_id": "…",
-    "resume_version_id": "…",
-    "hh_resume_external_id": "…"
-  },
-  "policy": {
-    "policy_id": "default-v1",
-    "policy_version": 1,
-    "policy_hash": "…"
-  },
-  "model": {
-    "provider": "ollama",
-    "model_id": "job-search-scorer-summary:latest"
-  },
-  "mode": "fast",
-  "assessed_at": "2026-08-28T00:00:00Z",
-  "scoring_identity_hash": "…"
+  "action": "…",
+  "strengths": ["…"],
+  "gaps": ["…"],
+  "deterministic_signals": [
+    { "signal": "salary", "result": "UNKNOWN", "detail": "…" }
+  ],
+  "provider_diagnostic": {
+    "llm_verdict": "maybe",
+    "raw_score_notes": "…"
+  }
 }
 ```
 
-Mapped to Core `AssessmentCreate` + extension columns for provenance / `is_current`.
+**Not in canonical v1:** `confidence` as product field.
+
+### Canonical verdict algorithm
+
+After LLM returns `relevance_score` (0–100):
+
+```text
+if score >= policy.verdict_thresholds.apply_min:
+    verdict = apply
+elif score >= policy.verdict_thresholds.maybe_min:
+    verdict = maybe
+else:
+    verdict = skip
+```
+
+LLM-returned verdict (if any) → `provider_diagnostic` only.
 
 ---
 
-## 14. Persistence ownership
+## 14. Scoring identity and model fingerprint
+
+```text
+scoring_identity_hash = SHA256_canonical(
+  vacancy_content_hash,
+  profile_version_id,
+  resume_version_id,
+  policy_hash,
+  model_fingerprint,
+  scoring_mode
+)
+
+model_fingerprint = SHA256_canonical(
+  ollama_model_name_or_tag,
+  ollama_model_digest | "",
+  material_generation_config_hash
+)
+```
+
+`hh_resume_external_id` — provenance column or JSONB only; **excluded** from identity.
+
+### Current result (no `is_current` flag)
+
+Result is **current** iff `scoring_identity_hash` equals identity computed from
+**present** material inputs. Historical Assessments with other hashes remain.
+
+### Successful-result uniqueness
+
+```text
+UNIQUE (scoring_identity_hash) WHERE status = success  -- conceptual; exact DDL in R2.3.1
+```
+
+Same identity + repeat request → reuse existing Assessment; skip Ollama by default.
+Job `Idempotency-Key` ≠ identity (transport retry only).
+
+---
+
+## 15. Persistence ownership
 
 | Artifact | Owner |
 |---|---|
-| Assessment / ScoringResult (normalized) | **Core** PostgreSQL |
-| Queue jobs, leases, raw LLM JSON | **Scoring** `scoring-state` volume |
-| ScoringPolicy files | **Scoring** repo config (versioned in git) |
-| Resume body | **Core** `ResumeVersion` (not Scoring `data/`) |
+| Assessment (structured result) | **Core** |
+| Queue, bounded raw diagnostics | **Scoring** `scoring-state` |
+| ScoringPolicy files | **Scoring** repo config |
+| Resume body | **Core** `ResumeVersion` |
+
+Scoring local state is **not** a second canonical resume store.
 
 ---
 
-## 15. Idempotency / current-result identity
+## 16. Raw LLM / prompt retention
 
-See ADR-006.
-
-Before enqueue/score:
-
-1. Load vacancy `content_hash` + context version ids + active `policy_hash` + mode.
-2. Compute `scoring_identity_hash`.
-3. If Core reports matching **current** Assessment → return cached (no Ollama).
-
-Core write:
-
-- `Idempotency-Key`: job UUID (retry-safe)
-- `scoring_identity_hash`: logical dedupe across runs
-
----
-
-## 16. Re-score / invalidation
-
-| Event | Behavior |
+| Case | Retention |
 |---|---|
-| Same identity | Skip (idempotent) |
-| Vacancy `content_hash` changed | prior Assessment → `is_current=false`; eligible re-score |
-| New `ResumeVersion` for active resume | re-score eligible |
-| `policy_hash` changed | re-score eligible |
-| Model change (material) | re-score eligible |
+| **Success** | Structured result + execution metadata in Core; **full prompt not** retained as durable product data |
+| **Failed** (`invalid_model_json`, etc.) | Bounded raw response **excerpt** in `scoring-state/raw/` for debugging |
+| **Resume content** | Never duplicated into permanent Scoring state |
+| **Secrets** | Never in raw diagnostics |
 
-No Web badge “vacancy changed” in R2.3 — technical only.
+Bounded policy (R2.3.5 implements cleanup): max size per raw file, TTL or ring
+buffer for failed-job artifacts. Exact limits in implementation.
 
 ---
 
 ## 17. Execution / job lifecycle
 
-**Reuse** `QueueStore` + `scheduler.run` (KEEP):
-
-| Status | Meaning |
-|---|---|
-| `pending` | queued |
-| `running` | worker lease held |
-| `done` | Assessment written |
-| `failed` | terminal error |
-| `cancelled` | operator cancelled pending |
-
-Job record extensions (R2.3.5):
-
-```json
-{
-  "vacancy_id": "…",
-  "mode": "fast",
-  "policy_hash": "…",
-  "scoring_identity_hash": "…",
-  "resume_version_id": "…"
-}
-```
-
-Lease recovery, retry backoff — **existing behavior retained**.
+Reuse `QueueStore` + scheduler. Job record includes `vacancy_id`, `mode`,
+`policy_hash`, `scoring_identity_hash`, `resume_version_id`.
 
 ---
 
-## 18. HTTP contract (target)
+## 18. HTTP contract
 
-Version prefix: `/api/v1` (Scoring service — new in R2.3.4).
+### `POST /api/v1/score/fast` — **async by default**
 
-| Method | Path | Purpose |
+**Request:** `{ "vacancy_id": "…" }`
+
+**Response:** `202 Accepted`
+
+```json
+{
+  "job_id": "…",
+  "status": "pending",
+  "links": {
+    "job": "/api/v1/jobs/{id}",
+    "result": "/api/v1/jobs/{id}/result"
+  }
+}
+```
+
+Product HTTP **must not** block on Ollama completion. CLI may offer `--wait` for
+diagnostics.
+
+| Method | Path | R2.3 |
 |---|---|---|
-| GET | `/health/ready` | process + Ollama reachability + Core reachability |
-| POST | `/api/v1/score/fast` | `{ "vacancy_id": "…" }` → enqueue or sync score |
-| POST | `/api/v1/score/detailed` | same, `mode=detailed` |
-| GET | `/api/v1/jobs/{id}` | status + metadata |
-| GET | `/api/v1/jobs/{id}/result` | ScoringResult summary |
-| POST | `/api/v1/jobs/{id}/retry` | re-queue failed job |
-
-CLI (`job-search-scoring`) remains for operator diagnostics and scheduler `run`.
-
-Web will proxy Scoring HTTP in R2.4 (same pattern as HH/OSINT).
+| GET | `/health/ready` | yes |
+| POST | `/api/v1/score/fast` | yes (async) |
+| GET | `/api/v1/jobs/{id}` | yes |
+| GET | `/api/v1/jobs/{id}/result` | yes |
+| POST | `/api/v1/jobs/{id}/retry` | yes |
+| POST | `/api/v1/score/detailed` | documented; **R2.5 impl** |
 
 ---
 
 ## 19. Recovery / errors
 
-| code | recovery.kind | Meaning |
-|---|---|---|
-| `ollama_unavailable` | `provider_unavailable` | host Ollama down |
-| `invalid_model_json` | `provider_response_invalid` | non-JSON / schema fail |
-| `vacancy_not_found` | `input_missing` | Core 404 |
-| `context_not_ready` | `context_incomplete` | no ResumeVersion / stale link |
-| `policy_invalid` | `configuration_error` | bad policy file |
-| `core_write_failed` | `downstream_unavailable` | retryable if 5xx |
-
-Never classify local misconfiguration as “HH outage” pattern (learned from R2.2.5
-egress hardening).
+Stable codes: `ollama_unavailable`, `invalid_model_json`, `vacancy_not_found`,
+`context_not_ready`, `policy_invalid`, `core_write_failed`, `identity_already_scored`.
 
 ---
 
 ## 20. Observability
 
-Job + structured logs (no enterprise tracing):
-
-- vacancy_id, mode, policy_hash, model_id
-- resume_version_id, vacancy_content_hash
-- duration_ms, attempt, error_code
-- outcome: skipped_idempotent | scored | failed
-
-`/health/ready` returns `{ ollama: ok|degraded, core: ok|degraded }`.
+Log: `vacancy_id`, `scoring_identity_hash`, `policy_hash`, `model_fingerprint`,
+`duration_ms`, outcome `reused` \| `scored` \| `failed`.
 
 ---
 
-## 21. Security / privacy / local-first
+## 21. Security / privacy
 
-- Single-user trusted local operator; loopback exposure only.
-- Resume content flows Core → Scoring in memory; not logged verbatim.
-- Raw LLM responses in `scoring-state/raw/` — private volume, not in git.
-- No resume/contacts in prompts from unvalidated sources.
+Resume in memory only during job; no verbatim resume in durable Scoring logs.
 
 ---
 
 ## 22. Evolution path
 
 ```text
-R2.3  foundation: contracts, policy, Ollama backend, context from Core, 1-vacancy fast E2E
-R2.4  batch enqueue, list prioritization, deterministic signals v1, optional embed retrieval
-R2.5  detailed mode UX in Vacancy expand
-R2.6  user decision separate from verdict
+R2.3  foundation (fast async, hybrid Assessment, policy verdict)
+R2.4  batch + list priority + signals/embeddings optional
+R2.5  detailed mode
+R2.6  user decision
 ```
 
 ---
@@ -401,32 +383,22 @@ R2.6  user decision separate from verdict
 
 | Topic | Defer to |
 |---|---|
-| Assessment table shape vs JSONB provenance blob | R2.3.1 implementation |
-| Sync vs async default for `POST /score/fast` | R2.3.4 |
-| Batch enqueue API shape | R2.4 |
-| Verdict override when deterministic FAIL | policy v2 |
-| Web proxy auth for Scoring | R2.4 (trusted local, same as Core) |
-| Remove bootstrap `data/resume.txt` path | R2.3.2 after Core context wired |
-| GET `/api/v1/vacancies/{id}` in Core | R2.3.2 |
+| JSONB column name / legacy column migration | R2.3.1 |
+| Exact raw retention byte limits + cleanup job | R2.3.5 |
+| Deterministic FAIL → verdict override | policy v2 |
+| Calibrated confidence signal | future schema |
+| Batch enqueue API | R2.4 |
+| `normalize()` legacy removal | **POST-R2.3.A cleanup** |
 
 ---
 
-## Appendix A — Current inventory (2026-08-28)
+## Appendix A — Inventory summary
 
-| Component | Verdict | Notes |
-|---|---|---|
-| CLI + JSON envelope | **KEEP** | `cli.py` |
-| `work_once` pipeline | **ADAPT** | wire context + policy + identity |
-| `QueueStore` + scheduler | **KEEP** | `queue.py`, `scheduler.py` |
-| `CoreClient` list-all | **ADAPT** | needs GET-by-id |
-| `build_vacancy_message` field names | **ADAPT** | align `VacancyRead` |
-| `OllamaClient` | **ADAPT** → `OllamaBackend` | ADR-007 |
-| Modelfile resume embed | **ADAPT** | move to Core-sourced context |
-| `normalize()` dual schema | **REMOVE LATER** | after unified ScoringResult |
-| Static capabilities doc | **REMOVE LATER** | stale scaffold text |
-| `safe-scaffold.md` | **REMOVE LATER** | superseded |
-| No HTTP API | **ADAPT** | add minimal `/api/v1` in R2.3.4 |
-| No batch enqueue | **ADAPT** | R2.4 |
-
-Tests today: unit (worker, queue, scheduler, clients, models), contract CLI,
-integration queue persistence, BDD pipeline features.
+| Component | Verdict |
+|---|---|
+| CLI + queue + scheduler | **KEEP** |
+| `work_once` | **ADAPT** |
+| `CoreClient` list-all | **ADAPT** → GET-by-id (R2.3.2) |
+| `OllamaClient` | **ADAPT** → `OllamaGenerationBackend` |
+| `normalize()` legacy | **REMOVE AFTER R2.3.A** |
+| Modelfile `data/resume.txt` sole source | **ADAPT** → Core ResumeVersion |
