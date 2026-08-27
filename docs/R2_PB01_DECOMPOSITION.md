@@ -1,8 +1,9 @@
 # R2.1 / PB-01 slice — local ResumeVersion (decomposition)
 
 **Status:** R2.1 DECOMPOSITION **OWNER ACCEPTED** (2026-08-27);  
-**R2.1.1:** **READY FOR OWNER ACCEPTANCE** (Core ResumeVersion storage)  
-**Production R2.1.2+:** **NOT STARTED**  
+**R2.1.1:** **OWNER ACCEPTED · COMPLETE · PUSHED** (Core ResumeVersion storage)  
+**R2.1.2:** **READY FOR OWNER ACCEPTANCE** (HH read-only resume detail extract)  
+**R2.1.3+:** **NOT STARTED**  
 **Gate R1:** **CLOSED**  
 **Canonical product SoT:** Google Drive doc **Job Search** (tabs Product Backlog, Roadmap, R2)
 
@@ -297,13 +298,13 @@ Scenario: Return to previously synced resume without HH fetch
 
 | Slice | Product meaning | Status |
 |---|---|---|
-| **R2.1.1** | Core stores immutable ResumeVersion | **READY FOR OWNER ACCEPTANCE** |
-| **R2.1.2** | HH read-only extracts resume content | **NOT STARTED** |
+| **R2.1.1** | Core stores immutable ResumeVersion | **OWNER ACCEPTED · COMPLETE · PUSHED** |
+| **R2.1.2** | HH read-only extracts resume content | **READY FOR OWNER ACCEPTANCE** |
 | **R2.1.3** | First end-to-end manual sync | **NOT STARTED** |
 | **R2.1.4** | Version / dedup behaviour | **NOT STARTED** |
 | **R2.1.5** | Human-readable Web state | **NOT STARTED** |
 
-Do **not** start R2.1.2 until owner ACCEPTs R2.1.1.
+Do **not** start R2.1.3 until owner ACCEPTs R2.1.2.
 
 ---
 
