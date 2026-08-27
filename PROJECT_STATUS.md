@@ -21,7 +21,7 @@
 | OSINT | в основном готово |
 | HH read-path | R1.1–R1.6 **COMPLETE · PUSHED** |
 | **R1 / PB-00** | **COMPLETE · Gate R1 CLOSED** (OWNER ACCEPTED 2026-08-27) |
-| **R2** | **R2.1 COMPLETE · OWNER ACCEPTED · PUSHED**; **R2.2 DECOMPOSITION READY FOR OWNER REVIEW**; production R2.2 **NOT STARTED**; R2.3+ **NOT STARTED** |
+| **R2** | **R2.1 COMPLETE · OWNER ACCEPTED · PUSHED**; **R2.2 DECOMPOSITION READY FOR OWNER ACCEPTANCE**; production R2.2 **NOT STARTED**; R2.3+ **NOT STARTED** |
 | Content / Telegram §8 | не начат |
 | **PB-DATA-00** | **COMPLETE — Gate CLOSED** |
 | **R0** | **CLOSED — Gate R0 ACCEPTED WITH NON-BLOCKING DEBT** |
@@ -32,6 +32,7 @@ R2.2 decomposition: [`docs/R2_2_DECOMPOSITION.md`](docs/R2_2_DECOMPOSITION.md).
 ## Решение по «го» / blockers
 
 - R2.1 closed and pushed.
-- **«Го»** = OWNER REVIEW / ACCEPT декомпозиции R2.2 (или замечания).
-- Критический probe: live `GET /vacancies` → **403** через рабочий egress (см. decomposition §5/§19).
-- Production implementation R2.2 и R2.3 — **не** начинать до ACCEPT декомпозиции и ответов на open decisions.
+- **«Го»** = `ACCEPT` декомпозиции R2.2 (или замечания).
+- Live `GET /vacancies` → **403** (scaffold ≠ capability); browser vacancy search
+  не авто-разрешён.
+- Production R2.2 / R2.3 — **не** начинать до OWNER ACCEPTED декомпозиции.

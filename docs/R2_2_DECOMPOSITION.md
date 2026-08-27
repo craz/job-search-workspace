@@ -1,21 +1,33 @@
-# R2.2 — Search context + HH vacancy ingestion / normalization / dedupe
+# R2.2 — SearchProfile + HH vacancy ingestion / normalization / dedupe
 
-**Status:** **READY FOR OWNER REVIEW** (analysis + decomposition only)  
+**Status:** **READY FOR OWNER ACCEPTANCE** (docs-only; owner decisions incorporated)  
 **Production implementation:** **NOT STARTED**  
 **R2.1:** **COMPLETE · OWNER ACCEPTED · PUSHED**  
 **R2.3:** **NOT STARTED**
 
 **Canonical SoT:** Google Drive **Job Search** (Product Backlog, Roadmap, R2).  
-**Evidence date:** 2026-08-27.
+**Evidence / decision date:** 2026-08-27.
 
-This document proposes R2.2 product/tech decomposition. It does **not**
-authorize production code, migrations, or API changes.
+This document is the accepted-shape decomposition for R2.2 after owner review
+inputs. It does **not** authorize production code, migrations, or API changes
+until **OWNER ACCEPTED**.
+
+---
+
+## 0. Status correction
+
+```text
+R2.1 = COMPLETE · OWNER ACCEPTED · PUSHED
+R2.2 decomposition = READY FOR OWNER ACCEPTANCE
+R2.2 production = NOT STARTED
+R2.3 = NOT STARTED
+```
 
 ---
 
 ## 1. Product goal
 
-After R2.1 the product already has:
+After R2.1:
 
 ```text
 active HH account/session
@@ -23,457 +35,450 @@ active HH account/session
   + local immutable ResumeVersion
 ```
 
-R2.2 removes manual copy-paste of vacancies:
+R2.2:
 
 ```text
-search context
+minimal SearchProfile
+  → SearchRun (immutable criteria snapshot)
   → HeadHunter vacancy discovery
-  → read / normalize
-  → Core import
-  → dedupe / update
-  → понятный набор new / known / updated
+  → normalize
+  → Core upsert (source + external_id)
+  → created / updated / unchanged
+  → observable result in «Вакансии»
 ```
 
-**R2.2 does not score vacancies.** Scoring starts in **R2.3**.
+**R2.2 does not score vacancies.** Scoring = **R2.3**.
 
-Mapped PBIs: primarily **PB-02**; search-context slice of **PB-01** only as far
-as needed for filters (not full SearchProfile productization). Explicitly
-**not** PB-FUTURE-01 (resume-derived HH search).
-
----
-
-## 2. Conflicts / SoT notes
-
-| Topic | Google Doc | Repo | Resolution for this review |
-|---|---|---|---|
-| R2.1.A docs push | R2 tab (as of read): evidence `5df713c` **не PUSHED** | Workspace `5df713c` **pushed** to `origin/main` after OWNER ACCEPT | **Repo/runtime newer** — update Google Doc R2 status when convenient |
-| PB-02 coverage | «HH пока не выполняет реальное чтение» / live ingestion gap | Scaffold `vacancies sync` + normalize + Core idempotent create; live `GET /vacancies` **403** today | **Aligned on gap**: scaffold ≠ product flow |
-| ARCHITECTURE / HH README | «vacancy sync implemented» | True as **bootstrap CLI/path**, not live product acceptance | Treat as **ADAPT**, not COMPLETE R2.2 |
-| SearchProfile | PB-01 still open for full SearchProfile | No SearchProfile model/code; R2.1 deferred it | See open decisions §19 |
-
-No silent choice where Google Doc and repo conflict on product meaning.
+Mapped PBIs: **PB-02** + minimal **PB-01 SearchProfile** criteria only.  
+**Not** PB-FUTURE-01 (resume-derived HH search).
 
 ---
 
-## 3. Two contexts (do not mix)
+## 2. Owner decisions (accepted for this decomposition)
 
-### A. Candidate / resume context (exists)
+### 2.1 SearchProfile
 
-- `CandidateProfile` / `ProfileVersion` (`r1-default`)
-- active HH resume link
-- immutable `ResumeVersion` (R2.1)
+R2.2 introduces a **minimal persisted SearchProfile**.
 
-Used later by Scoring (R2.3). **Not** the vacancy query.
+- Not ad-hoc CLI `--text` as product SoT.
+- Separate from CandidateProfile / ResumeVersion:
 
-### B. Vacancy search context (R2.2 needs)
-
-Parameters that drive HH discovery:
-
-- query / roles text
-- location / area
-- salary bounds
-- employment / schedule / experience (HH dictionary ids)
-- search fields (`name` / `company_name` / `description`)
-- order / freshness window
-- pagination cursors / page budget
-- last successful / failed sync run metadata
-
-**Recommendation:** introduce a bounded **`VacancySearchContext`** (name TBD by
-owner) separate from Candidate/Resume entities. Do **not** invent a full
-SearchProfile UI/lifecycle in R2.2 unless owner explicitly wants that name/entity
-as the R2.2 MVP carrier.
-
----
-
-## 4. Existing reusable implementation
-
-| Area | Status | Verdict |
-|---|---|---|
-| Core `Vacancy` + `Company` `(source, external_id)` unique | Implemented | **REUSE** identity |
-| Core `POST /api/v1/vacancies` + `Idempotency-Key` | Create/replay only; **no update** of changed payload | **ADAPT** (need upsert/update semantics) |
-| Vacancy funnel `status` (`new/reviewing/shortlisted/rejected`) | User/funnel state | **REUSE**; do not overload with HH archived |
-| HH `HttpHhApi.search(text, per_page)` | One page, `text` only | **ADAPT** (filters, pages, error taxonomy) |
-| HH `normalize_vacancy` | title/url/employer/description-or-snippet | **ADAPT** (richer fields when available) |
-| HH `sync_vacancies` | fetch → create loop; counts synced≈attempts | **ADAPT** (new/known/updated/errors; resume after partial) |
-| CLI `vacancies sync --text` | Exists | **ADAPT** into product sync |
-| Web Vacancies list + manual add dialog | List/status/OSINT/assessment display | **REUSE** list; **NEW** sync UX strip |
-| Historical vacancies (`hh`, `legacy_job_search`, smoke) | ~419 in live DB | **REUSE** as known corpus; migration tooling **IGNORE AS LEGACY** |
-| Browser RO (resumes) | Proven for EXTERNAL_BLOCKED API cases | **Candidate fallback** only if API remains blocked — not auto-expand |
-| Scoring / Assessments | Present but out of R2.2 | **IGNORE** for this stage |
-
----
-
-## 5. Exact HH vacancy-search capabilities (live probes 2026-08-27)
-
-Transport path: Compose `hh` → `hh-egress` proxy (same path as R1).
-
-| Endpoint | Result |
+| Entity | Meaning |
 |---|---|
-| `GET /me` (Bearer) | **200** (`auth_type=applicant`) |
-| `GET /dictionaries` | **200** (search field/order/employment/schedule/experience dictionaries present) |
-| `GET /areas` | **200** |
-| `GET /vacancies?...` public | **403** `forbidden` |
-| `GET /vacancies?...` Bearer | **403** `forbidden` |
-| `GET /vacancies/{id}` | **403** `forbidden` |
-| `GET /negotiations` | **403** `forbidden` (known EXTERNAL_BLOCKED) |
-| Host direct `api.hh.ru` | timeout (egress required) |
+| CandidateProfile / ResumeVersion | кто кандидат / каким резюме представлен |
+| SearchProfile | какие вакансии сейчас ищем |
 
-**Implication:** official vacancy search API is the preferred design target and
-already coded as a scaffold, but **current live environment cannot read
-vacancies via API**. This mirrors R1 `/resumes/mine` EXTERNAL_BLOCKED pattern.
+- **Do not** auto-build SearchProfile from ResumeVersion.
+- No full SearchProfile redesign — only criteria needed for R2.2 HH search.
+- SearchProfile may remain **mutable**.
+- **SearchProfileVersion is not required** in R2.2.
 
-Dictionary-backed filters (conceptually supported by HH):
+### 2.2 SearchRun
 
-- `vacancy_search_fields`: name / company_name / description
-- order: publication_time, salary_*, relevance, distance
-- employment / schedule / experience ids
-- text query + pagination (`page`, `per_page`, `found`, `pages` — when API allows)
+Persisted fact of one search execution. Minimum:
 
-Saved-searches API: not proven live (blocked before useful probe). Do not assume.
+- `search_profile_id`
+- `source = hh`
+- **immutable criteria snapshot** (exact criteria used for this run)
+- `started_at` / `finished_at`
+- `status`: `success` | `partial` | `failed`
+- `found` count
+- `created` / new count
+- `updated` count
+- `unchanged` / known count
+- `error` count
+- pagination / progress metadata as needed
 
-**Detail fetch:** when search works, list items are partial; full `description` /
-`key_skills` typically need `GET /vacancies/{id}` (currently also 403).
+Optional provenance: capture current Candidate / ProfileVersion / ResumeVersion
+ids at run time — **without** deriving search criteria from resume.
+
+### 2.3 Vacancy identity / dedupe
+
+Canonical MVP identity: **`(source, external_id)`**.
+
+HH: `source = hh`, `external_id = HH vacancy id`.
+
+No fuzzy / semantic / LLM dedupe across different ids. Republished HH vacancy
+with a new id may be a separate Core Vacancy in MVP. Cross-id semantic dedupe =
+future/debt (EXT), not an R2.2 blocker.
+
+### 2.4 Vacancy upsert
+
+Append-only create + `vacancy_exists` is insufficient.
+
+For one `(source, external_id)`:
+
+| Normalized source content | Outcome |
+|---|---|
+| same | **unchanged** |
+| changed | **update** source-owned fields → **updated** |
+
+Preserve: Core Vacancy UUID, Assessment / Application / Person links, and user
+workflow `Vacancy.status`.
+
+**Do not** use `Vacancy.status` for ingestion state.
+
+- `Vacancy.status` = `new | reviewing | rejected | shortlisted` (user workflow)
+- `created | updated | unchanged` = **SearchRun item outcomes**
+
+Prefer a **separate ingestion/upsert contract** over overloading manual-create
+idempotency semantics, unless a clean compatible extension is proven.
+
+### 2.5 Source change detection
+
+Deterministic **normalized `content_hash`** (or equivalent) over **source-owned
+normalized fields only**. Exclude user-owned state (`Vacancy.status`, notes,
+decisions, etc.).
+
+### 2.6 Vacancy lifecycle
+
+- Missing from one SearchRun result set → **do not** auto-change source state;
+  **do not** treat as archived/closed; **do not** delete historical Core Vacancy.
+- `archived` / `closed` only when HH explicitly confirms via detail/status /
+  supported source signal.
+
+### 2.7 HH transport
+
+Live probe (2026-08-27, working egress): **`GET /vacancies` → HTTP 403**.
+
+- Existing `HttpHhApi` = **implementation scaffold**, not proven R2.2 capability.
+- Preferred transport: official HH API **if** correctly confirmed.
+- Before vacancy-acquisition implementation: **bounded live capability
+  verification** (endpoint, headers/UA, auth need, proxy/egress, pagination,
+  403 reason if determinable, 429/rate-limit behaviour).
+- Browser RO for vacancy search is **not** auto-approved (resume browser RO does
+  not extend). If API remains unavailable/403 after correct probe → **STOP** for
+  a separate owner decision on browser RO vacancy search. No silent fallback.
+
+### 2.8 Pagination / partial failure
+
+R2.2 is **not** one-page-limited. Successful pages may ingest; unfinished
+pagination → SearchRun `status=partial` (not fake success). Retry safe via
+identity + upsert.
+
+### 2.9 New / known / updated
+
+Per **SearchRun**:
+
+| Outcome | Meaning |
+|---|---|
+| **new** (`created`) | Core Vacancy created for the first time |
+| **updated** | Vacancy existed; source-owned normalized content changed |
+| **known** (`unchanged`) | Vacancy existed; content unchanged |
+
+Never conflate with `Vacancy.status`.
+
+### 2.10 Web boundary
+
+Use existing **«Вакансии»**. Operator sees:
+
+- active SearchProfile summary
+- «Найти вакансии» / «Обновить»
+- last SearchRun time + totals (found / new / updated / known) + partial/error
+- real HH vacancies in the list
+
+No Scoring UI in R2.2.
 
 ---
 
-## 6. Proposed minimal search-context model
+## 3. Conflicts resolved
 
-MVP fields (persisted, operator-editable):
+| Topic | Prior tension | Resolution |
+|---|---|---|
+| Entity name | `VacancySearchContext` vs `SearchProfile` | **SearchProfile** (minimal persisted) |
+| CLI `--text` | scaffold as SoT | **Not** product SoT; SearchProfile + SearchRun are |
+| Create-only Core | identity collisions / no update | **Separate upsert/ingestion contract** + `content_hash` |
+| Missing from run | soft stale vs archive | **No auto source-state change**; archive only on explicit HH signal |
+| “New” meaning | funnel `status=new` vs run outcome | Run outcome **created/new**; funnel status stays user-owned |
+| HH API “works” | README/scaffold claim | Scaffold only; live **403** until capability proof |
+| Browser fallback | tempting after 403 | **Forbidden** without separate OWNER DECISION |
+| R2.1.A push in Google R2 tab | said not pushed | Workspace `5df713c` **pushed**; update Google Doc when convenient |
+
+---
+
+## 4. Final SearchProfile model proposal
+
+Mutable, minimal, single-user MVP (one active profile is enough initially):
 
 ```text
-VacancySearchContext
-  - id / label (single active context for single-user MVP is enough)
-  - text: str                 # HH text query
+SearchProfile
+  - id
+  - label (optional human name)
+  - text: str                         # HH text query (required for MVP)
   - area_id: optional
   - salary: optional {from, to, currency}
-  - experience: optional HH id
-  - employment / schedule: optional HH ids
-  - search_field: optional (name|company_name|description|default)
-  - order_by: optional (default publication_time)
+  - experience: optional HH dictionary id
+  - employment: optional HH dictionary id
+  - schedule: optional HH dictionary id
+  - search_field: optional            # name | company_name | description
+  - order_by: optional                # default publication_time
   - only_with_salary: optional bool
-  - page_size / max_pages: int bounds
+  - page_size: int
+  - max_pages: int
   - created_at / updated_at
 ```
 
-Sync run report (append-only or last+history lite):
+Non-goals: SearchProfileVersion; multi-profile studio; resume-derived builder;
+auto-sync from ResumeVersion.
+
+---
+
+## 5. Final SearchRun proposal
 
 ```text
-VacancySyncRun
-  - search_context_id
+SearchRun
+  - id
+  - search_profile_id
+  - source = "hh"
+  - criteria_snapshot: JSON           # immutable copy of criteria used
+  - candidate_context_snapshot?: JSON # optional ids only (profile/resume)
   - started_at / finished_at
   - status: success | partial | failed
-  - fetched / created / unchanged / updated / errors
-  - last_page_completed
-  - error_code / recovery hint
+  - found_count
+  - created_count                     # new
+  - updated_count
+  - unchanged_count                   # known
+  - error_count
+  - pagination: {
+      last_page_completed?,
+      pages_fetched?,
+      per_page?,
+      hh_found?,
+      hh_pages?
+    }
+  - error_code / recovery_hint?: optional
 ```
 
-**Not in MVP:** multi-profile SearchProfile studio, resume-derived query builder
-(PB-FUTURE-01), multi-provider contexts.
+SearchProfile may change after a run; historical truth lives in
+`criteria_snapshot`.
 
 ---
 
-## 7. Current Core Vacancy model
+## 6. Final Vacancy upsert / update proposal
 
-Exact columns (`services/core/.../models.py`):
+### Identity
 
-- identity: `id`, `source`, `external_id` — **UNIQUE (`source`,`external_id`)**
-- `company_id` → `Company` (`source`,`external_id` unique)
-- `title`, `url`, `description` (nullable)
-- funnel `status`: `new | reviewing | rejected | shortlisted`
-- write meta: `idempotency_key` **UNIQUE**, `request_fingerprint`
-- `created_at`, `updated_at`
-- relations: `applications`, `people`, `assessments`
+`(source, external_id)` unique — REUSE existing constraint.
 
-HTTP create body today: `company_name`, `company_external_id`, `source`,
-`external_id`, `title`, `url`, `description?`.
+### Ingestion contract (preferred)
 
-**Gaps vs R2.2 needs:** no salary/location/employment/work-format/published_at/
-HH archived flag/raw metadata; **no update path** for changed content (same
-idempotency key + changed fingerprint → conflict; different key + same
-source/external_id → `VacancyAlreadyExistsError`).
+Dedicated upsert path (name TBD at implementation), e.g. conceptual:
 
----
+```text
+POST /api/v1/vacancies/upsert   # or HH-facing ingest endpoint into Core
+body: normalized source-owned vacancy fields
+→ { vacancy, outcome: created | updated | unchanged }
+```
 
-## 8. Proposed normalized Vacancy contract (R2.2 target)
+Manual `POST /api/v1/vacancies` + Idempotency-Key remains for manual/Web add;
+do not break it without need.
 
-Keep identity:
+### Change detection
 
-- `source = "hh"`
-- `external_id` = HH vacancy id
-- `url` = `alternate_url` (canonical public URL)
+1. Normalize allowlisted source fields.
+2. Compute `content_hash` over canonical normalized source payload.
+3. Lookup by `(source, external_id)`:
+   - missing → insert (`created`); default funnel `status=new` only on create
+   - present + same hash → (`unchanged`); may bump `last_seen_at` if stored
+   - present + different hash → update source-owned fields + hash (`updated`);
+     preserve UUID, relations, `Vacancy.status`
 
-Normalize when present in source (do not invent):
+### Source-owned vs user-owned
 
-| Field | Source |
+| Source-owned (hash + upsert) | User-owned (never hashed / never overwritten by ingest) |
 |---|---|
-| title | `name` |
-| employer/company | `employer.id` + `employer.name` |
-| description | detail `description` or search `snippet` until detail available |
-| salary | `salary` / `salary_range` structured JSON if present |
-| location | `area` (+ address if useful) |
-| employment / schedule / experience | HH dictionary objects → ids + names |
-| work_format | if present |
-| published_at / created_at | HH timestamps |
-| hh_archived / closed | HH flags when present |
-| raw_metadata | small allowlisted JSON for provenance (ids, hashes) — not full dump |
+| title, url, description, company link fields, salary/area/employment/…, HH timestamps, HH archived/closed when explicit | `Vacancy.status`, future decisions/notes |
 
-Storage shape (implementation choice later): either typed columns + JSONB
-`attributes`, or JSONB envelope with schema_version. **Owner decision** if Core
-schema expansion is allowed in R2.2.1 vs phased.
+### Schema expansion
+
+Implementation may store extra HH fields as typed columns and/or JSONB
+`attributes` + `content_hash` + optional `last_seen_at`. Exact storage shape is
+an implementation detail inside R2.2.3 as long as upsert invariants hold.
 
 ---
 
-## 9. Identity / dedupe strategy
+## 7. Exact new / updated / known semantics
 
-### 1) Same HH vacancy reread (MVP mandatory)
+Within one SearchRun:
 
-Key: `(source=hh, external_id)`.
-
-Repeated ingestion **must not** create a second Core Vacancy.
-
-### 2) Semantic duplicates (different HH ids / mirrors)
-
-**Out of R2.2 MVP.** No fuzzy/LLM dedupe. Optional later EXT.
-
-Cross-source (`legacy_job_search` vs `hh`) merge: **not** automatic in R2.2;
-historical rows stay as known local vacancies.
-
----
-
-## 10. Update semantics (proposal)
-
-When same `(source, external_id)` is seen again:
-
-| Observation | Behavior |
+| Term | Definition |
 |---|---|
-| Payload fingerprint unchanged | `unchanged`; bump last_seen; no funnel status change |
-| Material fields changed (title/desc/salary/…) | **update in place** current Vacancy row; preserve `id`; preserve funnel `status` and Assessment/Application links |
-| HH marks archived/closed | set HH lifecycle flag / local `source_state`; **do not** auto-set funnel `rejected` |
-| Disappears from search page set | mark `missing_from_last_search` / last_seen stale — **do not delete** |
+| **new** | upsert outcome `created` — first Core row for `(source, external_id)` |
+| **updated** | upsert outcome `updated` — hash changed; source fields rewritten |
+| **known** | upsert outcome `unchanged` — existed; hash identical |
 
-Do **not** introduce full event sourcing in R2.2. Optional lite:
-`content_fingerprint` + `last_synced_at` is enough. Important change history for
-scoring can wait unless owner demands it.
+Web run summary uses these counts. List filtering by run outcome is optional;
+funnel filters remain on `Vacancy.status`.
 
 ---
 
-## 11. Behaviour matrix A–J
+## 8. Final HH transport status
 
-| | Scenario | Expected |
-|---|---|---|
-| A | First search run | Fetch pages → create vacancies → report created counts; run=success/partial |
-| B | Repeat, no new items | All unchanged; run success; no duplicates |
-| C | New HH vacancies appear | Those rows `created`; others unchanged |
-| D | Known vacancy changed | In-place update; report `updated`; funnel status preserved |
-| E | Vacancy absent from results | Not deleted; optional stale marker |
-| F | HH archived/closed | Source-state update; keep history |
-| G | Pagination interrupted | Run=`partial`; persist `last_page_completed`; **not** fake success |
-| H | HH temporary unavailable / 403 | Run=`failed` with recovery code; no fake vacancies |
-| I | Retry after partial | Resume/continue safely; idempotent creates/updates |
-| J | Same external_id via different queries | Still one Vacancy; maybe link to multiple runs/contexts |
-
----
-
-## 12. New / known / updated semantics
-
-Product-facing (sync report + list filters), distinct from funnel `status`:
-
-| Label | Meaning |
+| Claim | Status |
 |---|---|
-| **new** | First time this `(source, external_id)` entered Core **or** first seen by operator since import (MVP: Core created in this run / `status=new` and never opened — owner pick) |
-| **known** | Already in Core before this run; unchanged |
-| **updated** | Already in Core; material fields changed this run |
-| **archived/closed** | HH source-state indicates closed/archived |
+| Official API preferred | Yes |
+| Scaffold `HttpHhApi` / CLI `vacancies sync` | Exists |
+| Live `GET /vacancies` (public + Bearer, egress) | **403 forbidden** (2026-08-27) |
+| Live `/me`, `/dictionaries`, `/areas` | 200 |
+| Proven R2.2 acquisition capability | **No** |
+| Browser vacancy search | **Not approved**; separate OWNER DECISION if API stays blocked |
 
-**Recommended MVP for “ещё не разбирал”:** use funnel `status=new` as “not yet
-reviewed”, set automatically only on **create**. Sync must **not** reset
-`reviewing/shortlisted/rejected` back to `new`. PB-04 decisions stay later.
-
-Do not rely only on `created_at` of the sync run for UX.
-
----
-
-## 13. Minimal Web UX (Vacancies workspace)
-
-No new top-level workspace.
-
-On **Вакансии**:
-
-1. Show active search context summary (query + key filters).
-2. CTA **«Обновить с HH»** / sync.
-3. Last run: when, status, fetched / new / updated / known / errors.
-4. Vacancy list refreshes with real HH rows.
-5. Failure shows recovery language (not silent empty success).
-
-Out of scope UI: scoring, decision buttons, SearchProfile studio, resume-derived
-search builder.
+**Gate before R2.2.2 implementation beyond fixtures:** bounded capability
+verification document/result. If still 403/unavailable → STOP for owner
+browser-RO decision.
 
 ---
 
-## 14. Non-scope (hard)
+## 9. Product US / TECH-US / EXT
 
-- AI scoring / Ollama / embeddings / SCORING_SERVICE_FOUNDATION (R2.3+)
-- score/verdict / detailed scoring
-- vacancy decision «добиваться/отложить/отказаться» (PB-04 / R2.6)
-- apply / negotiations / OSINT / outreach
-- providers other than HH (PB-FUTURE-02)
-- PB-FUTURE-01 resume-derived HH search
-- auto-building search from ResumeVersion text
+### US-02.1 — Minimal SearchProfile
 
----
+Operator defines and persists HH search criteria.  
+**AC:** survives reload; shown on Vacancies; not derived from ResumeVersion; CLI
+`--text` is not SoT.  
+**Repos:** Core (+ Web read/edit).  
+**Evidence:** API/CLI + Web summary.
 
-## 15. Product US / TECH-US / EXT
+### US-02.2 — SearchRun execution with honest status
 
-### US-02.1 — Search context for HH vacancy discovery
+Operator starts a run; system records snapshot + counts + success/partial/failed.  
+**AC:** criteria snapshot immutable; partial ≠ success; optional candidate
+context ids only.  
+**Repos:** Core + HH orchestration.  
+**Evidence:** persisted SearchRun + report.
 
-**Purpose:** operator defines bounded search parameters used for ingestion.  
-**AC:** context persists across reload; shown on Vacancies; not mixed into
-ResumeVersion.  
-**Deps:** none beyond R2.1 complete.  
-**Repos:** Core (+ Web).  
-**Evidence:** Web shows context; API/CLI readback.
+### US-02.3 — Source-identity upsert into Vacancy list
 
-### US-02.2 — Manual HH vacancy sync into Core
-
-**Purpose:** one operator action imports current HH results without copy-paste.  
-**AC:** vacancies appear in Core/Web; report distinguishes new/known/updated;
-repeat safe.  
-**Deps:** US-02.1; HH acquisition transport decision.  
-**Repos:** HH + Core + Web.  
-**Evidence:** live or deterministic fixture run with observable counts.
-
-### US-02.3 — Idempotent identity + update without destroying funnel state
-
-**Purpose:** same HH id never duplicates; changes update; user status preserved.  
-**AC:** matrix B/D/J green; Assessment/Application links survive update.  
-**Deps:** Core upsert.  
+HH hits become Core vacancies without duplicates; changes update source fields.  
+**AC:** created/updated/unchanged; UUID/relations/`Vacancy.status` preserved.  
 **Repos:** Core (+ HH normalize).  
-**Evidence:** automated tests + one live/fixture replay.
+**Evidence:** tests + fixture/live run.
 
-### TECH-US-02.T1 — HH acquisition adapter with honest failure
+### US-02.4 — Vacancies Web flow
 
-**Purpose:** encapsulate API and/or browser RO behind one provider; map 403/5xx
-to recovery codes; support pagination + partial resume.  
-**AC:** unavailable/forbidden ≠ fake success; page checkpoint stored.  
-**Deps:** owner transport decision.  
+Operator sees profile, runs search, understands last run, sees HH vacancies.  
+**AC:** counts + partial/error visible; no scoring UI.  
+**Repos:** Web (+ proxies).  
+**Evidence:** live UI checklist.
+
+### TECH-US-02.T1 — HH acquisition + capability proof
+
+Prove or refute official vacancy API; pagination; recovery codes; no silent
+browser.  
 **Repos:** HH.  
-**Evidence:** unit + contract + live probe notes.
+**Evidence:** probe notes + provider contract tests.
 
-### TECH-US-02.T2 — Normalization allowlist + schema_version
+### TECH-US-02.T2 — Normalize + content_hash
 
-**Purpose:** map only real HH fields; stable Core write contract.  
-**AC:** incomplete items rejected; PII/contacts not required/stored from vacancy
-cards beyond public posting fields.  
-**Repos:** HH (+ Core schema if expanded).
+Allowlist mapping; deterministic hash; reject incomplete items.  
+**Repos:** HH (+ Core hash storage).
 
-### EXT-02.E1 — Semantic / cross-source dedupe
+### EXT-02.E1 — Semantic / cross-id / cross-source dedupe
 
-Deferred. Not MVP.
+Deferred.
 
-### EXT-02.E2 — HH saved searches as context source
+### EXT-02.E2 — HH saved searches as SearchProfile source
 
 Deferred until API capability proven.
 
-### DEBT-02.D1 — README/ARCHITECTURE overclaim “vacancy sync implemented”
+### EXT-02.E3 — Browser RO vacancy search
 
-Docs should distinguish scaffold vs accepted product flow after R2.2 starts.
+Deferred; requires explicit OWNER DECISION after API probe failure.
+
+### DEBT-02.D1 — Docs overclaim “vacancy sync implemented”
+
+Correct scaffold vs accepted product language when R2.2 implementation starts.
 
 ---
 
-## 16. Suggested internal slices (vertical)
+## 10. Internal slices
+
+Owner-preferred sequence (adopted). Prior draft used `VacancySearchContext` /
+`VacancySyncRun` naming and mixed context persistence with weaker upsert
+framing; **same vertical idea**, renamed and tightened to SearchProfile +
+SearchRun + explicit capability-proof gate on R2.2.2.
 
 | Slice | Acceptance meaning |
 |---|---|
-| **R2.2.1** | Persist + show minimal VacancySearchContext (Core+Web); no HH fetch required |
-| **R2.2.2** | HH acquisition path chosen & working for read (API unblocked **or** approved browser RO) + pagination/partial failure semantics |
-| **R2.2.3** | Core upsert/update + richer normalize; identity dedupe; funnel status preserved |
-| **R2.2.4** | End-to-end sync orchestration + new/known/updated report (CLI/HTTP) |
-| **R2.2.5** | Vacancies Web sync UX (run summary + list refresh) |
-| **R2.2.A** | Integrated acceptance / Gate evidence for R2.2 |
+| **R2.2.1** | Persisted minimal **SearchProfile** + **SearchRun** model/API (no live HH required) |
+| **R2.2.2** | HH vacancy acquisition transport + pagination; **capability proof first**; browser only after separate owner decision if API unavailable |
+| **R2.2.3** | Normalized Vacancy **upsert**: identity + `content_hash` + created/updated/unchanged |
+| **R2.2.4** | End-to-end SearchRun: SearchProfile → HH → pages → Core → run summary / recovery |
+| **R2.2.5** | Human-readable Web flow on **«Вакансии»** |
+| **R2.2.A** | Integrated R2.2 acceptance / Gate evidence |
 
-Do **not** start production slices until this decomposition is OWNER ACCEPTED and
-open decisions below are resolved.
-
----
-
-## 17. Acceptance target (R2.2 complete)
-
-> Job Search по заданному search context получает вакансии из HeadHunter,
-> идемпотентно нормализует и сохраняет их в Core, отличает новые от уже
-> известных/обновлённых и показывает результат пользователю без copy-paste.
-
-Must hold: safe replay; recoverable partial failure; stable source identity;
-Vacancies list shows real HH vacancies; **no** Scoring required.
+Production slices start only after this decomposition is **OWNER ACCEPTED**.
 
 ---
 
-## 18. Repo impact (when implementation starts)
+## 11. Acceptance target (R2.2 complete)
 
-| Repo | Likely work |
+> Job Search по минимальному SearchProfile запускает SearchRun, получает
+> вакансии из HeadHunter (когда transport confirmed), идемпотентно upsert’ит их
+> в Core по `(source, external_id)`, отличает new / updated / known и показывает
+> результат в «Вакансии» без copy-paste.
+
+Must hold: safe retry; partial ≠ fake success; user workflow status preserved;
+no Scoring.
+
+---
+
+## 12. Repo impact (when implementation starts)
+
+| Repo | Work |
 |---|---|
-| Core | search-context (+ sync-run) persistence; vacancy upsert/update; optional field/JSONB expansion; APIs |
-| HH | acquisition adapter, filters/pagination, normalize, sync report, recovery codes |
-| Web | search-context summary + sync CTA + run summary on Vacancies |
+| Core | SearchProfile, SearchRun, vacancy upsert + content_hash, APIs |
+| HH | capability verification, acquisition adapter, normalize, run orchestration |
+| Web | SearchProfile summary, find/update CTA, last-run summary on Vacancies |
 | Scoring | unchanged |
-| Workspace | this decomposition + status alignment |
+| Workspace | status / plan alignment |
 
 ---
 
-## 19. Risks / external constraints
+## 13. Risks
 
-1. **CRITICAL:** live `GET /vacancies` (and detail) currently **403** via working
-   egress; same class as other HH EXTERNAL_BLOCKED endpoints.
-2. Without an acquisition path, R2.2 product acceptance cannot complete.
-3. Expanding Vacancy schema touches migrated historical rows — need careful
-   nullability/backfill.
-4. Treating funnel `status=new` as “unreviewed” must not fight existing operator
-   habits on 400+ historical vacancies.
-5. Browser RO vacancy search would be a significant new automation surface
-   (rate limits, DOM fragility) — only if owner accepts after API path fails.
+1. Live vacancies API **403** blocks product acceptance until transport resolved.
+2. Historical ~400+ vacancies must remain compatible with upsert/hash backfill.
+3. Browser RO search is large surface — only with explicit owner approval.
+4. Overloading manual create idempotency would be fragile — prefer separate
+   ingest contract.
 
 ---
 
-## 20. Open owner decisions
+## 14. Open owner decisions (remaining)
 
-1. **Acquisition transport for R2.2 MVP**  
-   Prefer unblock/fix official HH vacancies API **vs** approve browser RO search
-   **vs** temporary fixture/manual-only (not product-complete).
+1. **After capability verification:** if official `GET /vacancies` remains
+   403/unavailable — allow authenticated/public **browser RO vacancy search**?
+   (Default until answer: **no**.)
 
-2. **Search-context entity naming**  
-   `VacancySearchContext` (recommended) **vs** reuse name `SearchProfile` for the
-   same minimal object **vs** non-persisted CLI-only params for first vertical.
+2. **Detail enrichment in MVP:** list/search payload only vs mandatory
+   `GET /vacancies/{id}` when API works. (Default proposal: list-first; detail
+   as follow-up inside R2.2 if transport allows.)
 
-3. **Core schema expansion now vs later**  
-   Typed salary/location/… columns in R2.2.3 **vs** JSONB `attributes` first.
-
-4. **“New” product meaning**  
-   Sync-created only **vs** funnel `status=new` as unreviewed badge (recommended
-   combo: create→`status=new`; never reset reviewed statuses on re-sync).
-
-5. **Missing-from-search behaviour**  
-   Soft stale marker only (recommended) **vs** auto-archive.
-
-6. **Detail fetch required in MVP?**  
-   Search-snippet descriptions enough for list **vs** mandatory detail page
-   before counting a vacancy as fully imported.
-
-Default recommendation if owner says «го» on this doc without deltas:
-
-- Decision 1: attempt API remediation first; browser RO only as explicit fallback  
-- Decision 2: `VacancySearchContext` (not full SearchProfile)  
-- Decision 3: JSONB `attributes` + keep current columns, expand later if needed  
-- Decision 4: create→`new`; never reset reviewed  
-- Decision 5: soft stale only  
-- Decision 6: list payload first; detail enrichment as follow-up inside R2.2 if API allows
+No other blocking naming/identity/upsert/lifecycle decisions remain for
+acceptance of this decomposition.
 
 ---
 
-## 21. Final status framing
+## 15. Non-scope (hard)
+
+- AI scoring / Ollama / embeddings / SCORING_SERVICE_FOUNDATION
+- score/verdict / detailed scoring / PB-04 decisions
+- apply / negotiations / OSINT / outreach
+- providers other than HH
+- PB-FUTURE-01 resume-derived search
+- silent browser vacancy fallback
+- SearchProfileVersion / full SearchProfile redesign
+- fuzzy cross-id dedupe
+
+---
+
+## 16. Final framing
 
 ```text
 R2.1 = COMPLETE · OWNER ACCEPTED · PUSHED
 
-R2.2 DECOMPOSITION = READY FOR OWNER REVIEW
+R2.2 DECOMPOSITION = READY FOR OWNER ACCEPTANCE
 
 R2.2 production implementation = NOT STARTED
 

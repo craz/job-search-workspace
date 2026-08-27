@@ -175,12 +175,17 @@ plus R1.5 `CandidateProfile` / `ProfileVersion` / `ActiveHhResumeLink`
 
 **Target concepts (Roadmap; детальные схемы — позже):**
 
-- `SearchProfile`, richer `CandidateProfile` / `ProfileVersion`;
-- `ResumeVersion` (local **content** snapshot) — R2.1 DECOMPOSITION ACCEPTED:
+- `SearchProfile` + `SearchRun` — R2.2 DECOMPOSITION (READY FOR OWNER ACCEPTANCE):
+  minimal persisted search criteria (**not** derived from ResumeVersion);
+  SearchRun stores immutable criteria snapshot + run counts/status;
+  vacancy ingest uses `(source, external_id)` upsert + source `content_hash`;
+  see [`docs/R2_2_DECOMPOSITION.md`](docs/R2_2_DECOMPOSITION.md);
+- richer `CandidateProfile` / `ProfileVersion` (beyond R1/R2.1 minimum);
+- `ResumeVersion` (local **content** snapshot) — R2.1 **COMPLETE**:
   separate immutable Core entity (JSONB schema-versioned); R1.5 remains
   identifier-only; current local copy = active HH link + **latest**
   `ResumeVersion` for that `external_resume_id` (no mandatory pointer table);
-  `ProfileVersion` stays `r1-default` in R2.1; before **PB-03 / R2.3 Scoring**
+  `ProfileVersion` stays `r1-default` through R2.1; before **PB-03 / R2.3 Scoring**
   this snapshot must exist;
 - user **decision** on Vacancy (отдельно от LLM verdict — R2/PB-04);
 - hiring pipeline, `Offer`, `SearchCycle` (R4–R5).

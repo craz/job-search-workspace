@@ -255,7 +255,7 @@ and supports active-resume + linkage.
 
 **Status:** Gate R1 **CLOSED**. R2 planning **active**.  
 **R2.1:** **COMPLETE · OWNER ACCEPTED · PUSHED** (incl. R2.1.A evidence `5df713c`).  
-**R2.2 DECOMPOSITION:** **READY FOR OWNER REVIEW** — [`docs/R2_2_DECOMPOSITION.md`](docs/R2_2_DECOMPOSITION.md).  
+**R2.2 DECOMPOSITION:** **READY FOR OWNER ACCEPTANCE** — [`docs/R2_2_DECOMPOSITION.md`](docs/R2_2_DECOMPOSITION.md) (SearchProfile + SearchRun + upsert).  
 **R2.2 production / R2.3+:** **NOT STARTED**.
 
 **User chain:**
@@ -275,7 +275,7 @@ local ResumeVersion (working resume content)
 | Phase | Focus | Status |
 |---|---|---|
 | **R2.1** | Local ResumeVersion / content snapshot of active HH resume | **COMPLETE · OWNER ACCEPTED · PUSHED** |
-| **R2.2** | Search context + HH vacancy ingestion / normalization / dedupe | **DECOMPOSITION READY FOR OWNER REVIEW**; production **NOT STARTED** |
+| **R2.2** | Minimal SearchProfile + SearchRun + HH vacancy upsert / dedupe | **DECOMPOSITION READY FOR OWNER ACCEPTANCE**; production **NOT STARTED** |
 | **R2.3** | **SCORING_SERVICE_FOUNDATION** (PB-03) | NOT STARTED |
 | **R2.4** | Mass score/verdict in Vacancy + list prioritization | NOT STARTED |
 | **R2.5** | Detailed scoring in Vacancy context | NOT STARTED |
@@ -439,9 +439,11 @@ Execute in parallel only if it does not block R1.
 
 **Gate R1 CLOSED.**  
 **R2.1 COMPLETE · OWNER ACCEPTED · PUSHED.**  
-**R2.2 DECOMPOSITION READY FOR OWNER REVIEW** — [`docs/R2_2_DECOMPOSITION.md`](docs/R2_2_DECOMPOSITION.md).  
+**R2.2 DECOMPOSITION READY FOR OWNER ACCEPTANCE** — [`docs/R2_2_DECOMPOSITION.md`](docs/R2_2_DECOMPOSITION.md).  
 **R2.2 production / R2.3+:** **NOT STARTED**.
 
-Do not start R2.2 production until owner ACCEPTs the R2.2 decomposition and resolves its open decisions.
+Do not start R2.2 production until owner ACCEPTs the R2.2 decomposition.
+Remaining open decisions inside that doc are non-blocking for acceptance except
+post-probe browser-RO transport if official API stays 403.
 
 Оперативный снимок и HEAD SHA: [`PROJECT_STATUS.md`](PROJECT_STATUS.md).
