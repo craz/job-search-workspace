@@ -1,10 +1,10 @@
 # Состояние проекта Job Search Multirepo
 
 **Дата снимка:** 2026-08-27 (UTC+3)  
-**Workspace HEAD:** local R2.2.3 (ahead of origin)  
+**Workspace HEAD:** local R2.2.4 (not pushed)  
 **Web submodule HEAD:** `9abe407` (== origin/main; R2.1.5)  
-**HH submodule HEAD:** local R2.2.3 mapper (not pushed)  
-**Core submodule HEAD:** local R2.2.3 ingest (not pushed)  
+**HH submodule HEAD:** local R2.2.4 orchestration (not pushed)  
+**Core submodule HEAD:** local optional page_size for browser execution (not pushed)  
 **Ветка:** `main`
 
 Этот файл — оперативный снимок «где мы сейчас». Детальный план и gate-критерии
@@ -21,15 +21,15 @@
 | OSINT | в основном готово |
 | HH read-path | R1.1–R1.6 **COMPLETE · PUSHED** |
 | **R1 / PB-00** | **COMPLETE · Gate R1 CLOSED** (OWNER ACCEPTED 2026-08-27) |
-| **R2** | **R2.1 COMPLETE · PUSHED**; **R2.2.1 COMPLETE · PUSHED**; **R2.2.2 COMPLETE · OWNER ACCEPTED · PUSHED**; **R2.2.3 READY FOR OWNER ACCEPTANCE**; R2.2.4 / R2.3 **NOT STARTED** |
+| **R2** | **R2.1 COMPLETE · PUSHED**; **R2.2.1–R2.2.3 COMPLETE · PUSHED**; **R2.2.4 READY FOR OWNER ACCEPTANCE**; R2.2.5 / R2.3 **NOT STARTED** |
 | Content / Telegram §8 | не начат |
 | **PB-DATA-00** | **COMPLETE — Gate CLOSED** |
 | **R0** | **CLOSED — Gate R0 ACCEPTED WITH NON-BLOCKING DEBT** |
 
-R2.2.2: HH `762c856` · workspace `4dcc797` (pushed).  
-R2.2.3 evidence: [`docs/evidence/R2_2_3_VACANCY_INGEST.md`](docs/evidence/R2_2_3_VACANCY_INGEST.md).
+R2.2.3 pushed: Core `ff235ba` · HH `34bab08` · workspace `ed487a1`.  
+R2.2.4 evidence: [`docs/evidence/R2_2_4_SEARCH_RUN_ORCHESTRATION.md`](docs/evidence/R2_2_4_SEARCH_RUN_ORCHESTRATION.md).
 
 ## Решение по «го» / blockers
 
-- **«Го»** = `ACCEPT` R2.2.3 (или замечания).
-- R2.2.4 SearchRun orchestration — **не** начинать до ACCEPT R2.2.3.
+- **«Го»** = `ACCEPT` R2.2.4 (или замечания).
+- R2.2.5 Web — **не** начинать до ACCEPT R2.2.4.
