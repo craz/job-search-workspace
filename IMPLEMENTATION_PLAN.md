@@ -318,7 +318,7 @@ Vacancy + ResumeVersion + ScoringPolicy
 
 | Slice | Focus |
 |---|---|
-| **R2.3.1** | Hybrid Core Assessment extension + ScoringPolicy/identity contracts; unique successful `scoring_identity_hash` |
+| **R2.3.1** | Hybrid Core Assessment + policy/identity contracts (`candidate_context_hash`, resolved template in `policy_hash`, legacy NULL migration) |
 | **R2.3.2** | Core `GET /vacancies/{id}` + scoring-ready context from `ResumeVersion` |
 | **R2.3.3** | `GenerationBackend` + Ollama generation (**no mandatory embeddings**) |
 | **R2.3.4** | Single-vacancy **fast** E2E + **async** HTTP (`202 Accepted`) |

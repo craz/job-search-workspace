@@ -91,16 +91,29 @@ Assembly (R2.3.2):
 
 ### policy_hash semantics
 
-`policy_hash` covers **all material policy behavior**:
+`policy_hash` covers **all material policy behavior**, including:
 
 - threshold values (`apply_min`, `maybe_min`, …)
 - scoring rules and mode configs
-- prompt/template contract references
+- **`resolved_template_digest`** — deterministic hash of the **resolved prompt/template
+  content actually used** (not path, name, ref, or comments alone)
 - result schema expectations
-- deterministic weighting/override rules **when they exist**
+- deterministic weighting/override rules when they exist
 
-Computed from **canonical serialized policy** (stable key order). Comments,
-formatting, and file path **must not** change the hash if semantics are identical.
+Conceptually:
+
+```text
+policy_hash = H(
+  thresholds,
+  scoring rules,
+  resolved_template_digest,
+  result schema contract,
+  deterministic weighting/override semantics
+)
+```
+
+Computed from canonical serialized policy (stable key order). Comments, formatting,
+and file path **must not** change the hash if semantics are identical.
 
 ---
 
@@ -191,6 +204,7 @@ config hash (temperature, seed if used, num_predict, …).
 | `vacancy_content_hash` | string(64) |
 | `profile_version_id` | UUID |
 | `resume_version_id` | UUID |
+| `candidate_context_hash` | string(64) — assembled context after ContextRetriever |
 | `scoring_mode` | enum `fast` \| `detailed` |
 | `relevance_score` | int 0–100 |
 | `verdict` | enum `apply` \| `maybe` \| `skip` (**policy-derived**) |
@@ -273,11 +287,13 @@ Result is **current** iff `scoring_identity_hash` equals identity computed from
 ### Successful-result uniqueness
 
 ```text
-UNIQUE (scoring_identity_hash) WHERE status = success  -- conceptual; exact DDL in R2.3.1
+UNIQUE (scoring_identity_hash) WHERE scoring_identity_hash IS NOT NULL
 ```
 
+Legacy rows with NULL identity coexist. New v1 writes require complete identity.
+Do **not** fabricate provenance for historical Assessments.
+
 Same identity + repeat request → reuse existing Assessment; skip Ollama by default.
-Job `Idempotency-Key` ≠ identity (transport retry only).
 
 ---
 
@@ -384,6 +400,7 @@ R2.6  user decision
 | Topic | Defer to |
 |---|---|
 | JSONB column name / legacy column migration | R2.3.1 |
+| Legacy NULL v1 columns on historical rows | R2.3.1 migration |
 | Exact raw retention byte limits + cleanup job | R2.3.5 |
 | Deterministic FAIL → verdict override | policy v2 |
 | Calibrated confidence signal | future schema |

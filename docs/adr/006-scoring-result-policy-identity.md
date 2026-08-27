@@ -35,6 +35,7 @@ Minimum columns (names may follow Core conventions):
 | `vacancy_content_hash` | material vacancy input at score time |
 | `profile_version_id` | candidate profile version |
 | `resume_version_id` | scored resume snapshot |
+| `candidate_context_hash` | hash of assembled scoring-relevant context (post-ContextRetriever) |
 | `scoring_mode` | `fast` \| `detailed` |
 | `relevance_score` | 0–100 (existing) |
 | `verdict` | `apply` \| `maybe` \| `skip` (policy-derived) |
@@ -105,11 +106,19 @@ scoring_identity_hash = H(
   vacancy_content_hash,
   profile_version_id,
   resume_version_id,
+  candidate_context_hash,
   policy_hash,
   model_fingerprint,
   scoring_mode
 )
 ```
+
+- `candidate_context_hash` is the deterministic hash of the exact scoring-relevant
+  candidate context assembled **after** ContextRetriever / context assembly and
+  **before** provider transport — not provider formatting or transport wrappers.
+  If assembly logic changes but produces byte/semantic-canonical identical context,
+  reuse remains valid. Production of the hash from live assembly is R2.3.2; the
+  contract and column exist in R2.3.1.
 
 - `hh_resume_external_id` is **provenance only** — **not** part of identity when
   `resume_version_id` identifies the scored content.
@@ -149,6 +158,23 @@ model fingerprint, mode). Historical rows with older identities remain.
   to `scoring_identity_hash`.
 
 Failed jobs may retry without creating a successful duplicate.
+
+### Legacy Assessment migration
+
+Pre-R2.3 historical Assessment rows **must not** receive fabricated v1 provenance.
+New v1 identity columns remain **NULL** on legacy rows (`vacancy_content_hash`,
+`profile_version_id`, `resume_version_id`, `candidate_context_hash`, `policy_hash`,
+`model_fingerprint`, `scoring_identity_hash`, `scoring_mode`, `schema_version` where
+unknown). Do **not** synthesize hashes pretending legacy scores used the new contract.
+
+Database invariant:
+
+```sql
+UNIQUE (scoring_identity_hash) WHERE scoring_identity_hash IS NOT NULL
+```
+
+(partial unique index or equivalent). Legacy NULL identities coexist; new canonical
+v1 writes must supply complete identity fields.
 
 ### Re-score / invalidation
 

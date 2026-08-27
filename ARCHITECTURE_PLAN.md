@@ -307,8 +307,9 @@ Vacancy + scoring-ready ResumeVersion + ScoringPolicy
 - **Score** 0–100 from LLM; **verdict** derived by **ScoringPolicy thresholds**
   (LLM verdict is diagnostic only, not canonical).
 - **ScoringPolicy** versioned (`policy_id`, `policy_version`, `policy_hash`).
-- **Current result** = matching `scoring_identity_hash` to present material inputs
-  (no primary `is_current` flag); unique successful result per identity.
+- **Current result** = matching `scoring_identity_hash` (includes
+  `candidate_context_hash`) to present material inputs; partial unique index on
+  non-null identity; legacy NULL rows preserved without synthetic provenance.
 - **model_fingerprint** (not tag alone) in identity hash.
 - **Fast** async HTTP (`202 Accepted`) in R2.3.4; **detailed** in R2.5.
 - Core **`GET /api/v1/vacancies/{id}`** approved prerequisite (R2.3.2).

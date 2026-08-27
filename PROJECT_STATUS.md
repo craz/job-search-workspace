@@ -1,7 +1,7 @@
 # Состояние проекта Job Search Multirepo
 
 **Дата снимка:** 2026-08-28 (UTC+3)  
-**Workspace HEAD:** local R2.3 architecture (not pushed)  
+**Workspace HEAD:** R2.3.1 in progress (architecture pushed)  
 **Migration head:** `20260828_13`  
 **Ветка:** `main`
 
