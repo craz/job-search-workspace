@@ -1,57 +1,57 @@
-# R2.2.5 — Primary resume-suitable Web flow (correction)
+# R2.2.5 — Primary resume-suitable Web flow (correction + temporal)
 
-**Date:** 2026-08-27  
-**Status:** READY FOR OWNER ACCEPTANCE (local; **not** pushed)  
-**Research:** [`R2_2_5_PRIMARY_FLOW_RESEARCH.md`](R2_2_5_PRIMARY_FLOW_RESEARCH.md) — OWNER ACCEPTED
+**Date:** 2026-08-28  
+**Status:** READY FOR OWNER ACCEPTANCE (local; **not** pushed)
+
+## Temporal model (R2.2.5 correction)
+
+| Field | Semantics |
+|---|---|
+| `first_seen_at` | First successful Job Search ingest of `(source, external_id)`; immutable |
+| `last_seen_at` | Latest successful fetch/ingest; advances on created/updated/**unchanged** |
+| `source_published_at` | Nullable; populated only when HH supplies reliable datetime (currently NULL) |
+
+Legacy equivalent: JSONL `captured_at` / scoring column **«Когда»** — local acquisition freshness, not HH `published_at`.
+
+**Migration `20260828_13` backfill (approximate):**
+
+- `first_seen_at = created_at`
+- `last_seen_at = COALESCE(updated_at, created_at)`
+
+Pre-migration rows: `first_seen_at` does **not** prove original HH fetch time.
+
+**Default list order:** `first_seen_at DESC` (not `last_seen_at DESC` — recheck must not float old vacancies above newly discovered).
+
+**content_hash:** excludes `first_seen_at` / `last_seen_at`; `source_published_at` in hash only when supplied as source-owned data.
 
 ## Live Web URL
 
 http://127.0.0.1:18080/#vacancies
 
-## Freshness / order proof (reconfirmed live)
+## Primary acquisition (unchanged)
 
-| Order | `order_by` | Top-8 vs other |
-|---|---|---|
-| relevance (default) | `relevance` | — |
-| publication_time | `publication_time` | **0 overlap** with relevance top-8 |
+`POST /api/v1/hh/vacancies/suitable` · `order_by=publication_time` · `max_pages=1`
 
-Heading both times: «Найдено 2 272 подходящих вакансии для резюме».  
-Primary default: **`publication_time`**.
+## Live temporal evidence (2026-08-28)
 
-## Live primary runs (via Web `POST /api/v1/hh/vacancies/suitable`)
+| Check | Result |
+|---|---|
+| A backfill | existing rows: `first_seen_at≈created_at`, `source_published_at=null` |
+| API order | `first_seen_at DESC` confirmed |
+| Repeat run | unchanged=50; `last_seen_at` advanced without rank jump |
+| Order invariant | vacancy with newer `last_seen_at` but older `first_seen_at` stays below newer-first-seen row |
+| Web | «Получена» present; no «Опубликовано» when `source_published_at` null |
 
-| Run | HTTP | status | source_total | found (processed) | created | updated | unchanged | profile_id | acquisition_kind |
-|---|---|---|---|---|---|---|---|---|---|
-| 1 | 200 (~70s) | success | **2272** | 20 | 20 | 0 | 0 | **null** | **resume_suitable** |
-| 2 (repeat) | 200 (~153s) | success | **2272** | 50 | 29 | 0 | 21 | **null** | **resume_suitable** |
+Example after repeat: rank-0 `first_seen=20:44:14`; rechecked row `first_seen=20:14:57`, `last_seen=21:38:46`, rank=4.
 
-Notes:
-
-- `observed_page_size` varies (20 then 50); UI says «до ~50».
-- Repeat does **not** duplicate Core Vacancy rows (`(source, external_id)`).
-- Vacancy totals: 469 → 489 → 518 (+20, then +29).
-- SERP guard: `ok=true`, `source_total=2272`.
-- `candidate_context_snapshot`: active resume id + title + optional version ids.
-- `criteria_snapshot`: `{}`.
-- `execution_snapshot.order`: `publication_time`, `max_pages=1`.
-
-## Product surfaces
-
-- Primary: «Подходящие вакансии» + «Проверить подходящие» (no criteria form).
-- Secondary: «Свой поиск» deferred (no silent auto-import).
-- Local «Фильтр списка»: client-side only on loaded Core list.
-- No «Только с зарплатой» on primary.
-
-## Gates (TECHNICAL PASS)
+## Gates
 
 | Repo | Result |
 |---|---|
-| Core | unit 50 · integration 27 · contract 9 · bdd 18 |
+| Core | unit 55 · integration 27 · contract 9 · bdd 18 |
 | HH | unit 132 (+1 skip) · contract 16 · bdd 13 |
 | Web | unit 5 · integration 36 · contract 6 · bdd 10 |
 
-Migration head: **`20260827_12`**.
-
-## Non-scope
+Migration head: **`20260828_13`**
 
 R2.2.A / R2.3 **NOT STARTED**. **Not pushed.**
