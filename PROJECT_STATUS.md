@@ -1,10 +1,10 @@
 # Состояние проекта Job Search Multirepo
 
 **Дата снимка:** 2026-08-27 (UTC+3)  
-**Workspace HEAD:** local R2.2.5 (not pushed)  
-**Web submodule HEAD:** local R2.2.5 vacancy search (not pushed)  
-**HH submodule HEAD:** `e539cc6` (== origin/main; R2.2.4)  
-**Core submodule HEAD:** `3439613` (== origin/main; R2.2.4)  
+**Workspace HEAD:** local R2.2.5 correction (not pushed)  
+**Web submodule HEAD:** local R2.2.5 resume_suitable primary (not pushed)  
+**HH submodule HEAD:** local R2.2.5 resume_suitable (not pushed)  
+**Core submodule HEAD:** local R2.2.5 acquisition_kind (not pushed)  
 **Ветка:** `main`
 
 Этот файл — оперативный снимок «где мы сейчас». Детальный план и gate-критерии
@@ -21,7 +21,7 @@
 | OSINT | в основном готово |
 | HH read-path | R1.1–R1.6 **COMPLETE · PUSHED** |
 | **R1 / PB-00** | **COMPLETE · Gate R1 CLOSED** (OWNER ACCEPTED 2026-08-27) |
-| **R2** | **R2.1–R2.2.4 COMPLETE · PUSHED**; **R2.2.5 READY FOR OWNER ACCEPTANCE**; R2.2.A / R2.3 **NOT STARTED** |
+| **R2** | **R2.1–R2.2.4 COMPLETE · PUSHED**; **R2.2.5 READY FOR OWNER ACCEPTANCE** (correction; local not pushed); R2.2.A / R2.3 **NOT STARTED** |
 | Content / Telegram §8 | не начат |
 | **PB-DATA-00** | **COMPLETE — Gate CLOSED** |
 | **R0** | **CLOSED — Gate R0 ACCEPTED WITH NON-BLOCKING DEBT** |
