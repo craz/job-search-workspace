@@ -1,7 +1,8 @@
 # R2.2 — SearchProfile + HH vacancy ingestion / normalization / dedupe
 
-**Status:** **READY FOR OWNER ACCEPTANCE** (docs-only; owner remark corrections applied)  
-**Production implementation:** **NOT STARTED**  
+**Status:** decomposition **OWNER ACCEPTED · PUSHED**; **R2.2.1 COMPLETE · PUSHED**;
+**R2.2.2 BLOCKED · OWNER DECISION REQUIRED** (official vacancy API 403)  
+**Production HH acquisition:** **NOT STARTED** (blocked on transport decision)  
 **R2.1:** **COMPLETE · OWNER ACCEPTED · PUSHED**  
 **R2.3:** **NOT STARTED**
 
@@ -18,10 +19,14 @@ migrations, or API changes until **OWNER ACCEPTED**.
 
 ```text
 R2.1 = COMPLETE · OWNER ACCEPTED · PUSHED
-R2.2 decomposition = READY FOR OWNER ACCEPTANCE
-R2.2 production = NOT STARTED
+R2.2 decomposition = OWNER ACCEPTED · PUSHED
+R2.2.1 = COMPLETE · OWNER ACCEPTED · PUSHED
+R2.2.2 = BLOCKED · OWNER DECISION REQUIRED (official GET /vacancies 403)
+R2.2.3+ = NOT STARTED
 R2.3 = NOT STARTED
 ```
+
+Probe evidence: [`docs/evidence/R2_2_2_HH_VACANCY_API_PROBE.md`](evidence/R2_2_2_HH_VACANCY_API_PROBE.md).
 
 ---
 
