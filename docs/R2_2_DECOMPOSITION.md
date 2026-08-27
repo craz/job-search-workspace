@@ -1,8 +1,7 @@
 # R2.2 — SearchProfile + HH vacancy ingestion / normalization / dedupe
 
 **Status:** decomposition **OWNER ACCEPTED · PUSHED**; **R2.2.1 COMPLETE · PUSHED**;
-**R2.2.2 BLOCKED · OWNER DECISION REQUIRED** (official vacancy API 403)  
-**Production HH acquisition:** **NOT STARTED** (blocked on transport decision)  
+**R2.2.2 READY FOR OWNER ACCEPTANCE** (browser RO vacancy transport)  
 **R2.1:** **COMPLETE · OWNER ACCEPTED · PUSHED**  
 **R2.3:** **NOT STARTED**
 
@@ -21,12 +20,14 @@ migrations, or API changes until **OWNER ACCEPTED**.
 R2.1 = COMPLETE · OWNER ACCEPTED · PUSHED
 R2.2 decomposition = OWNER ACCEPTED · PUSHED
 R2.2.1 = COMPLETE · OWNER ACCEPTED · PUSHED
-R2.2.2 = BLOCKED · OWNER DECISION REQUIRED (official GET /vacancies 403)
+R2.2.2 = READY FOR OWNER ACCEPTANCE (browser RO vacancy acquire)
 R2.2.3+ = NOT STARTED
 R2.3 = NOT STARTED
 ```
 
-Probe evidence: [`docs/evidence/R2_2_2_HH_VACANCY_API_PROBE.md`](evidence/R2_2_2_HH_VACANCY_API_PROBE.md).
+Evidence:
+- Official API 403: [`docs/evidence/R2_2_2_HH_VACANCY_API_PROBE.md`](evidence/R2_2_2_HH_VACANCY_API_PROBE.md)
+- Browser acquire: [`docs/evidence/R2_2_2_BROWSER_VACANCY_ACQUIRE.md`](evidence/R2_2_2_BROWSER_VACANCY_ACQUIRE.md)
 
 ---
 
@@ -342,11 +343,10 @@ when needed**.
 
 ## 14. Remaining open owner decisions
 
-1. **After capability verification:** if official vacancy API remains
-   403/unavailable — allow **browser RO vacancy search**?
-   (Default until answer: **no**.)
+1. ~~Browser RO vacancy search~~ — **APPROVED** 2026-08-27 (R2.2.2 path).
 
 List-vs-detail is **closed** (list-first + detail when needed for scoring content).
+Official vacancy API remains unavailable (403) for this application.
 
 ---
 
