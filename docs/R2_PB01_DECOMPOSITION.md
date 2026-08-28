@@ -330,9 +330,39 @@ usable for future PB-03; sync is manual-only.
 - vacancy ranking / user vacancy decision
 - applications / OSINT
 - auto-sync on select
-- PDF/raw HTML as required artifacts
+- PDF/raw HTML as **required** artifacts for ResumeVersion identity (see **R2.1-CORR-01** for optional local file archive)
 - ProfileVersion redesign / multi-label profiles
 - separate active-pointer table “just in case”
+
+---
+
+## 14.1 R2.1-CORR-01 — auxiliary HH resume file (owner scope correction)
+
+**Status:** READY FOR OWNER ACCEPTANCE (local; not pushed)
+
+During manual HH resume sync, Job Search additionally uses the visible HH UI
+action **«Скачать»** (resume `...` menu) and stores the downloaded bytes locally.
+This is an **auxiliary archived file only**.
+
+**Does not affect:**
+
+- `ResumeVersion` identity or `content_hash`
+- creation of a new `ResumeVersion` when only the file changes
+- `candidate_context_hash`, `scoring_identity_hash`, Assessment, workflow
+- R2.3.2 contracts
+
+Scoring continues to use normalized `ResumeVersion` JSON. `sha256` on the stored
+blob is storage integrity metadata only, not a semantic change signal.
+
+**Storage:** Core-owned blobs under `JOB_SEARCH_CORE_ARTIFACT_DIR` (Compose volume
+`core-artifacts`), metadata in `resume_artifacts` (migration `20260828_15`).
+
+**API:** `POST /api/v1/resume-versions/{id}/artifacts`, `GET /api/v1/resume-artifacts/{id}`,
+`GET /api/v1/resume-artifacts/{id}/download` (exact bytes, `Content-Type` /
+`Content-Disposition`).
+
+**Web:** near working resume — `Файл резюме: {format} · {size} · сохранён {date}`
+and link «Скачать локальную копию». JSON content sync behaviour unchanged.
 
 ---
 
