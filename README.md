@@ -1,118 +1,97 @@
-# Job Search Workspace
+# Job Search
 
-Workspace независимых Git-репозиториев Job Search с собственными контрактами и
-жизненным циклом. Canonical clone самодостаточен: старый монолит не нужен для
-bootstrap, Compose или чистой PostgreSQL.
+**Local-first AI-система для управления поиском работы: резюме → подходящие вакансии → AI-оценка → решение → отклик → результат.**
 
-Сервисы подключены как Git submodules под `services/`: workspace открывается в
-IDE одним деревом, а каждый сервис сохраняет собственный remote и release cycle.
+Проект родился из собственного поиска работы. Его цель — собрать разрозненный процесс в один управляемый pipeline: подключить HeadHunter, сохранить контекст и версии резюме, собирать и дедуплицировать вакансии, оценивать их локальной LLM и вести историю решений, откликов и результатов.
 
-При создании долгоживущего инстанса сервиса или другой инфраструктурной сущности
-используется [`NAMING_CONVENTION.md`](NAMING_CONVENTION.md): сначала выбирается
-класс и свободный canonical slug, затем после назначения обновляется `USED`.
-Обычные Compose services и временные контейнеры получают функциональные имена.
+`Local-first` · `HeadHunter integration` · `Resume-aware scoring` · `Active development`
 
-Публичные сервисы проектируются как самостоятельные, воспроизводимые и
-документированные проекты, понятные без доступа к приватному workspace.
+![Job Search — экран вакансий](docs/assets/readme/job-search-hero-wide.png)
 
-Первый исполняемый контур уже доступен: PostgreSQL 17, Core
-Vacancy/Application/Daily Metric/Person/Hypothesis/Assessment API и Web-доска с локальным журналом
-откликов, дневными показателями и подтверждёнными контактами запускаются
-совместно через корневой `compose.yaml`.
+## Зачем появился Job Search
 
-## Целевая система
+Когда вакансий становится сотни, поиск работы перестаёт быть задачей «найти и откликнуться». Нужно помнить, каким резюме ты вышел на компанию, какие вакансии уже видел, где откликнулся, что ответили, какие гипотезы сработали и когда пора менять стратегию. В браузерных вкладках, заметках и истории HeadHunter этот контекст быстро распадается.
 
-- `job-search-core` — домен, FastAPI и PostgreSQL;
-- `job-search-hh` — HH API, Chromium, Playwright и noVNC;
-- `job-search-scoring` — оценка вакансий через host Ollama;
-- `job-search-osint` — исследование компаний и людей;
-- `job-search-content` — черновики и Telegram;
-- `job-search-web` — доска через Core API;
-- `job-search-hermes` — отдельный будущий этап, текущая локальная установка не меняется.
+Job Search я сделал для себя как единый рабочий контур: вакансии, решения, отклики и результаты остаются связаны с конкретной версией резюме и периодом поиска. AI здесь не заменяет решение пользователя — он помогает быстрее разобрать большой поток и выделить то, что стоит внимания.
+
+## Как работает Job Search
+
+Job Search ведёт вакансию через весь путь — от появления в списке до решения, контакта с работодателем, процесса найма и итогового результата.
+
+![Как работает Job Search](docs/assets/readme/job-search-flow.png)
+
+*Часть этапов уже работает, остальные последовательно реализуются по roadmap.*
+
+## Что умеет Job Search
+
+### ✅ Уже работает
+
+**HeadHunter integration**  
+Рабочее резюме синхронизируется локально вместе с его структурированной версией и PDF-копией. Job Search получает HH-нативный список подходящих вакансий для выбранного резюме.
+
+**Vacancy pipeline**  
+Вакансии автоматически загружаются, нормализуются и дедуплицируются. Система сохраняет историю получения, отличает новые вакансии от уже известных и формирует единый рабочий список.
+
+**Рабочая доска вакансий**  
+Вакансии можно просматривать, фильтровать и переводить между рабочими состояниями. Основные доменные данные хранятся локально в Core/PostgreSQL.
+
+### 🚧 Сейчас в разработке
+
+**Resume-aware AI scoring**  
+Каждая вакансия будет оцениваться относительно конкретной версии резюме и scoring policy. Результат — воспроизводимые `score` + `apply / maybe / skip`, а не просто свободный ответ LLM.
+
+Следующий продуктовый результат — массовая оценка и приоритизация списка вакансий.
+
+### 🗺️ Дальше по roadmap
+
+**Выход на работодателя**  
+HH-отклик или прямой контакт с компанией.
+
+**OSINT для direct outreach**  
+Поиск конкретных людей и контактов запускается пользователем для выбранной вакансии.
+
+**Процесс найма**  
+Ответы работодателей, этапы интервью, история взаимодействия и решения.
+
+**Метрики и стратегия**  
+Результаты серии откликов, конверсии по этапам и корректировка стратегии поиска.
+
+**Оффер → выход на работу**  
+Сравнение офферов, решение и завершение поискового цикла.
+
+## Архитектура
+
+![Архитектура Job Search](docs/assets/readme/job-search-service-map.png)
+
+Job Search разбит на независимые сервисы с собственными границами ответственности. Core владеет доменными данными и публичными API-контрактами; интеграции с HeadHunter, AI-scoring и OSINT вынесены в отдельные сервисы. Такая структура позволяет развивать и заменять интеграции независимо друг от друга.
+
+## Tech stack
+
+`Python` · `FastAPI` · `PostgreSQL 17` · `Docker Compose` · `Playwright / Chromium` · `Ollama` · `Vanilla Web`
+
+Сервисы развиваются независимо и общаются через HTTP API; локальные AI-задачи выполняются через Ollama, а browser-based интеграции изолированы в отдельных сервисах.
+
+## Запуск локально
+
+Job Search поднимается локально через Docker Compose.
+
+```bash
+git clone --recurse-submodules https://github.com/craz/job-search-workspace.git
+cd job-search-workspace
+make bootstrap
+make up
+```
+
+После старта Web доступен по адресу [http://127.0.0.1:8080/](http://127.0.0.1:8080/) (порт по умолчанию из `compose.yaml`; можно переопределить через `WEB_PORT`).
+
+HeadHunter после первого запуска обычно требует начальной авторизации/сессии в сервисе HH. Для AI-scoring нужны локально установленные Ollama и подготовленная модель — без этого доска вакансий всё равно работает, а оценка вакансий — нет.
+
+> **Reproducibility status:** clean-install acceptance на новой машине/VM запланирован как финальный Gate v1. До его прохождения команды выше описывают поддерживаемый development setup, а не гарантированный installer.
 
 ## Документация
 
-- [Архитектурный план](ARCHITECTURE_PLAN.md)
-- [Пошаговый план реализации](IMPLEMENTATION_PLAN.md)
-- [Design system (R0)](DESIGN.md)
-- [Состояние проекта](PROJECT_STATUS.md)
-- [Полный процесс разработки](DEVELOPMENT_PROCESS.md)
-- [Правила участия](CONTRIBUTING.md)
-- [Инструкции агентам](AGENTS.md)
-- [Локальная история работы с AI](docs/AI_HISTORY.md)
-- [Шаблон feature spec](docs/templates/FEATURE_SPEC.md)
-- [Шаблон ADR](docs/templates/ADR.md)
-
-Cursor Rules находятся в [`.cursor/rules`](.cursor/rules). Они задают безопасный
-автокоммит, contract-first разработку, тестовые gates, Docker/data security,
-автоматический venv, live browser/hot reload и обновление документации.
-
-## Developer experience
-
-Основной цикл для реализованного Core/Web-контура:
-
-```bash
-git clone --recurse-submodules <workspace-url>
-make bootstrap  # инициализировать отсутствующие submodules
-make doctor     # проверить Docker, конфигурацию и host Ollama
-make up         # ensure HH host-proxy bridge (если нужен) + поднять stack
-make dev        # то же в foreground с hot reload
-make logs       # посмотреть состояние сервисов
-make test       # запустить общий набор проверок
-make compose-smoke  # проверить все реализованные Core/Web ресурсы
-make down       # остановить контейнеры и HH host-proxy relay
-```
-
-`make up` / `make dev` перед Compose вызывают
-`scripts/host_http_proxy_socket.py ensure`: если в `services/hh/.env` указан
-**loopback HTTP proxy**, он пробрасывается в Docker через Unix socket + сервис
-`hh-egress` (см. [`docs/runbooks/hh-docker-host-proxy.md`](docs/runbooks/hh-docker-host-proxy.md)).
-Не используйте голый `docker compose up` с `HTTP_PROXY=http://127.0.0.1:…` —
-контейнеры обычно не видят host loopback.
-
-`make dev` монтирует `services/core/src` и `services/web/src` в контейнеры,
-перезапускает затронутый Uvicorn-процесс после изменения Python и автоматически
-обновляет уже открытую Web-страницу после изменения browser assets. Изменения
-зависимостей, Dockerfile, Compose и миграций по-прежнему требуют контролируемой
-пересборки через повторный `make dev`.
-
-Доступны `make bootstrap`, `make doctor`, `make doctor-offline`, `make unit`,
-`make bdd`, `make test`, `make build`, `make up`, `make dev`, `make logs`, `make down` и
-`make compose-smoke`. Backup/restore будут добавлены отдельным инкрементом 0B.
-
-Зафиксированный workspace commit содержит точные gitlink SHA сервисов. Изменение
-сервиса сначала коммитится и публикуется в его собственном репозитории, затем
-обновлённый gitlink отдельно фиксируется в workspace.
-
-Для host Python tooling каждый репозиторий будет содержать `.envrc`: после
-однократного `direnv allow` окружение `.venv` активируется автоматически при
-входе в каталог. `scripts/ensure-venv.sh` остаётся fallback для Make, CI и
-агентских команд, поэтому вручную выполнять `source .venv/bin/activate` не
-потребуется.
-
-Рабочая PostgreSQL, browser profile HH, токены, кэши и drafts будут храниться в
-Docker named volumes. Обычный restart или `docker compose down` их не удаляет.
-
-Scoring запускается без GPU и model weights в контейнере: Core доступен по HTTP,
-host Ollama — через loopback в host network, raw/cache хранится в `scoring-state`.
-
-## Локальная AI-история
-
-Пользователь может создать приватное хранилище оригинальных сессий Codex, Cursor
-и других AI-инструментов вместе с отдельным summary-журналом:
-
-```bash
-scripts/init-ai-history.sh
-```
-
-Новые локальные Codex-сессии подключаются и derived-представление обновляется
-идемпотентной командой `make ai-history-sync`.
-
-После доверия к workspace project hooks Codex и Cursor автоматически запускают
-безопасную fail-open синхронизацию в конце каждого agent turn. Ручная команда
-остаётся fallback; подробности и границы Cursor transcripts описаны в
-[`docs/AI_HISTORY.md`](docs/AI_HISTORY.md).
-
-Правила находятся в Git. Оригинальные platform exports сохраняются в
-`.local/sessions/`, производные представления — в `.local/derived/`, а всё
-пользовательское содержимое остаётся вне Git.
+- [Architecture](ARCHITECTURE_PLAN.md) — границы сервисов и архитектурные решения
+- [Implementation plan](IMPLEMENTATION_PLAN.md) — последовательность развития продукта
+- [Scoring](services/scoring/README.md) — локальная AI-оценка вакансий через Ollama
+- [Design](DESIGN.md) — визуальные правила рабочей доски
+- [Contributing](CONTRIBUTING.md) — короткий путь изменений и соглашения по коммитам
