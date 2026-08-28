@@ -265,6 +265,7 @@ scoring_identity_hash = SHA256_canonical(
   vacancy_content_hash,
   profile_version_id,
   resume_version_id,
+  candidate_context_hash,
   policy_hash,
   model_fingerprint,
   scoring_mode

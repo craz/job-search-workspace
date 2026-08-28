@@ -64,10 +64,11 @@ or move into JSONB in R2.3.1 — implementation chooses least-breaking path.
 - **Separate** from LLM model, `CandidateProfile`, and `ResumeVersion`.
 - `policy_id` + `policy_version` + **`policy_hash`**.
 - **`policy_hash`** is computed from **canonical serialized material policy**:
-  threshold values, scoring rules, prompt/template contract references,
-  result schema expectations, and (when added) deterministic weighting/override
-  rules. Formatting, comments, and file path **must not** change `policy_hash`
-  if semantic policy is identical.
+  threshold values, scoring rules, **resolved template digest** (hash of actual
+  prompt/template content used — not path/name/ref/comments alone), result schema
+  expectations, and (when added) deterministic weighting/override rules.
+  Formatting, comments, and file path **must not** change `policy_hash` if semantic
+  policy is identical. Changing actual prompt semantics **must** change it.
 - Policy body is structured (JSON/YAML in Scoring config) — not buried only in
   free-form prompt text.
 
