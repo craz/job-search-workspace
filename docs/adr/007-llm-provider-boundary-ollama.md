@@ -24,6 +24,8 @@ Git worktrees, Cursor/Codex executors, swarm runtime, or external provider routi
      required in R2.3 implementation**
 2. **`OllamaGenerationBackend`** is the sole Roadmap v1 generation implementation:
    - `POST /api/generate` with JSON schema / structured `format`
+   - `think: false` for structured generation when supported by installed Ollama
+   - structured JSON parsed **only** from final `response`; `thinking` is never used
    - model tag + digest resolved from `/api/tags` when available
    - non-streaming for foundation slice
 3. **Future `OllamaEmbeddingBackend`** (R2.4+ when needed):

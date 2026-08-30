@@ -17,6 +17,8 @@ Evidence: [`docs/evidence/R2_2_A_INTEGRATED_ACCEPTANCE.md`](docs/evidence/R2_2_A
 
 - **R2.3.3** — review / ACCEPT generation backend slice.
 - **R2.3.4** — **не** начинать до ACCEPT R2.3.3.
+- **R2.3.4 E2E** требует явного выбора/провижининга production scoring model
+  (`job-search-scorer-summary:latest` сейчас отсутствует локально → fail-closed).
 - **R2.4** mass scoring — **не** начинать до R2.3.6 calibration evidence.
 
 ## Локальные SHA (не pushed)
@@ -24,5 +26,5 @@ Evidence: [`docs/evidence/R2_2_A_INTEGRATED_ACCEPTANCE.md`](docs/evidence/R2_2_A
 | Repo | SHA |
 |---|---|
 | Core | `6f85f30` (R2.3.2) |
-| Scoring | pending R2.3.3 commit |
-| Workspace | pending gitlink bump |
+| Scoring | `6b4ccc2` (R2.3.3) |
+| Workspace | `e8fa6d8` |

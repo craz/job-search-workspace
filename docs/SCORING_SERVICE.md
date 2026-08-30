@@ -203,7 +203,16 @@ store full prompts, ResumeVersion/Vacancy bodies, secrets, or raw successful pro
 responses. Bounded raw failure retention — R2.3.5.
 
 **Ollama adapter:** `POST /api/generate`, non-streaming, structured JSON schema via
-`format`, model resolved from `/api/tags`, digest from tag metadata when available.
+`format`, `think: false` for structured generation (reasoning channel disabled),
+model resolved from `/api/tags`, digest from tag metadata when available.
+
+**Thinking boundary:** structured output is parsed **only** from the provider final
+`response` field. The `thinking`/reasoning channel is never used as structured output,
+never persisted, and never exposed in `GenerationResult`.
+
+**Output schema subset:** root `type: object`, `properties` with
+`{type: boolean|string|integer|number}`, `required` name list only. Unsupported JSON
+Schema keywords are rejected before provider transport (`unsupported_output_schema`).
 
 **Smoke only in R2.3.3:** generic schema `{ok: boolean, label: string}` — not production
 vacancy scoring output.
@@ -412,8 +421,8 @@ diagnostics.
 ## 19. Recovery / errors
 
 Stable codes: `ollama_unavailable`, `model_not_found`, `generation_timeout`,
-`invalid_structured_json`, `structured_schema_mismatch`, `provider_http_failure`,
-`invalid_model_json`, `vacancy_not_found`, `context_not_ready`, `policy_invalid`,
+`invalid_structured_json`, `unsupported_output_schema`, `structured_schema_mismatch`,
+`provider_http_failure`, `invalid_model_json`, `vacancy_not_found`, `context_not_ready`, `policy_invalid`,
 `core_write_failed`, `identity_already_scored`.
 
 ---
