@@ -1,9 +1,9 @@
 # План архитектуры Job Search Multirepo
 
-**Revision:** 3  
+**Revision:** 4  
 **Aligned with:** UJM v1 + Product Backlog + Roadmap v1  
-**Updated:** 2026-08-28 (R2.2 CLOSED; R2.3 architecture owner review corrections)  
-**Previous revision:** 2 (R1 closed; R2.2 decomposition)
+**Updated:** 2026-08-31 (R2.3.2 COMPLETE; R2.3.3 generation backend)  
+**Previous revision:** 3 (R2.2 CLOSED; R2.3 architecture owner review corrections)
 
 Продуктовый workspace `job_search_ref` самодостаточен. Репозитории не
 импортируют Python-код друг друга и не получают прямой доступ к чужим хранилищам.
@@ -108,7 +108,7 @@ Developer experience: `make dev` поднимает stack; Web на loopback; HH
 | `job-search-core` | PostgreSQL, домен, Alembic, `/api/v1`, JSON CLI | **Implemented** |
 | `job-search-web` | Static SPA + HTTP proxy | **Implemented** (R0 IA accepted) |
 | `job-search-hh` | HH integration, Chromium, volumes | **Implemented** (read-ready) |
-| `job-search-scoring` | Queue, Ollama, Assessment writeback | **Partial** (bootstrap worker; R2.3 foundation designed) |
+| `job-search-scoring` | Queue, Ollama, Assessment writeback | **Partial** (R2.3.1–R2.3.2 COMPLETE; R2.3.3 GenerationBackend) |
 | `job-search-osint` | Research API/CLI, provenance cache | **Implemented** (on-demand) |
 | `job-search-content` | Drafts, Telegram | **Stub** (empty submodule, not in compose) |
 | `job-search-hermes` | Audit CLI consumer | **Deferred** |
@@ -314,14 +314,15 @@ Vacancy + scoring-ready ResumeVersion + ScoringPolicy
 - **Fast** async HTTP (`202 Accepted`) in R2.3.4; **detailed** in R2.5.
 - Core **`GET /api/v1/vacancies/{id}`** approved prerequisite (R2.3.2).
 
-**Implemented now (bootstrap — adapt in R2.3):**
+**Implemented now:**
 
-- JSON file queue; CLI worker; list-all vacancy fetch; embedded resume in Modelfile;
-  Ollama generate; `POST /api/v1/assessments`.
-- Legacy `normalize()` — **remove after R2.3.A**, not before.
+- R2.3.1 hybrid Assessment contracts — **COMPLETE**
+- R2.3.2 scoring-ready context assembly — **COMPLETE**
+- R2.3.3 `GenerationBackend` + `OllamaGenerationBackend` — **current slice**
+- Bootstrap JSON queue; CLI worker; legacy `OllamaClient` + `normalize()` — adapt/remove in R2.3.4 / post-R2.3.A
 
-**R2.3 foundation:** hybrid Assessment, policy verdict, generation backend,
-context from Core, async fast score HTTP. **NOT STARTED.**
+**R2.3 foundation remaining:** R2.3.4 fast E2E, R2.3.5 hardening, R2.3.6 calibration,
+R2.3.A integrated acceptance.
 
 ## 11. OSINT (R3 behavior)
 

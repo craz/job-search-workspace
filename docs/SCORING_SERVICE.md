@@ -1,8 +1,13 @@
 # Scoring service — canonical design (R2.3 foundation)
 
-**Status:** architecture / decomposition — **READY FOR OWNER ACCEPTANCE** (impl NOT STARTED)  
+**Status:** R2.3.1–R2.3.2 **COMPLETE**; R2.3.3 generation backend **READY FOR OWNER ACCEPTANCE**  
 **Aligned with:** Google Doc *Job Search* → PB-03, Roadmap R2, R2 tab  
 **ADRs:** [005](adr/005-scoring-service-boundary-and-ownership.md), [006](adr/006-scoring-result-policy-identity.md), [007](adr/007-llm-provider-boundary-ollama.md)
+
+**Design donor (patterns only):** AI Development Control Plane — provider-neutral
+request/result contracts, bounded input, honest usage telemetry, deterministic
+validation before domain acceptance, fail-closed semantics. **No runtime/package
+dependency** on devai or related Git/Cursor/swarm tooling.
 
 ---
 
@@ -22,13 +27,13 @@ prioritization UI. R2.5 adds **detailed** scoring UX in Vacancy expand.
 
 ### In scope (R2.3 foundation)
 
-- Hybrid Core `Assessment` extension (ADR-006)
-- Policy-derived verdict; `scoring_identity_hash` uniqueness
-- `GenerationBackend` + Ollama generation (R2.3.3)
-- Context assembly from Core `ResumeVersion`
-- Core `GET /api/v1/vacancies/{id}` (approved R2.3.2 prerequisite)
-- Async `POST /api/v1/score/fast` (202 Accepted)
-- Queue/worker reuse where sound
+- Hybrid Core `Assessment` extension (ADR-006) — **R2.3.1 COMPLETE**
+- Policy-derived verdict; `scoring_identity_hash` uniqueness — **R2.3.1 COMPLETE**
+- Scoring-ready context from Core `ResumeVersion` — **R2.3.2 COMPLETE**
+- **`GenerationBackend` + Ollama generation** — **R2.3.3** (this slice)
+- Core `GET /api/v1/vacancies/{id}` — **R2.3.2 COMPLETE**
+- Async `POST /api/v1/score/fast` (202 Accepted) — **R2.3.4**
+- Calibration/benchmark evidence before mass scoring — **R2.3.6** (planned)
 
 ### Out of scope
 
@@ -40,6 +45,8 @@ prioritization UI. R2.5 adds **detailed** scoring UX in Vacancy expand.
 | Deterministic FAIL → verdict override | policy v2+ |
 | LLM self-confidence as product signal | not v1 |
 | Vector DB | — |
+| External/cloud LLM routing | post-R2.3 |
+| Mass scoring before calibration evidence | blocked until R2.3.6 |
 
 ---
 
@@ -167,15 +174,39 @@ relevant, scoring-relevant preferences. Extensible for embedding retrieval later
 See ADR-007.
 
 ```text
-ScoringOrchestrator
+ScoringOrchestrator (R2.3.4+)
   → DeterministicSignalEngine (optional, v1+)
-  → ContextRetriever
-  → PromptBuilder(policy, mode)          # prompt built in memory; not durably stored
-  → GenerationBackend.generate_structured()
-  → parse relevance_score + explanation
-  → PolicyVerdictDeriver(thresholds)     # canonical verdict
+  → ContextRetriever                         # R2.3.2 COMPLETE
+  → PromptBuilder(policy, mode)              # R2.3.4
+  → GenerationBackend.generate()             # R2.3.3 COMPLETE
+  → domain output/evidence validation        # R2.3.4
+  → PolicyVerdictDeriver(thresholds)
   → Core Assessment write
 ```
+
+### GenerationBackend (R2.3.3)
+
+Provider-neutral contracts in Scoring:
+
+| Type | Role |
+|---|---|
+| `GenerationRequest` | prompt, optional system, output schema, model, material generation config, timeout |
+| `GenerationResult` | structured payload, provider, resolved model tag, digest, usage, duration |
+| `GenerationUsage` | `input_tokens` / `output_tokens` as `int \| None`; `usage_reported` explicit |
+| `GenerationBackend` | `generate(request) -> GenerationResult` |
+
+**Usage semantics:** missing token counts are **unknown** (`None`). A provider-confirmed
+zero is `0`. Never coerce unknown → zero.
+
+**Privacy (R2.3.3):** success returns normalized in-memory result only. Do not durably
+store full prompts, ResumeVersion/Vacancy bodies, secrets, or raw successful provider
+responses. Bounded raw failure retention — R2.3.5.
+
+**Ollama adapter:** `POST /api/generate`, non-streaming, structured JSON schema via
+`format`, model resolved from `/api/tags`, digest from tag metadata when available.
+
+**Smoke only in R2.3.3:** generic schema `{ok: boolean, label: string}` — not production
+vacancy scoring output.
 
 ---
 
@@ -229,6 +260,15 @@ Column e.g. `detail` (name TBD in migration):
   "action": "…",
   "strengths": ["…"],
   "gaps": ["…"],
+  "ambiguities": ["…"],
+  "evidence": [
+    {
+      "claim": "…",
+      "source": "vacancy|candidate",
+      "section": "experience[0]|skills|description|…",
+      "fact": "…"
+    }
+  ],
   "deterministic_signals": [
     { "signal": "salary", "result": "UNKNOWN", "detail": "…" }
   ],
@@ -238,6 +278,10 @@ Column e.g. `detail` (name TBD in migration):
   }
 }
 ```
+
+**Evidence contract (R2.3.4 target):** important claims should reference normalized
+Vacancy or ResumeVersion facts via stable section/item references — not byte offsets.
+LLM-returned verdict remains diagnostic; canonical verdict is policy-derived.
 
 **Not in canonical v1:** `confidence` as product field.
 
@@ -367,8 +411,10 @@ diagnostics.
 
 ## 19. Recovery / errors
 
-Stable codes: `ollama_unavailable`, `invalid_model_json`, `vacancy_not_found`,
-`context_not_ready`, `policy_invalid`, `core_write_failed`, `identity_already_scored`.
+Stable codes: `ollama_unavailable`, `model_not_found`, `generation_timeout`,
+`invalid_structured_json`, `structured_schema_mismatch`, `provider_http_failure`,
+`invalid_model_json`, `vacancy_not_found`, `context_not_ready`, `policy_invalid`,
+`core_write_failed`, `identity_already_scored`.
 
 ---
 
@@ -388,11 +434,33 @@ Resume in memory only during job; no verbatim resume in durable Scoring logs.
 ## 22. Evolution path
 
 ```text
-R2.3  foundation (fast async, hybrid Assessment, policy verdict)
-R2.4  batch + list priority + signals/embeddings optional
-R2.5  detailed mode
-R2.6  user decision
+R2.3.1  Assessment/policy/identity           COMPLETE
+R2.3.2  scoring-ready context               COMPLETE
+R2.3.3  GenerationBackend + Ollama          current
+R2.3.4  FAST E2E + evidence validation + async HTTP
+R2.3.5  reuse/staleness/raw-retention
+R2.3.6  calibration/benchmark evidence
+R2.3.A  integrated foundation acceptance
+R2.4    batch + list priority + signals/embeddings optional
+R2.5    detailed mode
+R2.6    user decision
 ```
+
+### R2.3.6 — calibration / benchmark (planned)
+
+Before mass R2.4 scoring, collect evidence on human-labeled Vacancy cases:
+
+```text
+same versioned Vacancy + ResumeVersion + ScoringPolicy
+  → candidate model/prompt/policy combinations
+  → human-labeled expected evidence/decision ranges
+  → quality + grounding + calibration + cost + duration
+  → advisory route/prompt selection (no automatic routing mutation)
+```
+
+Initial target dataset size may be documented as ~30–50 labeled cases; not a hard
+product guarantee. **Smoke proves the path works; calibration supports trusting
+ranking quality.**
 
 ---
 
@@ -417,6 +485,6 @@ R2.6  user decision
 | CLI + queue + scheduler | **KEEP** |
 | `work_once` | **ADAPT** |
 | `CoreClient` list-all | **ADAPT** → GET-by-id (R2.3.2) |
-| `OllamaClient` | **ADAPT** → `OllamaGenerationBackend` |
+| `OllamaClient` | **ADAPT** → `OllamaGenerationBackend` (**R2.3.3**) |
 | `normalize()` legacy | **REMOVE AFTER R2.3.A** |
 | Modelfile `data/resume.txt` sole source | **ADAPT** → Core ResumeVersion |

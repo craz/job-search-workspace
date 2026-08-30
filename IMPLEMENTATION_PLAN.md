@@ -1,9 +1,9 @@
 # План реализации Job Search Multirepo
 
-**Revision:** 3  
-**Basis:** UJM v1 + Product Backlog + Roadmap v1 + [`ARCHITECTURE_PLAN.md`](ARCHITECTURE_PLAN.md) rev. 3  
-**Updated:** 2026-08-28 (R2.3 architecture owner review corrections)  
-**Previous revision:** 2 (R1 closed; R2.2 decomposition)
+**Revision:** 4  
+**Basis:** UJM v1 + Product Backlog + Roadmap v1 + [`ARCHITECTURE_PLAN.md`](ARCHITECTURE_PLAN.md) rev. 4  
+**Updated:** 2026-08-31 (R2.3.2 COMPLETE; R2.3.3 generation backend)  
+**Previous revision:** 3 (R2.3 architecture owner review corrections)
 
 Оперативный снимок: [`PROJECT_STATUS.md`](PROJECT_STATUS.md).  
 Архитектура: [`ARCHITECTURE_PLAN.md`](ARCHITECTURE_PLAN.md).  
@@ -318,11 +318,12 @@ Vacancy + ResumeVersion + ScoringPolicy
 
 | Slice | Focus |
 |---|---|
-| **R2.3.1** | Hybrid Core Assessment + policy/identity contracts (`candidate_context_hash`, resolved template in `policy_hash`, legacy NULL migration) |
-| **R2.3.2** | Core `GET /vacancies/{id}` + scoring-ready context from `ResumeVersion` |
-| **R2.3.3** | `GenerationBackend` + Ollama generation (**no mandatory embeddings**) |
-| **R2.3.4** | Single-vacancy **fast** E2E + **async** HTTP (`202 Accepted`) |
+| **R2.3.1** | Hybrid Core Assessment + policy/identity contracts | **COMPLETE** |
+| **R2.3.2** | Core `GET /vacancies/{id}` + scoring-ready context from `ResumeVersion` | **COMPLETE** |
+| **R2.3.3** | `GenerationBackend` + Ollama generation (**no mandatory embeddings**) | **current** |
+| **R2.3.4** | Single-vacancy **fast** E2E + evidence validation + **async** HTTP (`202 Accepted`) |
 | **R2.3.5** | Job hardening, identity reuse/skip, stale-on-input-change, bounded raw retention |
+| **R2.3.6** | Calibration/benchmark evidence on human-labeled Vacancy cases (design in R2.3.3; impl later) |
 | **R2.3.A** | Integrated foundation acceptance |
 
 **Later:** deterministic signal implementation, embeddings, batch (R2.4), detailed
