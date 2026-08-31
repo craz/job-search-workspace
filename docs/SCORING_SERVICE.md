@@ -572,6 +572,21 @@ same versioned Vacancy + ResumeVersion + ScoringPolicy
 and benchmark outputs live only under `{state_dir}/calibration/<suite_id>/` and are
 **gitignored**. Repository contains schemas, harness code, and **synthetic** fixtures only.
 
+**Real HH eligibility (R2.3.6.1):** owner calibration suites use only Vacancies with
+verified HeadHunter `resume_suitable` acquisition provenance:
+
+```text
+Vacancy.source == "hh"
+AND exists completed SearchRun (success|partial)
+    with acquisition_kind == resume_suitable
+    AND non-error SearchRunItem linking to the Vacancy
+AND usable normalized scoring material (title + content_hash)
+```
+
+`source=hh` alone is **insufficient**. Synthetic/adversarial cases remain separate
+test assets and are never mixed into reported real-world quality metrics.
+Prepare fails closed when eligible pool `< target_count`.
+
 **Canonical Assessment isolation:** calibration repetitions are benchmark artifacts.
 They do **not** write Core Assessments and do **not** bypass `scoring_identity_hash`
 uniqueness.

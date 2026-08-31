@@ -27,7 +27,8 @@
 
 ## R2.3.6.1 highlights
 
-- Private suite: `cal-20260831-20260831` · 30 real HH cases · seed `20260831`
+- Private suite: `cal-r2361-realhh-20260831` · 30 verified real HH cases · seed `20260831`
+- Prior suite `cal-20260831-20260831` **invalidated** (contaminated pool)
 - Labels: **0/30** (awaiting owner)
 - Storage: `{SCORING_STATE_DIR}/calibration/` (gitignored)
 - No Core Assessment writes; no Ollama benchmark runs yet
