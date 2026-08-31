@@ -319,10 +319,11 @@ Vacancy + scoring-ready ResumeVersion + ScoringPolicy
 - R2.3.1 hybrid Assessment contracts — **COMPLETE**
 - R2.3.2 scoring-ready context assembly — **COMPLETE**
 - R2.3.3 `GenerationBackend` + `OllamaGenerationBackend` — **COMPLETE**
-- R2.3.4 single-vacancy FAST E2E + evidence + async HTTP — **READY FOR OWNER ACCEPTANCE**
+- R2.3.4 single-vacancy FAST E2E + evidence + async HTTP — **COMPLETE**
+- R2.3.5 reuse/staleness/single-flight/failure diagnostics — **READY FOR OWNER ACCEPTANCE**
 - Bootstrap JSON queue; CLI worker; legacy `OllamaClient` + `normalize()` — remains; FAST path uses HTTP job store
 
-**R2.3 foundation remaining:** R2.3.5 hardening, R2.3.6 calibration, R2.3.A integrated acceptance.
+**R2.3 foundation remaining:** R2.3.6 calibration, R2.3.A integrated acceptance.
 
 ## 11. OSINT (R3 behavior)
 

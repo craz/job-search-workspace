@@ -364,6 +364,44 @@ Do **not** fabricate provenance for historical Assessments.
 
 Same identity + repeat request → reuse existing Assessment; skip Ollama by default.
 
+### Derived current / stale semantics (R2.3.5)
+
+There is **no** persisted `is_current` column. Scoring resolves state per Vacancy:
+
+| `state` | Meaning |
+|---|---|
+| `never_scored` | No canonical Assessment with complete identity for this Vacancy |
+| `current` | A successful Assessment exists whose `scoring_identity_hash` equals the identity computed from **present** material inputs |
+| `stale` | A canonical Assessment exists but its stored identity differs from the present identity |
+
+Historical Assessments remain immutable. Stale rows are **not** mutated.
+
+**Stale reason codes** (machine-readable, deterministic when provenance is complete):
+
+`vacancy_changed`, `profile_version_changed`, `resume_version_changed`,
+`candidate_context_changed`, `policy_changed`, `model_changed`, `scoring_mode_changed`.
+
+When stored provenance is incomplete or `scoring_identity_hash` is NULL →
+`legacy_incomplete_provenance`. Legacy NULL-identity rows are never reused as exact
+current v1 results.
+
+**Invalidation matrix:** identity changes when any material component changes
+(`vacancy_content_hash`, `profile_version_id`, `resume_version_id`,
+`candidate_context_hash`, `policy_hash`, `model_fingerprint`, `scoring_mode`).
+Transport host/port/timing, resume PDF artifact path, and provenance-only HH ids
+do **not** change identity.
+
+**Re-score semantics:**
+
+- Unchanged canonical identity → reuse existing Assessment; no `GenerationBackend` call.
+- Material input change → new identity → new Assessment write; prior Assessment becomes stale.
+- Calibration repeats belong to **R2.3.6** evaluation harness, not duplicate canonical writes.
+
+**Resolver:** `resolve_scoring_state(vacancy_id)` returns `current_scoring_identity_hash`,
+`reusable_assessment_id` (exact match), `latest_assessment_id`, and `stale_reason_codes`.
+
+Exposed via `GET /api/v1/vacancies/{vacancy_id}/scoring-state` and CLI `resolve-state`.
+
 ---
 
 ## 15. Persistence ownership
@@ -371,7 +409,7 @@ Same identity + repeat request → reuse existing Assessment; skip Ollama by def
 | Artifact | Owner |
 |---|---|
 | Assessment (structured result) | **Core** |
-| Queue, bounded raw diagnostics | **Scoring** `scoring-state` |
+| Queue, bounded failure diagnostics | **Scoring** `{state_dir}/failures/` |
 | ScoringPolicy files | **Scoring** repo config |
 | Resume body | **Core** `ResumeVersion` |
 
@@ -383,32 +421,47 @@ Scoring local state is **not** a second canonical resume store.
 
 | Case | Retention |
 |---|---|
-| **Success** | Structured result + execution metadata in Core; **full prompt not** retained as durable product data |
-| **Failed** (`invalid_model_json`, etc.) | Bounded raw response **excerpt** in `scoring-state/raw/` for debugging |
+| **Success** | Structured result + execution metadata in Core; **full prompt, system prompt, raw provider response, and thinking are not** durably retained |
+| **Failed** | Bounded sanitized diagnostic JSON under `{state_dir}/failures/` — excerpt only when necessary; **no** prompt/resume/vacancy bodies |
 | **Resume content** | Never duplicated into permanent Scoring state |
 | **Secrets** | Never in raw diagnostics |
 
-Bounded policy (R2.3.5 implements cleanup): max size per raw file, TTL or ring
-buffer for failed-job artifacts. Exact limits in implementation.
+Bounded policy (R2.3.5): per-file excerpt max **1024 bytes**; HTTP error message max
+**500** chars; max **50** files; max total **256 KiB**; TTL **24 h**; startup cleanup
+on each job execute. Secrets and control characters stripped.
 
 ---
 
-## 17. Execution / job lifecycle (R2.3.4)
+## 17. Execution / job lifecycle (R2.3.4+)
 
 **FAST HTTP path:** in-process `JobStore` (not durable across restart).
+
+After Scoring restart: canonical Assessments remain in Core; identical requests
+recompute identity and reuse via `scoring_identity_hash` without old JobStore state.
+Old process-local job IDs may disappear.
+
+**In-process single-flight (R2.3.5):** concurrent requests with the same
+`scoring_identity_hash` within one Scoring process share one `GenerationBackend`
+call. Different identities run independently. Cross-process duplicate suppression
+is **not** guaranteed; Core unique constraint remains final authority (idempotent
+reuse on race).
 
 | State | Meaning |
 |---|---|
 | `queued` | accepted, waiting for background worker |
-| `processing` | context loaded, Ollama generation in flight |
+| `processing` | context loaded, Ollama generation in flight (or waiting on single-flight leader) |
 | `done` | Assessment id available (new or reused identity) |
-| `error` | sanitized `error_code` / `error_message`; no Assessment on validation failure |
+| `error` | sanitized `error_code` / `error_message`; optional bounded `diagnostic_id` |
 
 Legacy file `QueueStore` + CLI worker remain for bootstrap; FAST scoring uses the
-HTTP job store. R2.3.5 may add durable queue semantics and identity reuse matrix.
+HTTP job store.
 
 **FAST pipeline:** ContextRetriever → vacancy scoring material → PromptBuilder
-(`fast-v1` template) → `GenerationBackend` → domain validation → Core Assessment.
+(`fast-v1` template) → exact identity lookup → single-flight → `GenerationBackend`
+(when needed) → domain validation → Core Assessment.
+
+**Core exact reuse lookup:** `GET /api/v1/assessments?scoring_identity_hash=<64-hex>`
+returns at most one canonical successful Assessment (R2.3.5).
 
 **Model alias:** `job-search-scorer-summary:latest` (provisional foundation from
 `qwen3.5:9b-q4_K_M`). Provision explicitly:
@@ -444,6 +497,7 @@ diagnostics.
 
 | Method | Path | R2.3 |
 |---|---|---|
+| GET | `/api/v1/vacancies/{vacancy_id}/scoring-state` | yes (R2.3.5) |
 | GET | `/health/ready` | yes |
 | POST | `/api/v1/score/fast` | yes (async) |
 | GET | `/api/v1/jobs/{id}` | yes |
@@ -481,9 +535,10 @@ Resume in memory only during job; no verbatim resume in durable Scoring logs.
 R2.3.1  Assessment/policy/identity           COMPLETE
 R2.3.2  scoring-ready context               COMPLETE
 R2.3.3  GenerationBackend + Ollama          COMPLETE
-R2.3.4  FAST E2E + evidence + async HTTP    READY FOR OWNER ACCEPTANCE
-R2.3.5  reuse/staleness/raw-retention
-R2.3.6  calibration/benchmark evidence
+R2.3.4  FAST E2E + evidence + async HTTP    COMPLETE
+R2.3.5  reuse/staleness/single-flight/     READY FOR OWNER ACCEPTANCE
+        failure diagnostics
+R2.3.6  calibration/benchmark evidence      PLANNED
 R2.3.A  integrated foundation acceptance
 R2.4    batch + list priority + signals/embeddings optional
 R2.5    detailed mode
@@ -514,7 +569,7 @@ ranking quality.**
 |---|---|
 | JSONB column name / legacy column migration | R2.3.1 |
 | Legacy NULL v1 columns on historical rows | R2.3.1 migration |
-| Exact raw retention byte limits + cleanup job | R2.3.5 |
+| Exact raw retention byte limits + cleanup job | **R2.3.5** (implemented) |
 | Deterministic FAIL → verdict override | policy v2 |
 | Calibrated confidence signal | future schema |
 | Batch enqueue API | R2.4 |
