@@ -324,7 +324,7 @@ Vacancy + ResumeVersion + ScoringPolicy
 | **R2.3.4** | Single-vacancy **fast** E2E + evidence validation + **async** HTTP (`202 Accepted`) | **COMPLETE** |
 | **R2.3.5** | Identity reuse/skip, derived current/stale, single-flight, bounded failure diagnostics | **COMPLETE** |
 | **R2.3.6** | Calibration/benchmark evidence on human-labeled Vacancy cases | **IN PROGRESS** |
-| **R2.3.6.1** | Harness + blind owner label dataset | **READY FOR OWNER LABELING** |
+| **R2.3.6.1** | Harness + blind owner label dataset + Web labeling UI | **READY FOR OWNER LABELING** |
 | **R2.3.6.2** | Benchmark execution + quantitative evidence | **NOT STARTED** |
 | **R2.3.6.3** | Owner qualitative review / calibration decision | **PLANNED** |
 | **R2.3.A** | Integrated foundation acceptance |

@@ -595,6 +595,20 @@ uniqueness.
 ResumeVersion and search strategy. Labeling UI/CLI must not show existing Assessment
 score/verdict, model reason/evidence, or prior benchmark output.
 
+**Owner labeling UI (R2.3.6.1):** Web page `/calibration?suite_id=<suite_id>` proxies
+Scoring calibration HTTP and persists labels into the same private
+`{state_dir}/calibration/<suite_id>/labels/` store as the CLI. CLI remains a
+technical fallback.
+
+**Scoring calibration HTTP (labeling only):**
+
+```text
+GET  /api/v1/calibration/suites/{suite_id}
+GET  /api/v1/calibration/suites/{suite_id}/cases/{case_id}
+PUT  /api/v1/calibration/suites/{suite_id}/labels/{case_id}
+PUT  /api/v1/calibration/suites/{suite_id}/session
+```
+
 **CLI:**
 
 ```bash

@@ -42,7 +42,10 @@ services:
       CORE_API_URL: http://core:8000
       OSINT_API_URL: http://osint:8081
       HH_API_URL: http://hh:8092
+      SCORING_API_URL: http://host.docker.internal:8090
       WEB_LIVE_RELOAD: "1"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     command:
       - uvicorn
       - job_search_web.app:app
