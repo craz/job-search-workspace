@@ -617,12 +617,15 @@ job-search-scoring calibration status --suite-id <suite_id>
 job-search-scoring calibration label --suite-id <suite_id>
 job-search-scoring calibration validate-labels --suite-id <suite_id>
 job-search-scoring calibration freeze-labels --suite-id <suite_id>
+job-search-scoring calibration amend-benchmark-plan --suite-id <suite_id>
 job-search-scoring calibration show-candidate --suite-id <suite_id>
 ```
 
-`freeze-labels` validates completeness/integrity/provenance, writes private
-`labels_freeze.json` + `benchmark_plan.json`, and sets suite status to
-`benchmark_ready`. It does **not** invoke Ollama generation.
+`freeze-labels` / `amend-benchmark-plan` resolve the Ollama model digest via
+`GET /api/tags` (no generation), freeze it in `benchmark_plan.json`, and define
+repeat semantics: **repeat 1 = canonical predictions**; repeats 2–3 = stability
+only (no majority vote). `run-benchmark` verifies the runtime digest against the
+frozen plan and **fail-closes on mismatch without updating the plan**.
 
 **Benchmark repeats:** default 3 per case/variant on frozen material; no Core reuse.
 **Metrics:** exact-match accuracy, confusion matrix, per-class P/R/F1, macro F1,
