@@ -540,7 +540,7 @@ R2.3.5  reuse/staleness/single-flight/     COMPLETE
         failure diagnostics
 R2.3.6  calibration/benchmark evidence      IN PROGRESS
 R2.3.6.1 harness + blind owner dataset      READY FOR OWNER LABELING
-R2.3.6.2 benchmark execution + metrics      NOT STARTED
+R2.3.6.2 benchmark execution + metrics      PRE-BENCHMARK VALIDATION PASS
 R2.3.6.3 owner qualitative review           PLANNED
 R2.3.A  integrated foundation acceptance
 R2.4    batch + list priority + signals/embeddings optional
@@ -616,13 +616,22 @@ job-search-scoring calibration prepare --seed <seed> --target-count 30
 job-search-scoring calibration status --suite-id <suite_id>
 job-search-scoring calibration label --suite-id <suite_id>
 job-search-scoring calibration validate-labels --suite-id <suite_id>
+job-search-scoring calibration freeze-labels --suite-id <suite_id>
 job-search-scoring calibration show-candidate --suite-id <suite_id>
 ```
 
+`freeze-labels` validates completeness/integrity/provenance, writes private
+`labels_freeze.json` + `benchmark_plan.json`, and sets suite status to
+`benchmark_ready`. It does **not** invoke Ollama generation.
+
 **Benchmark repeats:** default 3 per case/variant on frozen material; no Core reuse.
-**Metrics:** confusion matrix, macro F1, critical inversions, ranking pairwise accuracy,
-repeat flip rate, failure rates, duration/token summaries (usage unknown preserved).
-No confidence v1; no automatic production threshold; recommendations advisory-only.
+**Metrics:** exact-match accuracy, confusion matrix, per-class P/R/F1, macro F1,
+correct/N, mismatch list (owner vs model), ordinal one-step/two-step disagreements
+(skip≺maybe≺apply via policy `VERDICT_RANK`), critical inversions, ranking pairwise
+accuracy, repeat flip rate, failure rates, duration/token summaries. Classes with
+support `< 5` are flagged statistically fragile (current suite: apply=2).
+Do not report only overall accuracy. No confidence v1; no automatic production
+threshold; recommendations advisory-only.
 
 Initial target dataset size may be documented as ~30–50 labeled cases; not a hard
 product guarantee. **Smoke proves the path works; calibration supports trusting
