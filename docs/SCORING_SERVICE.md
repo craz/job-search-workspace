@@ -1,6 +1,6 @@
 # Scoring service — canonical design (R2.3 foundation)
 
-**Status:** R2.3.1–R2.3.2 **COMPLETE**; R2.3.3 generation backend **READY FOR OWNER ACCEPTANCE**  
+**Status:** R2.3.1–R2.3.3 **COMPLETE**; R2.3.4 FAST E2E + async HTTP **READY FOR OWNER ACCEPTANCE**  
 **Aligned with:** Google Doc *Job Search* → PB-03, Roadmap R2, R2 tab  
 **ADRs:** [005](adr/005-scoring-service-boundary-and-ownership.md), [006](adr/006-scoring-result-policy-identity.md), [007](adr/007-llm-provider-boundary-ollama.md)
 
@@ -30,8 +30,9 @@ prioritization UI. R2.5 adds **detailed** scoring UX in Vacancy expand.
 - Hybrid Core `Assessment` extension (ADR-006) — **R2.3.1 COMPLETE**
 - Policy-derived verdict; `scoring_identity_hash` uniqueness — **R2.3.1 COMPLETE**
 - Scoring-ready context from Core `ResumeVersion` — **R2.3.2 COMPLETE**
-- **`GenerationBackend` + Ollama generation** — **R2.3.3** (this slice)
+- **`GenerationBackend` + Ollama generation** — **R2.3.3 COMPLETE**
 - Core `GET /api/v1/vacancies/{id}` — **R2.3.2 COMPLETE**
+- Single-vacancy **FAST** scoring E2E + evidence validation — **R2.3.4**
 - Async `POST /api/v1/score/fast` (202 Accepted) — **R2.3.4**
 - Calibration/benchmark evidence before mass scoring — **R2.3.6** (planned)
 
@@ -174,12 +175,12 @@ relevant, scoring-relevant preferences. Extensible for embedding retrieval later
 See ADR-007.
 
 ```text
-ScoringOrchestrator (R2.3.4+)
+ScoringOrchestrator (R2.3.4)
   → DeterministicSignalEngine (optional, v1+)
   → ContextRetriever                         # R2.3.2 COMPLETE
-  → PromptBuilder(policy, mode)              # R2.3.4
+  → PromptBuilder(policy, mode)              # R2.3.4 COMPLETE
   → GenerationBackend.generate()             # R2.3.3 COMPLETE
-  → domain output/evidence validation        # R2.3.4
+  → domain output/evidence validation        # R2.3.4 COMPLETE
   → PolicyVerdictDeriver(thresholds)
   → Core Assessment write
 ```
@@ -210,9 +211,11 @@ model resolved from `/api/tags`, digest from tag metadata when available.
 `response` field. The `thinking`/reasoning channel is never used as structured output,
 never persisted, and never exposed in `GenerationResult`.
 
-**Output schema subset:** root `type: object`, `properties` with
-`{type: boolean|string|integer|number}`, `required` name list only. Unsupported JSON
-Schema keywords are rejected before provider transport (`unsupported_output_schema`).
+**Output schema subset (R2.3.3–R2.3.4):** recursive `object` / `array` / `items` /
+`properties` / `required` / `additionalProperties: false` with leaf types
+`boolean`, `string`, `integer`, `number`. Unsupported JSON Schema keywords
+(`$ref`, `allOf`, `anyOf`, `oneOf`, …) → `unsupported_output_schema` before
+provider transport.
 
 **Smoke only in R2.3.3:** generic schema `{ok: boolean, label: string}` — not production
 vacancy scoring output.
@@ -288,9 +291,21 @@ Column e.g. `detail` (name TBD in migration):
 }
 ```
 
-**Evidence contract (R2.3.4 target):** important claims should reference normalized
-Vacancy or ResumeVersion facts via stable section/item references — not byte offsets.
-LLM-returned verdict remains diagnostic; canonical verdict is policy-derived.
+**Evidence contract (R2.3.4):** provider output `FastScoringProviderOutput` with
+`relevance_score`, explanations, and `evidence[]`. Each `EvidenceItem` has
+`kind`, `claim`, `vacancy_refs`, `candidate_refs`.
+
+**Reference grammar:** `vacancy:/json/pointer` and `candidate:/json/pointer`
+(RFC 6901). Bare `/pointer` refs in the vacancy/candidate ref arrays are
+normalized server-side before validation. Every ref must resolve against the
+exact Vacancy/Candidate material blocks sent to the model; invalid paths fail
+closed (`invalid_fast_output:evidence_refs`).
+
+Accepted `kind` values: `strength`, `gap`, `fit`, `ambiguity`, `requirement`,
+`preference`. Persisted `detail.evidence` stores claim, validated refs, and
+bounded `resolved_snippets` — not full prompt or resume bodies.
+
+LLM `action` text is explanatory only; canonical `verdict` is policy-derived.
 
 **Not in canonical v1:** `confidence` as product field.
 
@@ -378,10 +393,30 @@ buffer for failed-job artifacts. Exact limits in implementation.
 
 ---
 
-## 17. Execution / job lifecycle
+## 17. Execution / job lifecycle (R2.3.4)
 
-Reuse `QueueStore` + scheduler. Job record includes `vacancy_id`, `mode`,
-`policy_hash`, `scoring_identity_hash`, `resume_version_id`.
+**FAST HTTP path:** in-process `JobStore` (not durable across restart).
+
+| State | Meaning |
+|---|---|
+| `queued` | accepted, waiting for background worker |
+| `processing` | context loaded, Ollama generation in flight |
+| `done` | Assessment id available (new or reused identity) |
+| `error` | sanitized `error_code` / `error_message`; no Assessment on validation failure |
+
+Legacy file `QueueStore` + CLI worker remain for bootstrap; FAST scoring uses the
+HTTP job store. R2.3.5 may add durable queue semantics and identity reuse matrix.
+
+**FAST pipeline:** ContextRetriever → vacancy scoring material → PromptBuilder
+(`fast-v1` template) → `GenerationBackend` → domain validation → Core Assessment.
+
+**Model alias:** `job-search-scorer-summary:latest` (provisional foundation from
+`qwen3.5:9b-q4_K_M`). Provision explicitly:
+
+```bash
+ollama create job-search-scorer-summary:latest \
+  -f services/scoring/config/Modelfile.job-search-scorer-summary
+```
 
 ---
 
@@ -396,7 +431,7 @@ Reuse `QueueStore` + scheduler. Job record includes `vacancy_id`, `mode`,
 ```json
 {
   "job_id": "…",
-  "status": "pending",
+  "status": "queued",
   "links": {
     "job": "/api/v1/jobs/{id}",
     "result": "/api/v1/jobs/{id}/result"
@@ -445,8 +480,8 @@ Resume in memory only during job; no verbatim resume in durable Scoring logs.
 ```text
 R2.3.1  Assessment/policy/identity           COMPLETE
 R2.3.2  scoring-ready context               COMPLETE
-R2.3.3  GenerationBackend + Ollama          current
-R2.3.4  FAST E2E + evidence validation + async HTTP
+R2.3.3  GenerationBackend + Ollama          COMPLETE
+R2.3.4  FAST E2E + evidence + async HTTP    READY FOR OWNER ACCEPTANCE
 R2.3.5  reuse/staleness/raw-retention
 R2.3.6  calibration/benchmark evidence
 R2.3.A  integrated foundation acceptance

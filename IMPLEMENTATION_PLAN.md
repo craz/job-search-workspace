@@ -320,8 +320,8 @@ Vacancy + ResumeVersion + ScoringPolicy
 |---|---|
 | **R2.3.1** | Hybrid Core Assessment + policy/identity contracts | **COMPLETE** |
 | **R2.3.2** | Core `GET /vacancies/{id}` + scoring-ready context from `ResumeVersion` | **COMPLETE** |
-| **R2.3.3** | `GenerationBackend` + Ollama generation (**no mandatory embeddings**) | **current** |
-| **R2.3.4** | Single-vacancy **fast** E2E + evidence validation + **async** HTTP (`202 Accepted`) |
+| **R2.3.3** | `GenerationBackend` + Ollama generation (**no mandatory embeddings**) | **COMPLETE** |
+| **R2.3.4** | Single-vacancy **fast** E2E + evidence validation + **async** HTTP (`202 Accepted`) | **READY FOR OWNER ACCEPTANCE** |
 | **R2.3.5** | Job hardening, identity reuse/skip, stale-on-input-change, bounded raw retention |
 | **R2.3.6** | Calibration/benchmark evidence on human-labeled Vacancy cases (design in R2.3.3; impl later) |
 | **R2.3.A** | Integrated foundation acceptance |

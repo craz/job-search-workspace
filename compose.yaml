@@ -70,14 +70,22 @@ services:
       JOB_SEARCH_SCORING_CORE_BASE_URL: http://127.0.0.1:${CORE_PORT:-8000}
       JOB_SEARCH_SCORING_OLLAMA_BASE_URL: http://127.0.0.1:11434
       JOB_SEARCH_SCORING_MODEL: job-search-scorer-summary:latest
-      SCORING_PROMPT_VERSION: embedded-summary-v1
+      SCORING_PROMPT_VERSION: fast-v1
       SCORING_STATE_DIR: /var/lib/job-search-scoring
-      SCORING_TIMEOUT_SECONDS: "180"
-      SCORING_MAX_ATTEMPTS: "3"
-      SCORING_RETRY_DELAY_SECONDS: "30"
-      SCORING_LEASE_SECONDS: "300"
-      SCORING_POLL_SECONDS: "5"
-    command: ["python", "-m", "job_search_scoring.cli", "run"]
+      SCORING_TIMEOUT_SECONDS: "300"
+      SCORING_HTTP_PORT: "8090"
+    command:
+      [
+        "python",
+        "-m",
+        "uvicorn",
+        "job_search_scoring.api:get_app",
+        "--factory",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8090",
+      ]
     depends_on:
       core:
         condition: service_healthy
