@@ -322,8 +322,11 @@ Vacancy + ResumeVersion + ScoringPolicy
 | **R2.3.2** | Core `GET /vacancies/{id}` + scoring-ready context from `ResumeVersion` | **COMPLETE** |
 | **R2.3.3** | `GenerationBackend` + Ollama generation (**no mandatory embeddings**) | **COMPLETE** |
 | **R2.3.4** | Single-vacancy **fast** E2E + evidence validation + **async** HTTP (`202 Accepted`) | **COMPLETE** |
-| **R2.3.5** | Identity reuse/skip, derived current/stale, single-flight, bounded failure diagnostics | **READY FOR OWNER ACCEPTANCE** |
-| **R2.3.6** | Calibration/benchmark evidence on human-labeled Vacancy cases (design in R2.3.3; impl later) | **PLANNED** |
+| **R2.3.5** | Identity reuse/skip, derived current/stale, single-flight, bounded failure diagnostics | **COMPLETE** |
+| **R2.3.6** | Calibration/benchmark evidence on human-labeled Vacancy cases | **IN PROGRESS** |
+| **R2.3.6.1** | Harness + blind owner label dataset | **READY FOR OWNER LABELING** |
+| **R2.3.6.2** | Benchmark execution + quantitative evidence | **NOT STARTED** |
+| **R2.3.6.3** | Owner qualitative review / calibration decision | **PLANNED** |
 | **R2.3.A** | Integrated foundation acceptance |
 
 **Later:** deterministic signal implementation, embeddings, batch (R2.4), detailed

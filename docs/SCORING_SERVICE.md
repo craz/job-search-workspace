@@ -536,16 +536,19 @@ R2.3.1  Assessment/policy/identity           COMPLETE
 R2.3.2  scoring-ready context               COMPLETE
 R2.3.3  GenerationBackend + Ollama          COMPLETE
 R2.3.4  FAST E2E + evidence + async HTTP    COMPLETE
-R2.3.5  reuse/staleness/single-flight/     READY FOR OWNER ACCEPTANCE
+R2.3.5  reuse/staleness/single-flight/     COMPLETE
         failure diagnostics
-R2.3.6  calibration/benchmark evidence      PLANNED
+R2.3.6  calibration/benchmark evidence      IN PROGRESS
+R2.3.6.1 harness + blind owner dataset      READY FOR OWNER LABELING
+R2.3.6.2 benchmark execution + metrics      NOT STARTED
+R2.3.6.3 owner qualitative review           PLANNED
 R2.3.A  integrated foundation acceptance
 R2.4    batch + list priority + signals/embeddings optional
 R2.5    detailed mode
 R2.6    user decision
 ```
 
-### R2.3.6 — calibration / benchmark (planned)
+### R2.3.6 — calibration / benchmark
 
 Before mass R2.4 scoring, collect evidence on human-labeled Vacancy cases:
 
@@ -556,6 +559,41 @@ same versioned Vacancy + ResumeVersion + ScoringPolicy
   → quality + grounding + calibration + cost + duration
   → advisory route/prompt selection (no automatic routing mutation)
 ```
+
+**Decomposition:**
+
+| Sub-slice | Scope |
+|---|---|
+| **R2.3.6.1** | Harness + blind owner label dataset (**READY FOR OWNER LABELING**) |
+| **R2.3.6.2** | Run benchmark candidates + quantitative evidence |
+| **R2.3.6.3** | Owner qualitative review / calibration decision if needed |
+
+**Private data policy:** real ResumeVersion snapshots, Vacancy material, owner labels,
+and benchmark outputs live only under `{state_dir}/calibration/<suite_id>/` and are
+**gitignored**. Repository contains schemas, harness code, and **synthetic** fixtures only.
+
+**Canonical Assessment isolation:** calibration repetitions are benchmark artifacts.
+They do **not** write Core Assessments and do **not** bypass `scoring_identity_hash`
+uniqueness.
+
+**Blind labeling:** owner labels `apply` \| `maybe` \| `skip` relative to current
+ResumeVersion and search strategy. Labeling UI/CLI must not show existing Assessment
+score/verdict, model reason/evidence, or prior benchmark output.
+
+**CLI:**
+
+```bash
+job-search-scoring calibration prepare --seed <seed> --target-count 30
+job-search-scoring calibration status --suite-id <suite_id>
+job-search-scoring calibration label --suite-id <suite_id>
+job-search-scoring calibration validate-labels --suite-id <suite_id>
+job-search-scoring calibration show-candidate --suite-id <suite_id>
+```
+
+**Benchmark repeats:** default 3 per case/variant on frozen material; no Core reuse.
+**Metrics:** confusion matrix, macro F1, critical inversions, ranking pairwise accuracy,
+repeat flip rate, failure rates, duration/token summaries (usage unknown preserved).
+No confidence v1; no automatic production threshold; recommendations advisory-only.
 
 Initial target dataset size may be documented as ~30–50 labeled cases; not a hard
 product guarantee. **Smoke proves the path works; calibration supports trusting
