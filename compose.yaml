@@ -66,6 +66,23 @@ services:
     volumes:
       - ./services/web/src:/app/src:ro
 
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-job_search}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-job_search}
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    ports:
+      # Defaults avoid clashing with other local brokers on 5672/15672.
+      - "127.0.0.1:${RABBITMQ_PORT:-5673}:5672"
+      - "127.0.0.1:${RABBITMQ_MGMT_PORT:-15673}:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
   scoring:
     build: ./services/scoring
     network_mode: host
@@ -77,6 +94,8 @@ services:
       SCORING_STATE_DIR: /var/lib/job-search-scoring
       SCORING_TIMEOUT_SECONDS: "300"
       SCORING_HTTP_PORT: "8090"
+      # Host-networked scoring reaches compose RabbitMQ via published localhost port.
+      JOB_SEARCH_SCORING_RABBITMQ_URL: amqp://${RABBITMQ_USER:-job_search}:${RABBITMQ_PASSWORD:-job_search}@127.0.0.1:${RABBITMQ_PORT:-5673}/
     command:
       [
         "python",
@@ -91,6 +110,37 @@ services:
       ]
     depends_on:
       core:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - scoring-state:/var/lib/job-search-scoring
+
+  scoring-worker:
+    build: ./services/scoring
+    network_mode: host
+    environment:
+      JOB_SEARCH_SCORING_CORE_BASE_URL: http://127.0.0.1:${CORE_PORT:-8000}
+      JOB_SEARCH_SCORING_OLLAMA_BASE_URL: http://127.0.0.1:11434
+      JOB_SEARCH_SCORING_MODEL: job-search-scorer-summary:latest
+      SCORING_PROMPT_VERSION: fast-v1
+      SCORING_STATE_DIR: /var/lib/job-search-scoring
+      SCORING_TIMEOUT_SECONDS: "300"
+      JOB_SEARCH_SCORING_RABBITMQ_URL: amqp://${RABBITMQ_USER:-job_search}:${RABBITMQ_PASSWORD:-job_search}@127.0.0.1:${RABBITMQ_PORT:-5673}/
+    command:
+      [
+        "python",
+        "-m",
+        "job_search_scoring.cli",
+        "semantic-batch",
+        "work",
+        "--concurrency",
+        "1",
+      ]
+    depends_on:
+      core:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     volumes:
       - scoring-state:/var/lib/job-search-scoring
@@ -186,6 +236,7 @@ volumes:
   postgres-data:
   core-artifacts:
   scoring-state:
+  rabbitmq-data:
   searxng-cache:
   osint-cache:
   hh-state:
