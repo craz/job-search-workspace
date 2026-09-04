@@ -97,6 +97,21 @@ Assembly (R2.3.2):
 }
 ```
 
+### PersonalScoringProfile (R2.4.6A)
+
+Private per-user preference data (compensation bands, desirability gates,
+location/employment actions, FIT hard exclusions, interest maps) is **not**
+shipped as public source defaults. The public Scoring repository owns:
+
+- schema + engine wiring (`semantic/personal_scoring_profile.py`)
+- fake example: `services/scoring/config/personal_scoring_profile.example.json`
+
+Runtime loads `{SCORING_STATE_DIR}/personal_scoring_profile/current.json`
+(under gitignored `.state/`). Missing profile → fail closed on semantic evaluate
+(no invented owner defaults). `personal_scoring_profile_hash` participates in
+production / scoring identity alongside compensation / desirability / interest
+sub-hashes. Do not document real operator threshold values in this repo.
+
 ### policy_hash semantics
 
 `policy_hash` covers **all material policy behavior**, including:
