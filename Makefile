@@ -24,7 +24,7 @@ ai-history-sync:
 	$(PYTHON) scripts/sync_ai_history.py
 
 unit:
-	$(PYTHON) -m unittest -v tests.test_workspace tests.test_inventory tests.test_agent_context tests.test_ai_history tests.test_compose_smoke tests.test_host_http_proxy_socket
+	$(PYTHON) -m unittest -v tests.test_workspace tests.test_inventory tests.test_agent_context tests.test_ai_history tests.test_compose_smoke tests.test_host_http_proxy_socket tests.test_semantic_worker_process
 
 bdd:
 	$(PYTHON) -m unittest -v tests.test_workspace_bdd tests.test_ai_history_bdd
