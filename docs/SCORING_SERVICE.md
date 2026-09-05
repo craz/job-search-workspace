@@ -112,6 +112,21 @@ Runtime loads `{SCORING_STATE_DIR}/personal_scoring_profile/current.json`
 production / scoring identity alongside compensation / desirability / interest
 sub-hashes. Do not document real operator threshold values in this repo.
 
+**Identity continuity (R2.4.6A.2).** After PersonalScoringProfile entered scoring
+identity, historically scored vacancies keep their original Assessment /
+FailureRecord identity hashes. An auditable alias store under
+`{SCORING_STATE_DIR}/semantic_batches/identity_continuity/` maps legacy
+identities (computed without `personal_scoring_profile_hash`) onto the current
+identity when material policy hashes still match. Resolve / auto-enqueue /
+worker consult this store so equivalent history resolves as `current` or
+`failed_current_identity` without rewriting Core Assessments or failure memory
+and without LLM or enqueue. Operator migration:
+
+```bash
+python -m job_search_scoring.cli identity-continuity migrate --dry-run
+python -m job_search_scoring.cli identity-continuity migrate --apply
+```
+
 ### policy_hash semantics
 
 `policy_hash` covers **all material policy behavior**, including:
