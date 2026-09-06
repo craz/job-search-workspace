@@ -122,6 +122,7 @@ def run_cycle(
 
     cycle = empty_cycle_counts()
     cycle["cycle_id"] = str(uuid.uuid4())
+    cycle["trigger"] = trigger
     try:
         core.health_ready()
         hh.health_ready()

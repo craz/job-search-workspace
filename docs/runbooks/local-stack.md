@@ -1,4 +1,4 @@
-# Local stack — daily operation (R2.5.2 + R2.5.3)
+# Local stack — daily operation (R2.5.2 + R2.5.3 / R2.5.3A)
 
 Canonical operator path for the Job Search Compose product.
 
@@ -6,6 +6,7 @@ Canonical operator path for the Job Search Compose product.
 
 ```bash
 make up      # host bridges (HH proxy + Ollama) + compose up -d --build
+make boot    # same bridges + compose up -d (no rebuild; used on machine boot)
 make down    # compose down + stop host bridges
 make status  # compose ps + HTTP probes
 make logs    # core web scoring scoring-worker hh rabbitmq automation
@@ -13,8 +14,39 @@ make logs    # core web scoring scoring-worker hh rabbitmq automation
 
 Do **not** use `docker compose up --no-deps` for normal daily work.
 
-Plain `docker compose -f compose.yaml up` without `make up` skips HH/Ollama
+Plain `docker compose -f compose.yaml up` without `make up`/`make boot` skips HH/Ollama
 egress overrides and will leave HH (and Scoring→Ollama) degraded on Linux.
+
+## Machine boot autostart (R2.5.3A)
+
+Docker Compose restart policies alone are **not** enough: boot must recreate host
+unix-socket bridges (`hh-egress` / `ollama-egress`) before Compose attaches.
+
+One-time setup (prefers system unit with sudo; falls back to user unit):
+
+```bash
+make install-autostart          # or: sudo make install-autostart
+make autostart-status
+# if user unit + headless boot without login:
+# sudo loginctl enable-linger "$USER"
+```
+
+Disable:
+
+```bash
+make uninstall-autostart        # use sudo if the system unit was installed
+```
+
+Unit: `job-search.service` → `make boot` after Docker is ready.
+
+Boot-equivalent check without rebooting the machine:
+
+```bash
+make down
+systemctl --user start job-search   # or: sudo systemctl start job-search
+# do NOT run make up
+make status
+```
 
 ## URLs (defaults; override via `.env`)
 
@@ -50,6 +82,18 @@ enqueue semantic scoring **only** for `created`/`updated` items from **this** Se
 
 **Default after deploy: DISABLED** (`AUTOMATION_ENABLED=0`). Enabling does **not** fire
 immediately — it schedules the next run; use **Run now** for a controlled cycle.
+
+`enabled` is persisted on the `automation-state` volume and survives Compose/machine reboot.
+
+### Startup catch-up rule
+
+If automation is **enabled** and `next_run_at <= now` when the automation process
+starts (machine/stack was down across one or more intervals): run **exactly one**
+catch-up cycle (same path as schedule / Run now), then set
+`next_run_at = now + interval`. Missed hourly slots are **not** replayed individually.
+
+If `next_run_at` is still in the future (ordinary container restart inside the
+open interval): no catch-up.
 
 Does **not** automate: applications, recruiter messages, OSINT, historical backlog scoring,
 owner_decision changes.

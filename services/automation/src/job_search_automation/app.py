@@ -11,6 +11,7 @@ from typing import Any
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
+from job_search_automation.catchup import maybe_startup_catchup
 from job_search_automation.clients import CoreClient, HhClient, ScoringClient
 from job_search_automation.config import Settings, load_settings
 from job_search_automation.cycle import run_cycle
@@ -102,6 +103,24 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(_app: FastAPI):
+        # Exactly one catch-up if next_run_at was missed while the stack was down.
+        try:
+            catchup = await asyncio.to_thread(
+                maybe_startup_catchup,
+                settings=cfg,
+                store=store,
+                core=core,
+                hh=hh,
+                scoring=scoring,
+            )
+            logger.info(
+                "startup catch-up performed=%s reason=%s status=%s",
+                catchup.get("performed"),
+                catchup.get("reason"),
+                catchup.get("status"),
+            )
+        except Exception:  # noqa: BLE001
+            logger.exception("startup catch-up failed")
         task = asyncio.create_task(_scheduler_loop())
         try:
             yield
@@ -135,6 +154,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             or cfg.max_enqueue_per_cycle,
             "last_cycle": state.get("last_cycle") or {},
             "observed_at": utc_now_iso(),
+            "startup_catchup_rule": (
+                "enabled AND next_run_at <= now → exactly one catch-up on process start; "
+                "then next_run_at = now + interval (missed slots are not replayed)"
+            ),
         }
 
     @application.post("/api/v1/automation/enable")

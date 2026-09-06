@@ -53,6 +53,7 @@ def empty_cycle_counts() -> dict[str, Any]:
         "job_ids": [],
         "search_run_id": None,
         "cycle_id": None,
+        "trigger": None,
     }
 
 

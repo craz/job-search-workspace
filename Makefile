@@ -1,4 +1,4 @@
-.PHONY: bootstrap doctor doctor-offline inventory-check ai-history-sync test unit bdd build up dev down logs status compose-smoke hh-host-proxy-ensure hh-host-proxy-stop ollama-host-proxy-ensure ollama-host-proxy-stop host-bridges-ensure
+.PHONY: bootstrap doctor doctor-offline inventory-check ai-history-sync test unit bdd build up boot dev down logs status compose-smoke hh-host-proxy-ensure hh-host-proxy-stop ollama-host-proxy-ensure ollama-host-proxy-stop host-bridges-ensure install-autostart uninstall-autostart autostart-status
 
 PYTHON ?= python3
 
@@ -24,7 +24,7 @@ ai-history-sync:
 	$(PYTHON) scripts/sync_ai_history.py
 
 unit:
-	$(PYTHON) -m unittest -v tests.test_workspace tests.test_inventory tests.test_agent_context tests.test_ai_history tests.test_compose_smoke tests.test_host_http_proxy_socket tests.test_ollama_host_socket tests.test_semantic_worker_process
+	$(PYTHON) -m unittest -v tests.test_workspace tests.test_inventory tests.test_agent_context tests.test_ai_history tests.test_compose_smoke tests.test_host_http_proxy_socket tests.test_ollama_host_socket tests.test_semantic_worker_process tests.test_autostart
 
 bdd:
 	$(PYTHON) -m unittest -v tests.test_workspace_bdd tests.test_ai_history_bdd
@@ -51,6 +51,10 @@ host-bridges-ensure: hh-host-proxy-ensure ollama-host-proxy-ensure
 up: host-bridges-ensure
 	$(COMPOSE) up -d --build
 
+# Boot/start without rebuild — used by systemd autostart.
+boot:
+	$(PYTHON) scripts/autostart.py boot
+
 dev: host-bridges-ensure
 	$(COMPOSE) up --build
 
@@ -70,3 +74,12 @@ status:
 
 compose-smoke:
 	$(PYTHON) scripts/compose_smoke.py
+
+install-autostart:
+	$(PYTHON) $(CURDIR)/scripts/autostart.py install
+
+uninstall-autostart:
+	$(PYTHON) $(CURDIR)/scripts/autostart.py uninstall
+
+autostart-status:
+	$(PYTHON) scripts/autostart.py status

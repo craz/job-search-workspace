@@ -1,0 +1,22 @@
+[Unit]
+Description=Job Search local Compose stack (canonical boot)
+Documentation=file://@WORKSPACE@/docs/runbooks/local-stack.md
+After=network-online.target
+Wants=network-online.target
+@DOCKER_REQUIRES@
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+@USER_LINE@
+@GROUP_LINE@
+WorkingDirectory=@WORKSPACE@
+# Wait until the Docker engine answers (boot race; also covers user units
+# that cannot DependsOn system docker.service).
+ExecStartPre=/bin/bash -c 'for i in $(seq 1 60); do docker info >/dev/null 2>&1 && exit 0; sleep 2; done; echo "docker not ready"; exit 1'
+ExecStart=@MAKE@ -C @WORKSPACE@ boot
+ExecStop=@MAKE@ -C @WORKSPACE@ down
+TimeoutStartSec=600
+
+[Install]
+WantedBy=@WANTED_BY@
