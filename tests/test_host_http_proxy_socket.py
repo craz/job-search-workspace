@@ -36,3 +36,6 @@ class HostHttpProxySocketTests(unittest.TestCase):
         makefile = (Path(__file__).resolve().parents[1] / "Makefile").read_text(encoding="utf-8")
         self.assertIn("host_http_proxy_socket.py ensure", makefile)
         self.assertIn("host_http_proxy_socket.py compose-files", makefile)
+        self.assertIn("ollama_host_socket.py ensure", makefile)
+        self.assertIn("host-bridges-ensure", makefile)
+        self.assertIn("stack_status.py", makefile)

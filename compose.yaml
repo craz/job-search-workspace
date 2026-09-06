@@ -42,10 +42,9 @@ services:
       CORE_API_URL: http://core:8000
       OSINT_API_URL: http://osint:8081
       HH_API_URL: http://hh:8092
-      SCORING_API_URL: http://host.docker.internal:8090
+      # Scoring is on the Compose network (not host.docker.internal — Linux bridge gap).
+      SCORING_API_URL: http://scoring:8090
       WEB_LIVE_RELOAD: "1"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     command:
       - uvicorn
       - job_search_web.app:app
@@ -59,8 +58,11 @@ services:
     depends_on:
       core:
         condition: service_healthy
+      # HH/Scoring optional for vacancy review; degrade in UI when unavailable.
       hh:
-        condition: service_healthy
+        condition: service_started
+      scoring:
+        condition: service_started
     ports:
       - "127.0.0.1:${WEB_PORT:-8080}:8080"
     volumes:
@@ -85,17 +87,17 @@ services:
 
   scoring:
     build: ./services/scoring
-    network_mode: host
     environment:
-      JOB_SEARCH_SCORING_CORE_BASE_URL: http://127.0.0.1:${CORE_PORT:-8000}
-      JOB_SEARCH_SCORING_OLLAMA_BASE_URL: http://127.0.0.1:11434
+      JOB_SEARCH_SCORING_CORE_BASE_URL: http://core:8000
+      # Overridden to http://ollama-egress:11434 by .local/docker-compose.ollama-egress.yml
+      # when `make up` / ollama-host-socket ensure runs (Linux host Ollama).
+      JOB_SEARCH_SCORING_OLLAMA_BASE_URL: http://host.docker.internal:11434
       JOB_SEARCH_SCORING_MODEL: job-search-scorer-summary:latest
       SCORING_PROMPT_VERSION: fast-v1
       SCORING_STATE_DIR: /var/lib/job-search-scoring
       SCORING_TIMEOUT_SECONDS: "300"
       SCORING_HTTP_PORT: "8090"
-      # Host-networked scoring reaches compose RabbitMQ via published localhost port.
-      JOB_SEARCH_SCORING_RABBITMQ_URL: amqp://${RABBITMQ_USER:-job_search}:${RABBITMQ_PASSWORD:-job_search}@127.0.0.1:${RABBITMQ_PORT:-5673}/
+      JOB_SEARCH_SCORING_RABBITMQ_URL: amqp://${RABBITMQ_USER:-job_search}:${RABBITMQ_PASSWORD:-job_search}@rabbitmq:5672/
     command:
       [
         "python",
@@ -104,7 +106,7 @@ services:
         "job_search_scoring.api:get_app",
         "--factory",
         "--host",
-        "127.0.0.1",
+        "0.0.0.0",
         "--port",
         "8090",
       ]
@@ -113,20 +115,35 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8090/health/ready', timeout=2)",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+    ports:
+      - "127.0.0.1:${SCORING_PORT:-8090}:8090"
     volumes:
       - scoring-state:/var/lib/job-search-scoring
 
   scoring-worker:
     build: ./services/scoring
-    network_mode: host
     environment:
-      JOB_SEARCH_SCORING_CORE_BASE_URL: http://127.0.0.1:${CORE_PORT:-8000}
-      JOB_SEARCH_SCORING_OLLAMA_BASE_URL: http://127.0.0.1:11434
+      JOB_SEARCH_SCORING_CORE_BASE_URL: http://core:8000
+      JOB_SEARCH_SCORING_OLLAMA_BASE_URL: http://host.docker.internal:11434
       JOB_SEARCH_SCORING_MODEL: job-search-scorer-summary:latest
       SCORING_PROMPT_VERSION: fast-v1
       SCORING_STATE_DIR: /var/lib/job-search-scoring
       SCORING_TIMEOUT_SECONDS: "300"
-      JOB_SEARCH_SCORING_RABBITMQ_URL: amqp://${RABBITMQ_USER:-job_search}:${RABBITMQ_PASSWORD:-job_search}@127.0.0.1:${RABBITMQ_PORT:-5673}/
+      JOB_SEARCH_SCORING_RABBITMQ_URL: amqp://${RABBITMQ_USER:-job_search}:${RABBITMQ_PASSWORD:-job_search}@rabbitmq:5672/
     command:
       [
         "python",
@@ -142,6 +159,10 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      scoring:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - scoring-state:/var/lib/job-search-scoring
 
@@ -203,8 +224,8 @@ services:
       # Keep Docker DNS / loopback out of the operator proxy; external HH API may still use it.
       # Loopback host HTTP proxies are bridged by `make up` via hh-egress (see
       # docs/runbooks/hh-docker-host-proxy.md) — do not rely on 127.0.0.1 from the container.
-      NO_PROXY: "127.0.0.1,localhost,hh,core,web,osint,postgres,searxng"
-      no_proxy: "127.0.0.1,localhost,hh,core,web,osint,postgres,searxng"
+      NO_PROXY: "127.0.0.1,localhost,hh,core,web,osint,postgres,searxng,scoring,rabbitmq"
+      no_proxy: "127.0.0.1,localhost,hh,core,web,osint,postgres,searxng,scoring,rabbitmq"
       # Redirect comes from services/hh/.env (archive-registered URI).
     depends_on:
       core:

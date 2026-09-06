@@ -73,16 +73,19 @@ Job Search разбит на независимые сервисы с собст
 
 ## Запуск локально
 
-Job Search поднимается локально через Docker Compose.
+Канонический путь — `make up` (поднимает Compose и Linux host-bridges для HH proxy / Ollama).
 
 ```bash
 git clone --recurse-submodules https://github.com/craz/job-search-workspace.git
 cd job-search-workspace
 make bootstrap
 make up
+make status
 ```
 
-После старта Web доступен по адресу [http://127.0.0.1:8080/](http://127.0.0.1:8080/) (порт по умолчанию из `compose.yaml`; можно переопределить через `WEB_PORT`).
+Web: [http://127.0.0.1:18080/](http://127.0.0.1:18080/) при `WEB_PORT=18080` в `.env` (иначе порт по умолчанию `8080`).
+
+Подробности: [`docs/runbooks/local-stack.md`](docs/runbooks/local-stack.md).
 
 HeadHunter после первого запуска обычно требует начальной авторизации/сессии в сервисе HH. Для AI-scoring нужны локально установленные Ollama и подготовленная модель — без этого доска вакансий всё равно работает, а оценка вакансий — нет.
 
