@@ -60,8 +60,8 @@ services:
       http_proxy: {INTERNAL_PROXY_URL}
       https_proxy: {INTERNAL_PROXY_URL}
       HH_PROXY: {INTERNAL_PROXY_URL}
-      NO_PROXY: "127.0.0.1,localhost,hh,core,web,osint,postgres,searxng,scoring,rabbitmq,{EGRESS_SERVICE}"
-      no_proxy: "127.0.0.1,localhost,hh,core,web,osint,postgres,searxng,scoring,rabbitmq,{EGRESS_SERVICE}"
+      NO_PROXY: "127.0.0.1,localhost,hh,core,web,osint,postgres,searxng,scoring,rabbitmq,automation,{EGRESS_SERVICE}"
+      no_proxy: "127.0.0.1,localhost,hh,core,web,osint,postgres,searxng,scoring,rabbitmq,automation,{EGRESS_SERVICE}"
     depends_on:
       {EGRESS_SERVICE}:
         condition: service_started

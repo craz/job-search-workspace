@@ -44,6 +44,7 @@ services:
       HH_API_URL: http://hh:8092
       # Scoring is on the Compose network (not host.docker.internal — Linux bridge gap).
       SCORING_API_URL: http://scoring:8090
+      AUTOMATION_API_URL: http://automation:8095
       WEB_LIVE_RELOAD: "1"
     command:
       - uvicorn
@@ -224,8 +225,8 @@ services:
       # Keep Docker DNS / loopback out of the operator proxy; external HH API may still use it.
       # Loopback host HTTP proxies are bridged by `make up` via hh-egress (see
       # docs/runbooks/hh-docker-host-proxy.md) — do not rely on 127.0.0.1 from the container.
-      NO_PROXY: "127.0.0.1,localhost,hh,core,web,osint,postgres,searxng,scoring,rabbitmq"
-      no_proxy: "127.0.0.1,localhost,hh,core,web,osint,postgres,searxng,scoring,rabbitmq"
+      NO_PROXY: "127.0.0.1,localhost,hh,core,web,osint,postgres,searxng,scoring,rabbitmq,automation"
+      no_proxy: "127.0.0.1,localhost,hh,core,web,osint,postgres,searxng,scoring,rabbitmq,automation"
       # Redirect comes from services/hh/.env (archive-registered URI).
     depends_on:
       core:
@@ -253,6 +254,57 @@ services:
       - hh-profile:/var/lib/job-search-hh/profile
       - ./services/hh/src:/app/src:ro
 
+  automation:
+    build: ./services/automation
+    environment:
+      CORE_API_URL: http://core:8000
+      HH_API_URL: http://hh:8092
+      SCORING_API_URL: http://scoring:8090
+      AUTOMATION_STATE_DIR: /var/lib/job-search-automation
+      AUTOMATION_HTTP_PORT: "8095"
+      AUTOMATION_INTERVAL_SECONDS: "${AUTOMATION_INTERVAL_SECONDS:-3600}"
+      AUTO_SCORING_MAX_PER_CYCLE: "${AUTO_SCORING_MAX_PER_CYCLE:-20}"
+      # Default disabled — enable from Web or AUTOMATION_ENABLED=1
+      AUTOMATION_ENABLED: "${AUTOMATION_ENABLED:-0}"
+      AUTO_SCORE_MAX_AGE_DAYS: "${AUTO_SCORE_MAX_AGE_DAYS:-14}"
+      AUTOMATION_SUITABLE_MAX_PAGES: "${AUTOMATION_SUITABLE_MAX_PAGES:-1}"
+    command:
+      [
+        "python",
+        "-m",
+        "uvicorn",
+        "job_search_automation.app:get_app",
+        "--factory",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8095",
+      ]
+    depends_on:
+      core:
+        condition: service_started
+      hh:
+        condition: service_started
+      scoring:
+        condition: service_started
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8095/health/ready', timeout=2)",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+    ports:
+      - "127.0.0.1:${AUTOMATION_PORT:-8095}:8095"
+    volumes:
+      - automation-state:/var/lib/job-search-automation
+      - ./services/automation/src:/app/src:ro
+
 volumes:
   postgres-data:
   core-artifacts:
@@ -262,3 +314,4 @@ volumes:
   osint-cache:
   hh-state:
   hh-profile:
+  automation-state:

@@ -32,7 +32,7 @@ bdd:
 test: unit bdd
 
 build: host-bridges-ensure
-	$(COMPOSE) build core web osint hh scoring
+	$(COMPOSE) build core web osint hh scoring automation
 
 hh-host-proxy-ensure:
 	$(PYTHON) scripts/host_http_proxy_socket.py ensure
@@ -60,7 +60,7 @@ down:
 	$(PYTHON) scripts/ollama_host_socket.py stop
 
 logs:
-	$(COMPOSE) logs -f core web scoring scoring-worker hh rabbitmq
+	$(COMPOSE) logs -f core web scoring scoring-worker hh rabbitmq automation
 
 status:
 	@echo "=== compose ps ==="

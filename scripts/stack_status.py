@@ -39,6 +39,10 @@ CORE = os.environ.get("CORE_BASE_URL") or f"http://127.0.0.1:{_port('CORE_PORT',
 WEB = os.environ.get("WEB_BASE_URL") or f"http://127.0.0.1:{_port('WEB_PORT', '8080')}"
 SCORING = os.environ.get("SCORING_BASE_URL") or f"http://127.0.0.1:{_port('SCORING_PORT', '8090')}"
 HH = os.environ.get("HH_BASE_URL") or f"http://127.0.0.1:{_port('HH_API_PORT', '8092')}"
+AUTOMATION = (
+    os.environ.get("AUTOMATION_BASE_URL")
+    or f"http://127.0.0.1:{_port('AUTOMATION_PORT', '8095')}"
+)
 
 
 def probe(name: str, url: str) -> dict[str, Any]:
@@ -68,18 +72,27 @@ def main() -> int:
         probe("web", f"{WEB.rstrip('/')}/"),
         probe("scoring", f"{SCORING.rstrip('/')}/health/ready"),
         probe("hh", f"{HH.rstrip('/')}/health/ready"),
+        probe("automation", f"{AUTOMATION.rstrip('/')}/health/ready"),
     ]
     for row in rows:
         mark = "OK" if row.get("ok") else "DOWN"
         detail = row.get("status") or row.get("error") or ""
-        print(f"{row['service']:8} {mark:4} {detail}")
+        print(f"{row['service']:11} {mark:4} {detail}")
         if row["service"] == "hh" and isinstance(row.get("body"), dict):
             egress = row["body"].get("egress") or {}
             if egress:
                 print(
-                    f"         egress proxy_reachable={egress.get('proxy_reachable')} "
+                    f"            egress proxy_reachable={egress.get('proxy_reachable')} "
                     f"url={egress.get('proxy_url')}"
                 )
+        if row["service"] == "automation" and row.get("ok"):
+            auto = probe("automation-status", f"{AUTOMATION.rstrip('/')}/api/v1/automation/status")
+            body = auto.get("body") if isinstance(auto.get("body"), dict) else {}
+            print(
+                f"            enabled={body.get('enabled')} "
+                f"running={body.get('running')} "
+                f"last={body.get('last_status')}"
+            )
     return 0 if all(row.get("ok") for row in rows[:3]) else 1
 
 
