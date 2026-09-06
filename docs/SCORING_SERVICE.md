@@ -127,17 +127,20 @@ python -m job_search_scoring.cli identity-continuity migrate --dry-run
 python -m job_search_scoring.cli identity-continuity migrate --apply
 ```
 
-**Stage-A semantic contract (R2.4.7I).** `stage_a_semantic_contract_digest`
+**Stage-A semantic contract (R2.4.7I / R2.4.7J).** `stage_a_semantic_contract_digest`
 covers deterministic Stage-A interpretation: evidence catalog construction /
 evidence-ID assignment, commercial/CRM/1C runtime anchor patterns, domain
-validation rule versions, and repair policy (`no-repair-v1`). Bump colocated
-version/pattern constants (shared by runtime and digest) when any of those
-semantics change. Do **not** bump for logging, diagnostics persistence,
-behavior-preserving refactors, formatting, or transport. Bootstrap continuity:
+validation rule versions, and repair policy. Current repair policy:
+`commercial-primary-corrective-retry-v1` (one corrective Stage-A call only for
+`commercial_primary_unsupported` +
+`commercial_primary_requires_sales_revenue_substance`). Bump colocated
+version/pattern/repair constants when those semantics change. Do **not** bump
+for logging, diagnostics persistence, behavior-preserving refactors, formatting,
+or transport. Continuity:
 
 ```bash
 python -m job_search_scoring.cli identity-continuity migrate-stage-a-contract --dry-run
-python -m job_search_scoring.cli identity-continuity migrate-stage-a-contract --apply
+python -m job_search_scoring.cli identity-continuity migrate-stage-a-repair --dry-run
 ```
 
 ### policy_hash semantics
