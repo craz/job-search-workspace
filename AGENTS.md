@@ -1,5 +1,9 @@
 # Global instructions for development agents
 
+Long-term product direction and permanent scope guardrails are defined in
+[`docs/PROJECT_GOAL.md`](docs/PROJECT_GOAL.md). This file describes **how**
+agents work in the repository; it does not replace that goal.
+
 1. Read `ARCHITECTURE_PLAN.md` and applicable local instructions before a
    non-trivial change; never commit or quote private `.local/` content.
 2. Preserve repository boundaries: no cross-repository Python imports, shared

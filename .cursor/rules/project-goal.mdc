@@ -1,0 +1,30 @@
+---
+description: Persistent Job Search project goal and permanent scope guardrails
+alwaysApply: true
+---
+
+# Project goal
+
+Job Search has a canonical long-term project goal in
+[`docs/PROJECT_GOAL.md`](../../docs/PROJECT_GOAL.md).
+
+Use it as persistent project direction and permanent guardrails.
+
+## Precedence
+
+1. The user's current explicit task defines the active implementation scope.
+2. `docs/PROJECT_GOAL.md` defines long-term direction and persistent constraints.
+3. Roadmap / Product Backlog (Google Drive **Job Search**) define product
+   ordering where relevant.
+4. Existing implementation plans help execution but do not override the
+   current explicit task.
+
+Do not interpret `docs/PROJECT_GOAL.md` as permission to implement future
+slices.
+
+When the current slice is complete: stop, report results, and wait for the
+next explicit instruction.
+
+Avoid repeating the full contents of `docs/PROJECT_GOAL.md` in normal
+reports/prompts. Read/refer to the file when project direction or scope is
+relevant.

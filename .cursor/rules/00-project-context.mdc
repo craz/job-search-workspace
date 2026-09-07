@@ -5,6 +5,9 @@ alwaysApply: true
 
 # Project context
 
+- Long-term product direction and permanent scope guardrails:
+  `docs/PROJECT_GOAL.md` (Always Apply rule `project-goal.mdc`). The current
+  explicit user task remains the active implementation scope.
 - Canonical `job_search_ref` is self-contained; do not treat any sibling monolith as a runtime, setup or onboarding dependency.
 - Product source of truth: Google Drive document **"Job Search"**.
   Before decomposing a new Roadmap stage, changing Product Backlog /
