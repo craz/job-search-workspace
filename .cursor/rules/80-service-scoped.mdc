@@ -1,0 +1,19 @@
+---
+description: Follow nested service AGENTS.md and .cursor/rules when editing that service tree
+alwaysApply: false
+globs:
+  - "services/core/**"
+  - "services/web/**"
+  - "services/hh/**"
+  - "services/osint/**"
+  - "services/scoring/**"
+---
+
+# Service-scoped instructions
+
+When editing under `services/<name>/`, follow that service's nested `AGENTS.md`
+and `.cursor/rules` for local engineering gates and safety.
+
+Do **not** apply another service's detailed Scoring / HH browser / OSINT
+evidence rules outside its own tree. Do not copy nested rule bodies into
+workspace always-on context.

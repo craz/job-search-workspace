@@ -1,11 +1,13 @@
 ---
-description: Обязательный цикл разработки, scope и Definition of Done
+description: Detailed development cycle, slice statuses, and owner-acceptance checklist beyond the L1 ACCEPT invariant
 alwaysApply: false
 ---
 
 # Development workflow
 
-Следуй `DEVELOPMENT_PROCESS.md`.
+Critical ACCEPT / COMPLETE invariant lives in always-on
+`00-project-context.mdc`. This rule is the **detailed** cycle — follow
+`DEVELOPMENT_PROCESS.md`.
 
 ## Статусы среза
 

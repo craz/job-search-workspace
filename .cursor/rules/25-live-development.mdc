@@ -2,17 +2,17 @@
 description: Автоматический venv, live browser, hot reload и restart после изменений
 alwaysApply: false
 globs:
-  - "**/*.py"
-  - "**/*.html"
-  - "**/*.css"
-  - "**/*.js"
-  - "**/*.ts"
-  - "**/*.tsx"
-  - "**/Dockerfile"
+  - "**/Makefile"
+  - "**/.envrc"
+  - "**/scripts/ensure-venv.sh"
   - "**/compose*.yml"
   - "**/compose*.yaml"
-  - "**/pyproject.toml"
-  - "**/Makefile"
+  - "**/Dockerfile"
+  - "**/*.dockerfile"
+  - "services/web/**"
+  - "services/core/**/*.py"
+  - "services/hh/**/*browser*"
+  - "services/hh/**/*novnc*"
 ---
 
 # Live development

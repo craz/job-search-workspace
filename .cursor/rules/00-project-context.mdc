@@ -1,38 +1,42 @@
 ---
-description: Минимальные глобальные границы Job Search multirepo
+description: Always-on Job Search invariants — scope, ACCEPT, privacy, boundaries
 alwaysApply: true
 ---
 
-# Project context
+# Project context (L1)
 
-- Long-term product direction and permanent scope guardrails:
-  `docs/PROJECT_GOAL.md` (Always Apply rule `project-goal.mdc`). The current
-  explicit user task remains the active implementation scope.
-- Canonical `job_search_ref` is self-contained; do not treat any sibling monolith as a runtime, setup or onboarding dependency.
-- Product source of truth: Google Drive document **"Job Search"**.
-  Before decomposing a new Roadmap stage, changing Product Backlog /
-  Roadmap semantics, making a product-scope decision, or starting a new
-  `R<N>` stage — read the current relevant tabs of that Google Doc via the
-  connected Google Drive tool (`Product Backlog`, `Roadmap`, current `R<N>`
-  tab). Repository docs are an implementation projection of that product
-  plan; if they conflict with the current Google Doc, STOP and report the
-  conflict instead of choosing silently. Do not modify the canonical Google
-  Doc unless the owner explicitly requests it.
-- Запрещены cross-repo Python imports, общая прикладная БД и чтение чужих volumes.
-- Не публикуй секреты, PII, приватную историю или содержимое `.local/`.
-- Не выполнять реальные HH/Telegram отправки без явного разрешения пользователя.
-- Проверяй изменение применимыми gates; не скрывай warnings и не выдавай planned за ready.
-- Автокоммит допустим только для завершённого green шага и только своих файлов.
-- User-facing product slice нельзя объявлять COMPLETE и начинать следующий
-  только из‑за green gates: после TECHNICAL PASS подготовь runnable owner
-  acceptance, дай конкретный checklist и дождись явного ACCEPT владельца
-  (если он явно не разрешил иначе). Подробности — `DEVELOPMENT_PROCESS.md`
-  и `10-development-workflow.mdc`.
-- Push, PR, merge, tag и release требуют явного запроса пользователя.
-- Перед созданием или именованием долгоживущего service instance либо
-  инфраструктурной сущности прочитай `NAMING_CONVENTION.md`, проверь `USED` и
-  используй canonical slug нужного класса. Обычные Compose services и временные
-  контейнеры именуй функционально.
-- Project hook синхронизирует raw-историю после каждого ответа; используй
-  `make ai-history-sync` как fallback. После завершённого инженерного шага
-  обновляй приватный `.local/AI_HISTORY.md`.
+Universal invariants every turn. Details on demand:
+`10-development-workflow.mdc`, `DEVELOPMENT_PROCESS.md`, `docs/PROJECT_GOAL.md`.
+
+## Scope and completion
+
+- Current explicit user task = active implementation scope.
+- `docs/PROJECT_GOAL.md` is direction, not a license for future slices.
+- After the current slice finishes: **STOP**, report, wait.
+- **TECHNICAL PASS ≠ COMPLETE.** For user-facing product slices: prepare
+  runnable owner acceptance + concrete checklist, then wait for explicit
+  OWNER `ACCEPT` before COMPLETE (unless the owner waived). Local commit after
+  TECHNICAL PASS is allowed and does **not** mean ACCEPT or COMPLETE.
+- Do not start the next product slice independently.
+
+## Safety
+
+- No public push / PR / merge / tag / release without explicit owner request.
+- Owner-specific / private career criteria (including PersonalScoringProfile
+  values), secrets, PII, and `.local/` must not enter public Git, docs,
+  fixtures, or logs. Use synthetic examples only.
+- No real HH applications, Telegram messages, or other external
+  application/message/outreach unless the current explicit slice authorizes it.
+- Preserve accepted service/domain boundaries (no cross-repo Python imports,
+  shared app DB, or reading another service's volume) unless the current
+  requirement justifies a change.
+
+## Product SoT and quality
+
+- Canonical product plan: Google Drive **"Job Search"**. On new Roadmap stage,
+  backlog, or product-scope decisions — read current tabs; on conflict with
+  repo docs, STOP and report. Do not edit the Google Doc unless the owner asks.
+- Workspace is self-contained; do not treat a sibling monolith as a runtime
+  dependency.
+- Run applicable gates; do not hide warnings or claim planned work as ready.
+- Auto-commit only completed green, task-scoped files.

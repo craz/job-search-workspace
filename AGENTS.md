@@ -1,38 +1,28 @@
 # Global instructions for development agents
 
-Long-term product direction and permanent scope guardrails are defined in
-[`docs/PROJECT_GOAL.md`](docs/PROJECT_GOAL.md). This file describes **how**
-agents work in the repository; it does not replace that goal.
+Long-term product direction: [`docs/PROJECT_GOAL.md`](docs/PROJECT_GOAL.md).
+Always-on guardrails live in `.cursor/rules/project-goal.mdc` and
+`.cursor/rules/00-project-context.mdc` (scope, STOP, ACCEPT≠COMPLETE, privacy,
+no-push, external writes, service boundaries). This file describes **how** to
+work in the repository; it does not replace those rules or the goal.
 
-1. Read `ARCHITECTURE_PLAN.md` and applicable local instructions before a
-   non-trivial change; never commit or quote private `.local/` content.
-2. Preserve repository boundaries: no cross-repository Python imports, shared
-   application database or access to another service's volume.
-3. Inspect current code, tests and Git state before editing; keep scope coherent
+1. Read `ARCHITECTURE_PLAN.md` and the nearest nested `AGENTS.md` / service
+   `.cursor/rules` before a non-trivial change; never commit or quote private
+   `.local/` content.
+2. Inspect current code, tests and Git state before editing; keep scope coherent
    and preserve unrelated user changes.
-4. Never expose secrets, cookies, browser profiles, personal data or private AI
-   history. Use synthetic public examples and fixtures.
-5. Never send real HH applications, Telegram messages or other external writes
-   without explicit authorization.
-6. Use versioned HTTP/JSON CLI contracts; significant architectural choices need
+3. Use versioned HTTP/JSON CLI contracts; significant architectural choices need
    an ADR and incompatible changes need a migration plan.
-7. Run applicable quality gates and report exact pass/fail/skip results. Warnings
+4. Run applicable quality gates and report exact pass/fail/skip results. Warnings
    are defects unless their external cause is explicitly demonstrated.
-8. Keep implementation and documentation truthful, reproducible and understandable
+5. Keep implementation and documentation truthful, reproducible and understandable
    without chat context; never present planned behavior as implemented.
-9. Automatically commit only a completed green logical step, staging only task
-   files. Commit after TECHNICAL PASS is allowed and does **not** mean OWNER
-   ACCEPTED or COMPLETE. For user-visible slices follow
-   `DEVELOPMENT_PROCESS.md` / `10-development-workflow.mdc`: prepare runnable
-   owner acceptance, wait for explicit ACCEPT before COMPLETE, and do not start
-   the next product slice unless the owner explicitly allows earlier progress.
-   Never push, create/merge a PR, tag or release without explicit request.
-10. Follow the nearest nested `AGENTS.md` for scripts, tests or documentation;
-    narrower instructions extend and override this global minimum.
-11. Let the project hook synchronize raw history after each turn; use
-    `make ai-history-sync` as a fallback. After a completed engineering step,
-    update `.local/AI_HISTORY.md` without quoting it.
-12. Before naming or creating a long-lived service instance or infrastructure
-    entity, read `NAMING_CONVENTION.md`, check its `USED` registry, use the
-    class-appropriate canonical slug, and register a name only after assignment.
-    Keep ordinary Compose services and ephemeral containers functionally named.
+6. Detailed development cycle and acceptance checklist:
+   `DEVELOPMENT_PROCESS.md` / `.cursor/rules/10-development-workflow.mdc`.
+7. Before naming a long-lived service instance or infrastructure entity, read
+   `NAMING_CONVENTION.md`, check `USED`, use the class-appropriate canonical
+   slug, and register only after assignment. Ordinary Compose services and
+   ephemeral containers stay functionally named.
+8. Project hook synchronizes raw history after each turn; use
+   `make ai-history-sync` as a fallback. After a completed engineering step,
+   update `.local/AI_HISTORY.md` without quoting it.

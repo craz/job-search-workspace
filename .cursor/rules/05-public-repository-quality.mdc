@@ -1,9 +1,14 @@
 ---
-description: Стандарты качества и приватности публичных репозиториев
+description: Detailed public-repository quality and privacy checklist beyond the L1 privacy invariant
 alwaysApply: false
 ---
 
 # Public repository quality
+
+Minimal privacy invariant (PersonalScoringProfile / owner-specific criteria,
+secrets, PII, `.local/`) lives in always-on `00-project-context.mdc`. This rule
+is the **detailed** public-release checklist — request when preparing a public
+diff or release review.
 
 Если существует `.local/PROJECT_CONTEXT.md`, прочитай его перед планированием
 нетривиального изменения. Не цитируй, не пересказывай и не коммить содержимое

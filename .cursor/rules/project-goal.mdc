@@ -5,10 +5,9 @@ alwaysApply: true
 
 # Project goal
 
-Job Search has a canonical long-term project goal in
-[`docs/PROJECT_GOAL.md`](../../docs/PROJECT_GOAL.md).
-
-Use it as persistent project direction and permanent guardrails.
+Canonical long-term goal: [`docs/PROJECT_GOAL.md`](../../docs/PROJECT_GOAL.md).
+Use it as persistent direction and permanent guardrails. Do **not** paste its
+full contents into prompts or always-on rules.
 
 ## Precedence
 
@@ -19,12 +18,10 @@ Use it as persistent project direction and permanent guardrails.
 4. Existing implementation plans help execution but do not override the
    current explicit task.
 
-Do not interpret `docs/PROJECT_GOAL.md` as permission to implement future
-slices.
+Do not treat `docs/PROJECT_GOAL.md` as permission to implement future slices.
 
-When the current slice is complete: stop, report results, and wait for the
-next explicit instruction.
+When the current slice is finished: stop, report results, and wait for the
+next explicit instruction. Do not start the next slice independently.
 
-Avoid repeating the full contents of `docs/PROJECT_GOAL.md` in normal
-reports/prompts. Read/refer to the file when project direction or scope is
-relevant.
+Read `docs/PROJECT_GOAL.md` when product direction, scope, freeze, or domain
+boundary decisions are needed.
