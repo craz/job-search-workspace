@@ -1,30 +1,46 @@
 # Состояние проекта Job Search Multirepo
 
-**Дата снимка:** 2026-08-31 (UTC+3)  
-**Workspace HEAD:** R2.3.6.2 pre-benchmark validation PASS (local, not pushed)  
-**Migration head:** `20260828_15` (single)  
-**Ветка:** `main`
+**Дата снимка:** 2026-09-09 (UTC+3)  
+**Ветка:** `main` (local ahead of origin; push только по явному запросу owner)
 
-## Краткий вердикт
-
-| Область | Статус |
+| Repo | HEAD |
 |---|---|
-| **R2** | **R2.1–R2.3.5 COMPLETE**; **R2.3.6.1 labels COMPLETE/frozen**; **R2.3.6.2 PRE-BENCHMARK VALIDATION PASS** (Ollama inference not started) |
+| Workspace | `0f5af42` |
+| Core | `8664a05` |
+| Web | `eb01a12` |
 
-## Решение по «го» / blockers
+## PROJECT_GOAL
 
-- **R2.3.6.2** — owner review of pre-benchmark checkpoint, then inference.
-- **R2.4** mass scoring — **не** начинать до calibration evidence + owner decision.
+**COMPLETE** — OWNER ACCEPTED Final Project Gate 2026-09-09.
 
-## R2.3.6.1 / freeze highlights
+Canonical goal text and permanent guardrails remain in
+[`docs/PROJECT_GOAL.md`](docs/PROJECT_GOAL.md) (preserved; not deleted).
 
-- Suite: `cal-r2361-realhh-20260831` · status `benchmark_ready`
-- Labels: **30/30** · apply=2, maybe=12, skip=16
-- Private freeze: `.state/calibration/.../labels_freeze.json`
-- Private plan: `.state/calibration/.../benchmark_plan.json`
-- No Ollama benchmark execution yet; `run-benchmark` blocked pending owner review
-- `apply` metrics flagged statistically fragile (support=2)
+Job Search is a usable local daily product for the target journey:
 
-## Local SHAs
+find → score → decide → act → response → hiring → offer → close search cycle.
 
-See latest local commits (not pushed).
+## Accepted closures
+
+| Item | Status |
+|---|---|
+| R0–R5 | complete / closed |
+| PB-AUTO-00 | complete |
+| PB-DATA-01 | complete |
+| PB-REL-00 | complete |
+| Functional Product Journey | complete |
+| Data Readiness | complete |
+| Release Readiness | complete |
+| Final Project Gate | OWNER ACCEPTED → COMPLETE |
+
+## Next work
+
+**Do not start automatically.** Remaining items are **POST-v1 / BACKLOG / OPTIONAL**
+(e.g. PB-11 period analytics, SearchCycle reopen, and other known non-blocking
+limitations from the Final Gate report). They must not be reinterpreted as
+blockers for the completed `PROJECT_GOAL`.
+
+## Operator entry
+
+- Canonical start: `make up` — see [`docs/runbooks/local-stack.md`](docs/runbooks/local-stack.md)
+- Working-DB fixture cleanup: [`docs/PB_DATA_01_WORKING_DB_CLEANUP.md`](docs/PB_DATA_01_WORKING_DB_CLEANUP.md)

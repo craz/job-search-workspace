@@ -12,8 +12,11 @@ Universal invariants every turn. Details on demand:
 ## Scope and completion
 
 - Current explicit user task = active implementation scope.
-- Canonical long-term goal: `docs/PROJECT_GOAL.md` — direction and permanent
-  guardrails, **not** permission to implement future slices.
+- Canonical long-term goal: `docs/PROJECT_GOAL.md` — **PROJECT_GOAL COMPLETE**
+  (Final Gate OWNER ACCEPTED 2026-09-09). Text remains as accepted v1 definition
+  and permanent guardrails, **not** permission to invent or auto-start future work.
+- Remaining Roadmap items (e.g. PB-11) are POST-v1 / BACKLOG / OPTIONAL unless
+  the owner explicitly opens a new slice.
 - Roadmap / Product Backlog (Google Drive **Job Search**) order product work
   where relevant; they do not override the current explicit task.
 - After the current slice finishes: **STOP**, report, wait.
@@ -22,6 +25,7 @@ Universal invariants every turn. Details on demand:
   OWNER `ACCEPT` before COMPLETE (unless the owner waived). Local commit after
   TECHNICAL PASS is allowed and does **not** mean ACCEPT or COMPLETE.
 - Do not start the next product slice independently.
+- Snapshot for agents: `PROJECT_STATUS.md`.
 
 ## Safety
 

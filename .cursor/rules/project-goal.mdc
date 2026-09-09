@@ -6,12 +6,15 @@ alwaysApply: false
 # Project goal
 
 Canonical long-term goal: [`docs/PROJECT_GOAL.md`](../../docs/PROJECT_GOAL.md).
-Use it as persistent direction and permanent guardrails. Do **not** paste its
-full contents into prompts or always-on rules.
+
+**Status: PROJECT_GOAL COMPLETE** (Final Gate OWNER ACCEPTED 2026-09-09).
+Use the document as the accepted v1 definition and permanent guardrails.
+Do **not** paste its full contents into prompts or always-on rules.
+Do **not** auto-start POST-v1 backlog (including PB-11) from this status alone.
 
 L1 always-on summary lives in `00-project-context.mdc`. Request this rule when
 product direction, scope freeze, or goal-precedence decisions need the full
-wording below.
+wording below. Operational snapshot: `PROJECT_STATUS.md`.
 
 ## Precedence
 

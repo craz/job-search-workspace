@@ -4,6 +4,16 @@ Canonical long-term product direction and permanent development guardrails.
 This is **not** an implementation plan and **not** permission to start future
 slices.
 
+## Status
+
+**PROJECT_GOAL → COMPLETE** (OWNER ACCEPTED Final Project Gate, 2026-09-09).
+
+The product goal below is preserved as the accepted v1 definition and permanent
+guardrails. Operational snapshot: [`PROJECT_STATUS.md`](../PROJECT_STATUS.md).
+Remaining Roadmap items (including PB-11) are **POST-v1 / BACKLOG / OPTIONAL**
+and must not be treated as blockers for this completed goal unless the owner
+explicitly opens a new goal or slice.
+
 Product ordering lives in the Google Drive document **Job Search**
 (`Product Backlog`, `Roadmap`, current `R<N>` tab). Local docs such as
 [`ARCHITECTURE_PLAN.md`](../ARCHITECTURE_PLAN.md) and
