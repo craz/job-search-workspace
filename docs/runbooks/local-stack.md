@@ -1,6 +1,39 @@
-# Local stack — daily operation (R2.5.2 + R2.5.3 / R2.5.3A)
+# Local stack — daily operation (R2.5.2 + R2.5.3 / R2.5.3A + PB-REL-00)
 
 Canonical operator path for the Job Search Compose product.
+
+## First-time clean install
+
+Prerequisites: Linux, Git, Docker (daemon + Compose plugin), Python 3.12+, Make.  
+Optional: `direnv`, host Ollama + scoring model, HH OAuth client id/secret.
+
+```bash
+git clone --recurse-submodules https://github.com/craz/job-search-workspace.git
+cd job-search-workspace
+make bootstrap    # locked submodule gitlinks + .env / services/hh/.env from examples
+make doctor       # or: make doctor-offline
+make up           # host bridges + compose up -d --build
+make status
+```
+
+Open Web: http://127.0.0.1:8080/ (or `WEB_PORT` from `.env`).
+
+Core runs `alembic upgrade head` on every container start against an empty volume —
+schema reaches HEAD without manual migration commands. A second `make up` / Core
+restart is idempotent (no duplicate seed rows beyond the single active SearchCycle).
+
+Do **not** copy production DB dumps, `.local/`, or personal HH cookies into a clean install.
+
+## Configuration contract
+
+| Kind | Where | Notes |
+|--|--|--|
+| **REQUIRED (base)** | Compose defaults + `.env.example` → `.env` | Ports only; product starts with defaults |
+| **REQUIRED (HH file)** | `services/hh/.env.example` → `services/hh/.env` | File must exist for Compose `env_file`; empty OAuth fields OK |
+| **OPTIONAL** | HH OAuth id/secret, host HTTP proxy, Ollama model | Integrations degrade cleanly when absent |
+| **PRIVATE** | Real tokens, cookies, browser profile, PSP values, DB dumps | Never commit; stay in `.env` / volumes / `.local/` |
+
+`make ensure-local-env` / `make bootstrap` create missing env files from examples and **never overwrite** existing ones.
 
 ## Start / stop
 
@@ -10,6 +43,7 @@ make boot    # same bridges + compose up -d (no rebuild; used on machine boot)
 make down    # compose down + stop host bridges
 make status  # compose ps + HTTP probes
 make logs    # core web scoring scoring-worker hh rabbitmq automation
+make doctor  # tools, submodule gitlinks, env presence, optional remotes
 ```
 
 Do **not** use `docker compose up --no-deps` for normal daily work.
@@ -39,21 +73,12 @@ make uninstall-autostart        # use sudo if the system unit was installed
 
 Unit: `job-search.service` → `make boot` after Docker is ready.
 
-Boot-equivalent check without rebooting the machine:
-
-```bash
-make down
-systemctl --user start job-search   # or: sudo systemctl start job-search
-# do NOT run make up
-make status
-```
-
 ## URLs (defaults; override via `.env`)
 
 | Surface | URL |
 |--|--|
-| Web | http://127.0.0.1:18080/#vacancies |
-| Core API | http://127.0.0.1:18000/docs |
+| Web | http://127.0.0.1:8080/ (example override `WEB_PORT=18080` → :18080) |
+| Core API | http://127.0.0.1:8000/docs |
 | Scoring health | http://127.0.0.1:8090/health/ready |
 | HH API | http://127.0.0.1:8092/health/ready |
 | Automation | http://127.0.0.1:8095/api/v1/automation/status |
@@ -85,16 +110,6 @@ immediately — it schedules the next run; use **Run now** for a controlled cycl
 
 `enabled` is persisted on the `automation-state` volume and survives Compose/machine reboot.
 
-### Startup catch-up rule
-
-If automation is **enabled** and `next_run_at <= now` when the automation process
-starts (machine/stack was down across one or more intervals): run **exactly one**
-catch-up cycle (same path as schedule / Run now), then set
-`next_run_at = now + interval`. Missed hourly slots are **not** replayed individually.
-
-If `next_run_at` is still in the future (ordinary container restart inside the
-open interval): no catch-up.
-
 Does **not** automate: applications, recruiter messages, OSINT, historical backlog scoring,
 owner_decision changes.
 
@@ -117,3 +132,8 @@ owner_decision changes.
 
 `scoring-worker` only processes messages already on Rabbit. Automation (when enabled)
 enqueues only current-cycle eligible vacancies, never `SELECT all never_scored`.
+
+## Working DB cleanup
+
+See [`docs/PB_DATA_01_WORKING_DB_CLEANUP.md`](../PB_DATA_01_WORKING_DB_CLEANUP.md) for
+inventory / dry-run / purge of provable fixture rows (never commit dumps).

@@ -30,7 +30,8 @@ from typing import Sequence
 
 WORKSPACE_ROOT = Path(__file__).resolve().parent.parent
 GITMODULES_PATH = WORKSPACE_ROOT / ".gitmodules"
-REQUIRED_TOOLS = ("git", "docker", "direnv", "python3", "make")
+REQUIRED_TOOLS = ("git", "docker", "python3", "make")
+OPTIONAL_TOOLS = ("direnv",)
 
 
 @dataclass(frozen=True)
@@ -143,6 +144,38 @@ def is_git_checkout(path: Path) -> bool:
     return result.returncode == 0 and result.stdout.strip() == "true"
 
 
+def ensure_local_env_files(workspace_root: Path) -> list[Check]:
+    """Create missing local env files from committed examples (never overwrite)."""
+    checks: list[Check] = []
+    pairs = (
+        (workspace_root / ".env.example", workspace_root / ".env"),
+        (
+            workspace_root / "services" / "hh" / ".env.example",
+            workspace_root / "services" / "hh" / ".env",
+        ),
+    )
+    for example, target in pairs:
+        if not example.is_file():
+            # Synthetic bootstrap fixtures may omit env examples; real workspace commits them.
+            checks.append(
+                Check(
+                    "WARN",
+                    str(target.relative_to(workspace_root)),
+                    f"example missing ({example.name}); skip local env create",
+                )
+            )
+            continue
+        if target.exists():
+            checks.append(Check("OK", str(target.relative_to(workspace_root)), "already present"))
+            continue
+        target.write_text(example.read_text(encoding="utf-8"), encoding="utf-8")
+        # HH .env often contains credentials later; keep mode private by default.
+        if "services/hh" in target.as_posix():
+            target.chmod(0o600)
+        checks.append(Check("OK", str(target.relative_to(workspace_root)), f"created from {example.name}"))
+    return checks
+
+
 def bootstrap(repositories: Sequence[Repository], workspace_root: Path) -> list[Check]:
     """Initialize missing submodules and validate existing ones non-destructively.
 
@@ -151,7 +184,7 @@ def bootstrap(repositories: Sequence[Repository], workspace_root: Path) -> list[
     are never updated automatically. Revision drift is a warning so local work
     remains available for review instead of being overwritten.
     """
-    checks: list[Check] = []
+    checks: list[Check] = list(ensure_local_env_files(workspace_root))
     for repository in repositories:
         target = repository_path(workspace_root, repository)
         expected = recorded_commit(workspace_root, repository)
@@ -176,6 +209,8 @@ def bootstrap(repositories: Sequence[Repository], workspace_root: Path) -> list[
         else:
             checks.append(Check("OK", repository.name, f"exists at {repository.path}"))
 
+        if not is_git_checkout(target):
+            continue
         origin = git(target, "remote", "get-url", "origin", check=False)
         if origin != repository.url:
             checks.append(Check("ERROR", repository.name, f"origin mismatch: {origin or '<missing>'}"))
@@ -195,6 +230,19 @@ def check_tools(*, skip_tools: bool) -> list[Check]:
         executable = shutil.which(tool)
         if executable is None:
             checks.append(Check("ERROR", tool, "not found in PATH"))
+        else:
+            checks.append(Check("OK", tool, executable))
+
+    for tool in OPTIONAL_TOOLS:
+        executable = shutil.which(tool)
+        if executable is None:
+            checks.append(
+                Check(
+                    "WARN",
+                    tool,
+                    "optional; not found in PATH (Compose/.env still work without it)",
+                )
+            )
         else:
             checks.append(Check("OK", tool, executable))
 
@@ -281,6 +329,24 @@ def doctor(
 ) -> list[Check]:
     """Collect host and submodule diagnostics without automatic repair."""
     checks = check_tools(skip_tools=skip_tools)
+    for example_rel, target_rel in (
+        (".env.example", ".env"),
+        ("services/hh/.env.example", "services/hh/.env"),
+    ):
+        example = workspace_root / example_rel
+        target = workspace_root / target_rel
+        if not example.is_file():
+            checks.append(Check("ERROR", target_rel, f"missing committed example {example_rel}"))
+        elif target.is_file():
+            checks.append(Check("OK", target_rel, "present"))
+        else:
+            checks.append(
+                Check(
+                    "WARN",
+                    target_rel,
+                    f"missing — run `make bootstrap` or `make ensure-local-env` (from {example_rel})",
+                )
+            )
     for repository in repositories:
         checks.extend(diagnose_repository(repository, workspace_root, offline=offline))
     return checks

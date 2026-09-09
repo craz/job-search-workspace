@@ -26,7 +26,17 @@ class SubmoduleDeclarationTests(unittest.TestCase):
         self.assertEqual(len(repositories), len({repo.name for repo in repositories}))
         self.assertTrue(all(repo.path.startswith("services/") for repo in repositories))
         self.assertTrue(all(repo.branch == "main" for repo in repositories))
-        self.assertTrue(all(repo.url.startswith("git@github.com:craz/") for repo in repositories))
+        for repo in repositories:
+            https = repo.url.startswith("https://github.com/craz/")
+            ssh = repo.url.startswith("git@github.com:craz/")
+            self.assertTrue(
+                https or ssh,
+                f"canonical craz GitHub remote required for {repo.name}: {repo.url}",
+            )
+            self.assertTrue(
+                repo.url.endswith(".git"),
+                f"remote URL should be a git repo for {repo.name}: {repo.url}",
+            )
 
     def test_parent_traversal_is_rejected(self) -> None:
         """A submodule declaration cannot escape the workspace service tree."""

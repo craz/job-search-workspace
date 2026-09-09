@@ -6,12 +6,16 @@ alwaysApply: true
 # Project context (L1)
 
 Universal invariants every turn. Details on demand:
-`10-development-workflow.mdc`, `DEVELOPMENT_PROCESS.md`, `docs/PROJECT_GOAL.md`.
+`10-development-workflow.mdc`, `DEVELOPMENT_PROCESS.md`, `docs/PROJECT_GOAL.md`,
+`project-goal.mdc` (goal precedence, requestable).
 
 ## Scope and completion
 
 - Current explicit user task = active implementation scope.
-- `docs/PROJECT_GOAL.md` is direction, not a license for future slices.
+- Canonical long-term goal: `docs/PROJECT_GOAL.md` — direction and permanent
+  guardrails, **not** permission to implement future slices.
+- Roadmap / Product Backlog (Google Drive **Job Search**) order product work
+  where relevant; they do not override the current explicit task.
 - After the current slice finishes: **STOP**, report, wait.
 - **TECHNICAL PASS ≠ COMPLETE.** For user-facing product slices: prepare
   runnable owner acceptance + concrete checklist, then wait for explicit
@@ -30,6 +34,13 @@ Universal invariants every turn. Details on demand:
 - Preserve accepted service/domain boundaries (no cross-repo Python imports,
   shared app DB, or reading another service's volume) unless the current
   requirement justifies a change.
+
+## Naming
+
+- Before naming a long-lived service instance or infrastructure entity, read
+  `NAMING_CONVENTION.md`, check `USED`, use the class-appropriate canonical
+  slug, and register only after assignment. Ordinary Compose services and
+  ephemeral containers stay functionally named.
 
 ## Product SoT and quality
 

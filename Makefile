@@ -1,4 +1,4 @@
-.PHONY: bootstrap doctor doctor-offline inventory-check ai-history-sync test unit bdd build up boot dev down logs status compose-smoke hh-host-proxy-ensure hh-host-proxy-stop ollama-host-proxy-ensure ollama-host-proxy-stop host-bridges-ensure install-autostart uninstall-autostart autostart-status working-db-inventory working-db-dry-run working-db-backup working-db-purge
+.PHONY: bootstrap doctor doctor-offline inventory-check ai-history-sync test unit bdd build up boot dev down logs status compose-smoke hh-host-proxy-ensure hh-host-proxy-stop ollama-host-proxy-ensure ollama-host-proxy-stop host-bridges-ensure install-autostart uninstall-autostart autostart-status working-db-inventory working-db-dry-run working-db-backup working-db-purge ensure-local-env
 
 PYTHON ?= python3
 
@@ -10,6 +10,12 @@ COMPOSE = docker compose $$($(PYTHON) scripts/host_http_proxy_socket.py compose-
 
 bootstrap:
 	$(PYTHON) scripts/workspace.py bootstrap
+
+ensure-local-env:
+	$(PYTHON) -c "from pathlib import Path; from scripts.workspace import ensure_local_env_files; \
+checks=ensure_local_env_files(Path('.').resolve()); \
+[print(f'[{c.level}] {c.subject}: {c.message}') for c in checks]; \
+raise SystemExit(1 if any(c.level=='ERROR' for c in checks) else 0)"
 
 doctor:
 	$(PYTHON) scripts/workspace.py doctor
@@ -45,7 +51,7 @@ bdd:
 
 test: unit bdd
 
-build: host-bridges-ensure
+build: host-bridges-ensure ensure-local-env
 	$(COMPOSE) build core web osint hh scoring automation
 
 hh-host-proxy-ensure:
@@ -62,14 +68,14 @@ ollama-host-proxy-stop:
 
 host-bridges-ensure: hh-host-proxy-ensure ollama-host-proxy-ensure
 
-up: host-bridges-ensure
+up: host-bridges-ensure ensure-local-env
 	$(COMPOSE) up -d --build
 
 # Boot/start without rebuild — used by systemd autostart.
-boot:
+boot: ensure-local-env
 	$(PYTHON) scripts/autostart.py boot
 
-dev: host-bridges-ensure
+dev: host-bridges-ensure ensure-local-env
 	$(COMPOSE) up --build
 
 down:

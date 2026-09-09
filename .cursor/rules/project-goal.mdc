@@ -1,6 +1,6 @@
 ---
 description: Persistent Job Search project goal and permanent scope guardrails
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Project goal
@@ -8,6 +8,10 @@ alwaysApply: true
 Canonical long-term goal: [`docs/PROJECT_GOAL.md`](../../docs/PROJECT_GOAL.md).
 Use it as persistent direction and permanent guardrails. Do **not** paste its
 full contents into prompts or always-on rules.
+
+L1 always-on summary lives in `00-project-context.mdc`. Request this rule when
+product direction, scope freeze, or goal-precedence decisions need the full
+wording below.
 
 ## Precedence
 

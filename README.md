@@ -1,6 +1,6 @@
 # Job Search
 
-**Local-first AI-система для управления поиском работы: резюме → подходящие вакансии → AI-оценка → решение → отклик → результат.**
+**Local-first AI-система для управления поиском работы: резюме → подходящие вакансии → AI-оценка → решение → отклик → найм → оффер → завершение поиска.**
 
 Проект родился из собственного поиска работы. Его цель — собрать разрозненный процесс в один управляемый pipeline: подключить HeadHunter, сохранить контекст и версии резюме, собирать и дедуплицировать вакансии, оценивать их локальной LLM и вести историю решений, откликов и результатов.
 
@@ -20,81 +20,73 @@ Job Search ведёт вакансию через весь путь — от п�
 
 ![Как работает Job Search](docs/assets/readme/job-search-flow.png)
 
-*Часть этапов уже работает, остальные последовательно реализуются по roadmap.*
+Функциональный user journey (find → score → decide → act → response → hiring → offer → close search) реализован в продукте. Периодная аналитика (PB-11) и clean-install на чужой машине (Final Gate) — отдельные release-пункты.
 
 ## Что умеет Job Search
 
 ### ✅ Уже работает
 
-**HeadHunter integration**  
-Рабочее резюме синхронизируется локально вместе с его структурированной версией и PDF-копией. Job Search получает HH-нативный список подходящих вакансий для выбранного резюме.
-
-**Vacancy pipeline**  
-Вакансии автоматически загружаются, нормализуются и дедуплицируются. Система сохраняет историю получения, отличает новые вакансии от уже известных и формирует единый рабочий список.
-
-**Рабочая доска вакансий**  
-Вакансии можно просматривать, фильтровать и переводить между рабочими состояниями. Основные доменные данные хранятся локально в Core/PostgreSQL.
-
-### 🚧 Сейчас в разработке
-
-**Resume-aware AI scoring**  
-Каждая вакансия будет оцениваться относительно конкретной версии резюме и scoring policy. Результат — воспроизводимые `score` + `apply / maybe / skip`, а не просто свободный ответ LLM.
-
-Следующий продуктовый результат — массовая оценка и приоритизация списка вакансий.
+**HeadHunter integration** — рабочее резюме, PDF-артефакт, список подходящих вакансий.  
+**Vacancy pipeline** — импорт, дедуп, рабочая очередь.  
+**Resume-aware AI scoring** — локальная оценка через Ollama (без Ollama доска всё равно работает).  
+**Owner decisions / action channel** — interested / deferred / skipped / applied + HH / DIRECT / BOTH.  
+**Applications, DirectOutreach, EmployerResponse** — локальные факты без автоотправки.  
+**Hiring process** — этапы, активности, deadlines, next_action.  
+**Offers** — условия, сравнение, accept/decline.  
+**Search cycle close** — явное завершение поиска после accepted Offer; automation останавливается.
 
 ### 🗺️ Дальше по roadmap
 
-**Выход на работодателя**  
-HH-отклик или прямой контакт с компанией.
-
-**OSINT для direct outreach**  
-Поиск конкретных людей и контактов запускается пользователем для выбранной вакансии.
-
-**Процесс найма**  
-Ответы работодателей, этапы интервью, история взаимодействия и решения.
-
-**Метрики и стратегия**  
-Результаты серии откликов, конверсии по этапам и корректировка стратегии поиска.
-
-**Оффер → выход на работу**  
-Сравнение офферов, решение и завершение поискового цикла.
+**Периодные метрики и корректировка стратегии (PB-11)** — аналитический контур поверх уже накопленной истории.  
+**Release readiness / Final Gate** — воспроизводимый clean install (этот документ + `docs/runbooks/local-stack.md`).
 
 ## Архитектура
 
 ![Архитектура Job Search](docs/assets/readme/job-search-service-map.png)
 
-Job Search разбит на независимые сервисы с собственными границами ответственности. Core владеет доменными данными и публичными API-контрактами; интеграции с HeadHunter, AI-scoring и OSINT вынесены в отдельные сервисы. Такая структура позволяет развивать и заменять интеграции независимо друг от друга.
+Job Search разбит на независимые сервисы с собственными границами ответственности. Core владеет доменными данными и публичными API-контрактами; интеграции с HeadHunter, AI-scoring и OSINT вынесены в отдельные сервисы.
 
 ## Tech stack
 
 `Python` · `FastAPI` · `PostgreSQL 17` · `Docker Compose` · `Playwright / Chromium` · `Ollama` · `Vanilla Web`
 
-Сервисы развиваются независимо и общаются через HTTP API; локальные AI-задачи выполняются через Ollama, а browser-based интеграции изолированы в отдельных сервисах.
+## Запуск локально (clean install)
 
-## Запуск локально
-
-Канонический путь — `make up` (поднимает Compose и Linux host-bridges для HH proxy / Ollama).
+**Prerequisites:** Linux, Git, Docker + Compose plugin, Python 3.12+, Make.  
+Optional: `direnv`, host Ollama + scoring model, HH OAuth credentials.
 
 ```bash
 git clone --recurse-submodules https://github.com/craz/job-search-workspace.git
 cd job-search-workspace
-make bootstrap
-make up
-make status
+make bootstrap          # submodules at locked gitlinks + create .env / services/hh/.env from examples
+make doctor             # tools, revisions, env presence (use --offline without network)
+make up                 # canonical start: host bridges + Compose build/up
+make status             # compose ps + HTTP probes
 ```
 
-Web: [http://127.0.0.1:18080/](http://127.0.0.1:18080/) при `WEB_PORT=18080` в `.env` (иначе порт по умолчанию `8080`).
+| Surface | Default URL |
+|--|--|
+| Web | http://127.0.0.1:8080/ |
+| Core | http://127.0.0.1:8000/docs |
 
-Подробности: [`docs/runbooks/local-stack.md`](docs/runbooks/local-stack.md).
+Ports override via `.env` (from [`.env.example`](.env.example)). HH credentials stay in `services/hh/.env` (from `services/hh/.env.example`) — never commit real tokens.
 
-HeadHunter после первого запуска обычно требует начальной авторизации/сессии в сервисе HH. Для AI-scoring нужны локально установленные Ollama и подготовленная модель — без этого доска вакансий всё равно работает, а оценка вакансий — нет.
+```bash
+make down               # stop stack + host bridges
+make up                 # restart
+make install-autostart  # optional machine boot → make boot
+```
 
-> **Reproducibility status:** clean-install acceptance на новой машине/VM запланирован как финальный Gate v1. До его прохождения команды выше описывают поддерживаемый development setup, а не гарантированный installer.
+Working-DB fixture cleanup (PB-DATA-01): [`docs/PB_DATA_01_WORKING_DB_CLEANUP.md`](docs/PB_DATA_01_WORKING_DB_CLEANUP.md).  
+Daily ops detail: [`docs/runbooks/local-stack.md`](docs/runbooks/local-stack.md).
+
+HeadHunter after first start usually needs interactive login/session. Without HH/Ollama the Web still opens; acquisition/scoring degrade with clear UI/API errors. Automation defaults to **disabled**.
 
 ## Документация
 
-- [Architecture](ARCHITECTURE_PLAN.md) — границы сервисов и архитектурные решения
-- [Implementation plan](IMPLEMENTATION_PLAN.md) — последовательность развития продукта
-- [Scoring](services/scoring/README.md) — локальная AI-оценка вакансий через Ollama
-- [Design](DESIGN.md) — визуальные правила рабочей доски
-- [Contributing](CONTRIBUTING.md) — короткий путь изменений и соглашения по коммитам
+- [Local stack runbook](docs/runbooks/local-stack.md) — start/stop, URLs, automation, degraded mode
+- [Architecture](ARCHITECTURE_PLAN.md) — границы сервисов
+- [Project goal](docs/PROJECT_GOAL.md) — long-term direction
+- [Scoring](services/scoring/README.md) — Ollama scoring
+- [Design](DESIGN.md) — UI rules
+- [Contributing](CONTRIBUTING.md) — change flow
