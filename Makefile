@@ -1,9 +1,12 @@
-.PHONY: bootstrap doctor doctor-offline inventory-check ai-history-sync test unit bdd build up boot dev down logs status compose-smoke hh-host-proxy-ensure hh-host-proxy-stop ollama-host-proxy-ensure ollama-host-proxy-stop host-bridges-ensure install-autostart uninstall-autostart autostart-status working-db-inventory working-db-dry-run working-db-backup working-db-purge ensure-local-env
+.PHONY: bootstrap doctor doctor-offline inventory-check ai-history-sync test unit bdd build up boot restart dev down logs status compose-smoke hh-host-proxy-ensure hh-host-proxy-stop ollama-host-proxy-ensure ollama-host-proxy-stop host-bridges-ensure install-autostart uninstall-autostart autostart-status working-db-inventory working-db-dry-run working-db-backup working-db-purge ensure-local-env
 
 PYTHON ?= python3
 
 -include .env
 export CORE_PORT WEB_PORT SCORING_PORT
+# Keep Compose project stable even if the shell exports another COMPOSE_PROJECT_NAME.
+COMPOSE_PROJECT_NAME ?= $(notdir $(CURDIR))
+export COMPOSE_PROJECT_NAME
 
 # Re-evaluated in recipes after ensure so generated egress overrides are included.
 COMPOSE = docker compose $$($(PYTHON) scripts/host_http_proxy_socket.py compose-files)
@@ -74,6 +77,12 @@ up: host-bridges-ensure ensure-local-env
 # Boot/start without rebuild — used by systemd autostart.
 boot: ensure-local-env
 	$(PYTHON) scripts/autostart.py boot
+
+# Supported full-stack restart (bridges + egress remount + compose up).
+# Plain `docker compose restart` is NOT enough: it skips host unix-socket bridges.
+restart: host-bridges-ensure ensure-local-env
+	$(COMPOSE) up -d --force-recreate --no-deps hh-egress ollama-egress || true
+	$(COMPOSE) up -d
 
 dev: host-bridges-ensure ensure-local-env
 	$(COMPOSE) up --build

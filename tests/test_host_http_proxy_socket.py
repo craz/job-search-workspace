@@ -39,3 +39,11 @@ class HostHttpProxySocketTests(unittest.TestCase):
         self.assertIn("ollama_host_socket.py ensure", makefile)
         self.assertIn("host-bridges-ensure", makefile)
         self.assertIn("stack_status.py", makefile)
+        self.assertIn("\nrestart:", makefile)
+        self.assertIn("force-recreate --no-deps hh-egress", makefile)
+
+    def test_unix_socket_accepts_connections_false_when_missing(self) -> None:
+        missing = Path("/tmp/job-search-missing-hh-proxy.sock")
+        if missing.exists():
+            missing.unlink()
+        self.assertFalse(bridge._unix_socket_accepts_connections(missing))

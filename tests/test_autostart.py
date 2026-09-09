@@ -16,6 +16,7 @@ class AutostartWorkspaceTests(unittest.TestCase):
         self.assertIn("autostart-status", makefile)
         self.assertIn("\nboot:", makefile)
         self.assertIn("scripts/autostart.py boot", makefile)
+        self.assertIn("\nrestart:", makefile)
 
     def test_unit_template_is_oneshot_after_docker(self) -> None:
         text = autostart.render_unit(

@@ -25,6 +25,7 @@ import os
 import select
 import signal
 import socket
+import subprocess
 import sys
 import threading
 import time
@@ -168,6 +169,74 @@ def _pid_running(pid: int) -> bool:
     return True
 
 
+def _unix_socket_accepts_connections(path: Path, *, timeout: float = 1.0) -> bool:
+    """True when a client can connect to the AF_UNIX socket (not merely path exists)."""
+    if not path.exists():
+        return False
+    client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    try:
+        client.settimeout(timeout)
+        client.connect(str(path))
+        return True
+    except OSError:
+        return False
+    finally:
+        try:
+            client.close()
+        except OSError:
+            pass
+
+
+def _compose_project_env() -> dict[str, str]:
+    env = dict(os.environ)
+    # Prefer a stable project name so accidental COMPOSE_PROJECT_NAME overrides
+    # from the shell do not spawn a parallel stack next to job_search_ref.
+    env.setdefault("COMPOSE_PROJECT_NAME", ROOT.name)
+    return env
+
+
+def _recreate_hh_egress_container() -> None:
+    """Remount hh-egress onto the current unix socket inode after recreate.
+
+    Docker bind-mounts the socket inode at container start. A new host socket
+    file is invisible to a long-lived hh-egress until the container is recreated.
+    """
+    compose_yaml = ROOT / "compose.yaml"
+    if not compose_yaml.is_file():
+        return
+    cmd = [
+        "docker",
+        "compose",
+        "-f",
+        str(compose_yaml),
+        "-f",
+        str(OVERRIDE_FILE),
+    ]
+    ollama_override = LOCAL_DIR / "docker-compose.ollama-egress.yml"
+    if ollama_override.is_file():
+        cmd.extend(["-f", str(ollama_override)])
+    cmd.extend(["up", "-d", "--force-recreate", "--no-deps", EGRESS_SERVICE])
+    try:
+        completed = subprocess.run(
+            cmd,
+            cwd=ROOT,
+            env=_compose_project_env(),
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+    except (OSError, subprocess.TimeoutExpired) as error:
+        print(f"hh-host-proxy: warning: could not recreate {EGRESS_SERVICE}: {error}", file=sys.stderr)
+        return
+    if completed.returncode != 0:
+        detail = (completed.stderr or completed.stdout or "").strip().splitlines()
+        tail = detail[-1] if detail else f"exit {completed.returncode}"
+        print(f"hh-host-proxy: warning: recreate {EGRESS_SERVICE} failed: {tail}", file=sys.stderr)
+        return
+    print(f"hh-host-proxy: recreated Compose service {EGRESS_SERVICE}", file=sys.stderr)
+
+
 def _read_pid() -> int | None:
     if not PID_FILE.is_file():
         return None
@@ -220,15 +289,24 @@ services:
     OVERRIDE_FILE.write_text(text, encoding="utf-8")
 
 
-def start_forwarder(proxy_url: str) -> None:
+def start_forwarder(proxy_url: str) -> bool:
+    """Start the host unix→TCP forwarder.
+
+    Returns True when the socket was (re)created and Compose hh-egress should
+    remount it; False when an already-healthy forwarder was reused.
+    """
     parsed = urlparse(proxy_url)
     host = parsed.hostname or "127.0.0.1"
     port = parsed.port or (443 if parsed.scheme == "https" else 80)
 
     existing = _read_pid()
-    if existing and _pid_running(existing) and DEFAULT_SOCKET.exists():
+    if (
+        existing
+        and _pid_running(existing)
+        and _unix_socket_accepts_connections(DEFAULT_SOCKET)
+    ):
         _write_override_loopback()
-        return
+        return False
 
     stop_forwarder()
     LOCAL_DIR.mkdir(parents=True, exist_ok=True)
@@ -243,10 +321,10 @@ def start_forwarder(proxy_url: str) -> None:
     # Double-fork daemon so Makefile callers return immediately.
     if os.fork() > 0:
         time.sleep(0.1)
-        if not DEFAULT_SOCKET.exists():
+        if not _unix_socket_accepts_connections(DEFAULT_SOCKET):
             raise RuntimeError("host HTTP proxy socket failed to start")
         _write_override_loopback()
-        return
+        return True
 
     os.setsid()
     if os.fork() > 0:
@@ -292,7 +370,9 @@ def ensure() -> int:
         print("hh-host-proxy: disabled (no loopback HTTP proxy configured)", file=sys.stderr)
         return 0
 
-    start_forwarder(proxy_url)
+    start_forwarder_recreated = start_forwarder(proxy_url)
+    if start_forwarder_recreated:
+        _recreate_hh_egress_container()
     parsed = urlparse(proxy_url)
     print(
         f"hh-host-proxy: loopback socket → {parsed.hostname}:{parsed.port or 80} "

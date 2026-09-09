@@ -156,9 +156,28 @@ def boot() -> int:
         cwd=ROOT,
         text=True,
     ).split()
+    env = dict(os.environ)
+    env.setdefault("COMPOSE_PROJECT_NAME", ROOT.name)
+    # Remount egress sidecars onto current unix sockets, then bring the stack up.
+    recreate = [
+        "docker",
+        "compose",
+        *compose_files,
+        "up",
+        "-d",
+        "--force-recreate",
+        "--no-deps",
+        "hh-egress",
+        "ollama-egress",
+    ]
+    print("+", " ".join(recreate), flush=True)
+    completed = subprocess.run(recreate, cwd=ROOT, env=env)
+    if completed.returncode != 0:
+        # ollama-egress may be absent when override is off — still start the stack.
+        print("warning: egress recreate returned non-zero; continuing with compose up", flush=True)
     cmd = ["docker", "compose", *compose_files, "up", "-d"]
     print("+", " ".join(cmd), flush=True)
-    return subprocess.call(cmd, cwd=ROOT)
+    return subprocess.call(cmd, cwd=ROOT, env=env)
 
 
 def main() -> int:

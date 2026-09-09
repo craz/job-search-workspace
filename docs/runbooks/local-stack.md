@@ -39,7 +39,8 @@ Do **not** copy production DB dumps, `.local/`, or personal HH cookies into a cl
 
 ```bash
 make up      # host bridges (HH proxy + Ollama) + compose up -d --build
-make boot    # same bridges + compose up -d (no rebuild; used on machine boot)
+make boot    # same bridges + remount egress + compose up -d (no rebuild; machine boot)
+make restart # supported full restart: bridges + remount egress + compose up
 make down    # compose down + stop host bridges
 make status  # compose ps + HTTP probes
 make logs    # core web scoring scoring-worker hh rabbitmq automation
@@ -47,6 +48,10 @@ make doctor  # tools, submodule gitlinks, env presence, optional remotes
 ```
 
 Do **not** use `docker compose up --no-deps` for normal daily work.
+
+Do **not** use plain `docker compose restart` as the normal restart path: it leaves
+host unix-socket bridges / egress mounts untouched and can keep HH browser egress
+broken while containers still look “Up”.
 
 Plain `docker compose -f compose.yaml up` without `make up`/`make boot` skips HH/Ollama
 egress overrides and will leave HH (and Scoring→Ollama) degraded on Linux.
