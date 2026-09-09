@@ -1,4 +1,4 @@
-.PHONY: bootstrap doctor doctor-offline inventory-check ai-history-sync test unit bdd build up boot dev down logs status compose-smoke hh-host-proxy-ensure hh-host-proxy-stop ollama-host-proxy-ensure ollama-host-proxy-stop host-bridges-ensure install-autostart uninstall-autostart autostart-status
+.PHONY: bootstrap doctor doctor-offline inventory-check ai-history-sync test unit bdd build up boot dev down logs status compose-smoke hh-host-proxy-ensure hh-host-proxy-stop ollama-host-proxy-ensure ollama-host-proxy-stop host-bridges-ensure install-autostart uninstall-autostart autostart-status working-db-inventory working-db-dry-run working-db-backup working-db-purge
 
 PYTHON ?= python3
 
@@ -24,7 +24,21 @@ ai-history-sync:
 	$(PYTHON) scripts/sync_ai_history.py
 
 unit:
-	$(PYTHON) -m unittest -v tests.test_workspace tests.test_inventory tests.test_agent_context tests.test_ai_history tests.test_compose_smoke tests.test_host_http_proxy_socket tests.test_ollama_host_socket tests.test_semantic_worker_process tests.test_autostart
+	$(PYTHON) -m unittest -v tests.test_workspace tests.test_inventory tests.test_agent_context tests.test_ai_history tests.test_compose_smoke tests.test_host_http_proxy_socket tests.test_ollama_host_socket tests.test_semantic_worker_process tests.test_autostart tests.test_working_db_cleanup
+
+working-db-inventory:
+	$(PYTHON) scripts/working_db_cleanup.py inventory
+
+working-db-dry-run:
+	$(PYTHON) scripts/working_db_cleanup.py dry-run
+
+working-db-backup:
+	$(PYTHON) scripts/working_db_cleanup.py backup
+
+# Requires CONFIRM=1 to actually delete fixture rows (still runs backup first).
+working-db-purge:
+	@test "$(CONFIRM)" = "1" || (echo "Refusing: set CONFIRM=1 after reviewing dry-run" >&2; exit 2)
+	$(PYTHON) scripts/working_db_cleanup.py purge --execute
 
 bdd:
 	$(PYTHON) -m unittest -v tests.test_workspace_bdd tests.test_ai_history_bdd
