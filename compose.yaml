@@ -253,6 +253,7 @@ services:
       - hh-state:/var/lib/job-search-hh/state
       - hh-profile:/var/lib/job-search-hh/profile
       - ./services/hh/src:/app/src:ro
+      - ./services/hh/scripts:/app/scripts:ro
 
   automation:
     build: ./services/automation
