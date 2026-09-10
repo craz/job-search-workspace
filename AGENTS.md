@@ -21,12 +21,19 @@ work in the repository; it does not replace those rules or the goal.
    NOT VERIFIED / PARTIAL, never invent PASS.
 5. Keep implementation and documentation truthful, reproducible and understandable
    without chat context; never present planned behavior as implemented.
-6. Detailed development cycle and acceptance checklist:
+6. **Completion reporting is mandatory** for any coding agent (not Cursor-only).
+   If the task specifies `RETURN` or `Acceptance` sections, answer every requested
+   item and preserve the checklist; do not replace the requested report with a
+   short summary. `TECHNICAL PASS` requires all required tests and runtime/browser
+   evidence; otherwise report `PARTIAL` / `NOT VERIFIED`. `OWNER ACCEPT` is
+   separate. After the full report: **STOP** (do not auto-start the next slice).
+   Full contract: [`docs/AGENT_COMPLETION_REPORT.md`](docs/AGENT_COMPLETION_REPORT.md).
+7. Detailed development cycle and acceptance checklist:
    `DEVELOPMENT_PROCESS.md` / `.cursor/rules/10-development-workflow.mdc`.
-7. Before naming a long-lived service instance or infrastructure entity, read
+8. Before naming a long-lived service instance or infrastructure entity, read
    `NAMING_CONVENTION.md`, check `USED`, use the class-appropriate canonical
    slug, and register only after assignment. Ordinary Compose services and
    ephemeral containers stay functionally named.
-8. Project hook synchronizes raw history after each turn; use
+9. Project hook synchronizes raw history after each turn; use
    `make ai-history-sync` as a fallback. After a completed engineering step,
    update `.local/AI_HISTORY.md` without quoting it.

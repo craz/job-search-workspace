@@ -267,6 +267,10 @@ IMPLEMENTED
 - TECHNICAL PASS **не** означает COMPLETE и **не** закрывает product slice.
 - Local auto-commit после TECHNICAL PASS **допустим** и означает завершённый
   технический шаг, **не** OWNER ACCEPTED / COMPLETE.
+- **Completion report (any agent):** полный отчёт по
+  [`docs/AGENT_COMPLETION_REPORT.md`](docs/AGENT_COMPLETION_REPORT.md).
+  Явный `RETURN` / `Acceptance` в user prompt имеет приоритет и не сжимается
+  до «make test green / TECHNICAL PASS». После отчёта — STOP.
 - **Web / shipped JS (vanilla static assets):** TECHNICAL PASS требует, чтобы
   были реально выполнены:
   1. `node` syntax gate на shipped JS (`make js-syntax` / часть `make test`) —

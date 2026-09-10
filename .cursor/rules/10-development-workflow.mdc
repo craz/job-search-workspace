@@ -21,6 +21,10 @@ Critical ACCEPT / COMPLETE invariant lives in always-on
 
 Local auto-commit после TECHNICAL PASS допустим и **не** означает OWNER ACCEPTED / COMPLETE.
 
+Completion reports for any coding agent: `docs/AGENT_COMPLETION_REPORT.md`
+(portable; also in root `AGENTS.md`). Explicit user `RETURN`/`Acceptance` wins;
+do not compress to a one-liner PASS. Full report, then STOP.
+
 Owner acceptance **среза** не заменяет Roadmap **Gate** этапа (Gate R0/R1/…).
 
 ## Цикл изменения
