@@ -32,14 +32,24 @@ Owner acceptance **среза** не заменяет Roadmap **Gate** этап�
 5. Реализовать минимальный вертикальный срез без рефакторинга «заодно».
 6. Запустить применимые technical gates (format, lint, typecheck, unit,
    integration, contract, BDD, build — что существует).
+   Для **Web**: обязательно `make js-syntax` + `make js-smoke` (входят в
+   `make test`). SyntaxError / bootstrap crash в shipped `app.js` = gates
+   red. Нельзя объявлять TECHNICAL PASS, если JS asset не парсился и не
+   прогонялся через smoke.
 7. Просмотреть полный diff, безопасность и документацию.
 8. Если technical gates green:
    - статус **IMPLEMENTED** / **TECHNICAL PASS**;
    - завершённый технический шаг можно автоматически закоммитить
      (см. `15-auto-commit.mdc`);
    - commit = завершённый технический шаг, **не** product acceptance.
+   - Если применимый gate **не** запускался → **NOT VERIFIED** / **PARTIAL**,
+     не PASS. Unit/string/contract alone ≠ PASS для изменённого Web JS.
 9. Если изменение наблюдаемо пользователем:
    - поднять реальный продукт;
+   - для Web interaction changes (кнопки, polling, dialogs, navigation,
+     CAPTCHA, scoring controls) — минимальный **real-browser smoke**
+     изменённого flow **до** READY FOR OWNER ACCEPTANCE (не заменяет
+     OWNER ACCEPT);
    - проверить live behavior;
    - подготовить конкретный **OWNER ACCEPTANCE** checklist:
      URL → куда перейти → что сделать → что должно произойти;

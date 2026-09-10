@@ -14,7 +14,11 @@ work in the repository; it does not replace those rules or the goal.
 3. Use versioned HTTP/JSON CLI contracts; significant architectural choices need
    an ADR and incompatible changes need a migration plan.
 4. Run applicable quality gates and report exact pass/fail/skip results. Warnings
-   are defects unless their external cause is explicitly demonstrated.
+   are defects unless their external cause is explicitly demonstrated. For Web
+   shipped JS, `make js-syntax` / `make js-smoke` (part of `make test`) must run
+   before TECHNICAL PASS — a SyntaxError in `app.js` is a failed gate, not a
+   string-contract PASS. If a required gate was not executed, report
+   NOT VERIFIED / PARTIAL, never invent PASS.
 5. Keep implementation and documentation truthful, reproducible and understandable
    without chat context; never present planned behavior as implemented.
 6. Detailed development cycle and acceptance checklist:

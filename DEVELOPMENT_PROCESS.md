@@ -267,6 +267,20 @@ IMPLEMENTED
 - TECHNICAL PASS **не** означает COMPLETE и **не** закрывает product slice.
 - Local auto-commit после TECHNICAL PASS **допустим** и означает завершённый
   технический шаг, **не** OWNER ACCEPTED / COMPLETE.
+- **Web / shipped JS (vanilla static assets):** TECHNICAL PASS требует, чтобы
+  были реально выполнены:
+  1. `node` syntax gate на shipped JS (`make js-syntax` / часть `make test`) —
+     SyntaxError в `app.js` **нельзя** объявлять PASS;
+  2. зелёный `make test` сервиса Web (включая `js-smoke` bootstrap);
+  3. релевантные focused tests по изменённому срезу;
+  4. для **user-visible** Web-изменений (кнопки, polling, dialogs, navigation,
+     CAPTCHA, scoring controls и т.п.) — минимальный **real-browser smoke**
+     изменённого flow до статуса READY FOR OWNER ACCEPTANCE.
+  Нельзя выводить TECHNICAL PASS / PASS только из unit/string/contract тестов,
+  если изменённый Web asset **не** был распарсен/исполнен. Если gate не
+  запускался — писать **NOT VERIFIED** / **PARTIAL**, не PASS.
+  Browser smoke **не** заменяет OWNER ACCEPT; он только отсекает очевидно
+  сломанные сборки до передачи владельцу.
 - Для UI/product-facing среза owner acceptance требует поднятый продукт и
   короткий manual checklist (URL → куда перейти → что сделать → ожидаемый результат),
   затем STOP до явного ACCEPT.
@@ -422,6 +436,8 @@ vendor trees — через `.cursorindexingignore`. Новый Always Apply rul
 - diff не содержит несвязанных изменений;
 - миграции и публичные контракты проверены;
 - обязательные local/CI gates зелёные без warnings;
+- для Web: shipped JS проходит `make js-syntax` и `make js-smoke`;
+  user-visible interaction changes имеют real-browser smoke evidence;
 - документация и CHANGELOG обновлены;
 - security/review findings устранены;
 - rollout и rollback понятны;
