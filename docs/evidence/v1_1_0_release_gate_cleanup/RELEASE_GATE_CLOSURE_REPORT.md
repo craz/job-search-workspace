@@ -81,7 +81,7 @@ Web change this turn: **test-only** assert strings for cache-bust query already 
 
 | Component | HEAD |
 |---|---|
-| workspace | `ae63d1c135b7bd2ff3a72d4f46b48015e26ac166` |
+| workspace | `72ffd0c5e4a8d6019968bcb4d32a63da23044338` |
 | core | `424a635d16cede1f62abc094b228a02e217a4c52` |
 | hh | `4e63ab4d9a833d4413a58de494a918fcfba9f0a6` |
 | web | `b1125964b88205e7d51a58b56b256a2b1651303b` |
@@ -106,7 +106,8 @@ After workspace pin commit: all listed trees **clean**; no unrelated work staged
 | web | `165e233` | fix(web): keep viewport stable on manual «Оценить» (OWNER ACCEPTED product) |
 | web | `b112596` | test(web): sync cache-bust asserts to r63-score-viewport |
 | scoring | `67e13d6` | chore(scoring): release-gate format/lint + product mypy greens |
-| workspace | `ae63d1c` | chore: pin web b112596 for v1.1.0 release-gate closure |
+| workspace | `4bb4efb` | chore: pin web b112596 for v1.1.0 release-gate closure |
+| workspace | `72ffd0c` | docs: set final workspace HEAD in release-gate closure report |
 
 ## 12. push=0
 
