@@ -67,12 +67,22 @@ services:
 
 
 def _relay(client: socket.socket, upstream: socket.socket) -> None:
+    """Bidirectional byte relay.
+
+    Idle ``select`` timeouts must *not* close the connection: Ollama
+    ``/api/generate`` with ``stream:false`` can stay silent for well over 60s
+    while a cold model loads (~16s+) and Stage-B inference runs. Closing on
+    idle made cold/long scores look like ``ollama_unavailable``.
+    """
     sockets = [client, upstream]
     try:
         while True:
             readable, _, errored = select.select(sockets, [], sockets, 60.0)
-            if errored or not readable:
+            if errored:
                 break
+            if not readable:
+                # Still alive; wait for the next chunk (cold load / long generate).
+                continue
             for source in readable:
                 target = upstream if source is client else client
                 data = source.recv(65536)

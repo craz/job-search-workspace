@@ -118,12 +118,15 @@ def classify_proxy(url: str | None) -> str:
 
 
 def _relay(left: socket.socket, right: socket.socket) -> None:
+    """Bidirectional byte relay; idle select timeouts must not drop the socket."""
     sockets = [left, right]
     try:
         while True:
             readable, _, errored = select.select(sockets, [], sockets, 60.0)
-            if errored or not readable:
+            if errored:
                 break
+            if not readable:
+                continue
             for src in readable:
                 dst = right if src is left else left
                 data = src.recv(65536)
