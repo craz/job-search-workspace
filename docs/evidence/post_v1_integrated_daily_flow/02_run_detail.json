@@ -1,0 +1,46 @@
+{
+  "id": "9d6642bf-b792-4d9c-bd17-e74dbaac4af3",
+  "search_profile_id": null,
+  "acquisition_kind": "resume_suitable",
+  "source": "hh",
+  "criteria_snapshot": {},
+  "execution_snapshot": {
+    "order": "publication_time",
+    "discovery": "resume_suitable",
+    "max_pages": 1,
+    "transport": "browser",
+    "start_page": 0
+  },
+  "candidate_context_snapshot": {
+    "hh_resume_title": "Project Manager / Руководитель IT-проектов",
+    "resume_version_id": "4c19a495-e7ad-468d-ba5b-53e4743320d5",
+    "profile_version_id": "4fa80565-0d36-4290-827d-f482546aa3f7",
+    "hh_resume_external_id": "f3e5e5f7ff0f50d3e50039ed1f4436664d7338"
+  },
+  "status": "success",
+  "started_at": "2026-09-11T07:09:21.531970Z",
+  "finished_at": "2026-09-11T07:09:35.369888Z",
+  "found_count": 50,
+  "created_count": 3,
+  "updated_count": 0,
+  "unchanged_count": 47,
+  "error_count": 0,
+  "source_total": 2824,
+  "error_code": null,
+  "recovery_hint": "none",
+  "progress": {
+    "phase": "ingest",
+    "page_from": 0,
+    "page_current": 0,
+    "source_total": 2824,
+    "checked_count": 50,
+    "created_count": 3,
+    "pages_fetched": 1,
+    "pages_planned": 1,
+    "updated_count": 0,
+    "detail_fetched": 3,
+    "detail_planned": 3,
+    "unchanged_count": 47,
+    "last_progress_at": "2026-09-11T07:09:35.363934+00:00"
+  }
+}

@@ -1,0 +1,124 @@
+{
+  "ui_rows_sample": [
+    {
+      "id": "6fe54464-9f72-4a2c-9f52-e5e61db1141f",
+      "hasOpublikovana": true,
+      "hasNajdena": false,
+      "scoreBtn": "Оценить",
+      "refreshBtn": "",
+      "title": "Менеджер по развитию решений",
+      "scoringState": "unscored",
+      "verdict": ""
+    },
+    {
+      "id": "ccea3a13-6bf0-4167-8f37-6f54137f60a4",
+      "hasOpublikovana": true,
+      "hasNajdena": false,
+      "scoreBtn": "Оценить",
+      "refreshBtn": "",
+      "title": "Тим-лид отдела продаж / Team Lead (B2B, Enterprise)",
+      "scoringState": "unscored",
+      "verdict": ""
+    },
+    {
+      "id": "5a741741-2aa5-4bfa-b127-ea89f7bdc650",
+      "hasOpublikovana": true,
+      "hasNajdena": false,
+      "scoreBtn": "Оценить",
+      "refreshBtn": "",
+      "title": "Project Manager",
+      "scoringState": "unscored",
+      "verdict": ""
+    },
+    {
+      "id": "9cad0ea5-716b-4845-bf0f-6bb3343798fb",
+      "hasOpublikovana": true,
+      "hasNajdena": false,
+      "scoreBtn": "Оценить",
+      "refreshBtn": "",
+      "title": "Руководитель направления фронт-офисных бизнес-процессов",
+      "scoringState": "unscored",
+      "verdict": ""
+    },
+    {
+      "id": "e7cdd893-5ccb-4849-afff-28138b855fbc",
+      "hasOpublikovana": true,
+      "hasNajdena": false,
+      "scoreBtn": "Оценить",
+      "refreshBtn": "",
+      "title": "Руководитель направления / менеджер по работе с корпоративными it клиентами",
+      "scoringState": "unscored",
+      "verdict": ""
+    },
+    {
+      "id": "fd76b148-4c58-40b2-8c75-bf421059f66e",
+      "hasOpublikovana": true,
+      "hasNajdena": false,
+      "scoreBtn": "Оценить",
+      "refreshBtn": "",
+      "title": "Руководитель проектного офиса",
+      "scoringState": "unscored",
+      "verdict": ""
+    },
+    {
+      "id": "6b63d0dd-faf1-41c5-aec0-693363533e58",
+      "hasOpublikovana": true,
+      "hasNajdena": false,
+      "scoreBtn": "Оценить",
+      "refreshBtn": "",
+      "title": "Руководитель цифрового продукта",
+      "scoringState": "unscored",
+      "verdict": ""
+    },
+    {
+      "id": "5b2b66a7-6eb9-4f48-bc12-552f96ac48e0",
+      "hasOpublikovana": true,
+      "hasNajdena": false,
+      "scoreBtn": "Оценить",
+      "refreshBtn": "",
+      "title": "Fullstack-разработчик",
+      "scoringState": "unscored",
+      "verdict": ""
+    }
+  ],
+  "api_first5": [
+    {
+      "id": "5a741741-2aa5-4bfa-b127-ea89f7bdc650",
+      "title": "Project Manager",
+      "source_published_at": "2026-09-11T06:55:57.562000Z",
+      "first_seen_at": "2026-09-11T07:09:35.017579Z",
+      "has_source_published_at": true
+    },
+    {
+      "id": "ccea3a13-6bf0-4167-8f37-6f54137f60a4",
+      "title": "Тим-лид отдела продаж / Team Lead (B2B, Enterprise)",
+      "source_published_at": "2026-09-11T07:03:45.561000Z",
+      "first_seen_at": "2026-09-11T07:09:35.004004Z",
+      "has_source_published_at": true
+    },
+    {
+      "id": "6fe54464-9f72-4a2c-9f52-e5e61db1141f",
+      "title": "Менеджер по развитию решений",
+      "source_published_at": "2026-09-11T07:06:47.726000Z",
+      "first_seen_at": "2026-09-11T07:09:34.987692Z",
+      "has_source_published_at": true
+    },
+    {
+      "id": "9cad0ea5-716b-4845-bf0f-6bb3343798fb",
+      "title": "Руководитель направления фронт-офисных бизнес-процессов",
+      "source_published_at": "2026-09-11T06:49:31.336000Z",
+      "first_seen_at": "2026-09-11T06:53:12.646260Z",
+      "has_source_published_at": true
+    },
+    {
+      "id": "d8c002f9-9f83-417b-9be0-3213430a6961",
+      "title": "Руководитель разработки",
+      "source_published_at": "2026-09-11T06:15:33.565000Z",
+      "first_seen_at": "2026-09-11T06:48:43.130809Z",
+      "has_source_published_at": true
+    }
+  ],
+  "newest_ordering": false,
+  "ui_has_opublikovana": true,
+  "ui_has_najdena": false
+}

@@ -1,0 +1,162 @@
+{
+  "clicked": {
+    "ok": true,
+    "text": "Проверить подходящие"
+  },
+  "attempts_blockers": [],
+  "run_id": "9d6642bf-b792-4d9c-bd17-e74dbaac4af3",
+  "run_detail_summary": {
+    "status": "success",
+    "found_count": 50,
+    "created_count": 3,
+    "unchanged_count": 47,
+    "updated_count": 0,
+    "error_count": 0,
+    "source_total": 2824,
+    "error_code": null,
+    "execution_snapshot": {
+      "order": "publication_time",
+      "discovery": "resume_suitable",
+      "max_pages": 1,
+      "transport": "browser",
+      "start_page": 0
+    },
+    "progress": {
+      "phase": "ingest",
+      "page_from": 0,
+      "page_current": 0,
+      "source_total": 2824,
+      "checked_count": 50,
+      "created_count": 3,
+      "pages_fetched": 1,
+      "pages_planned": 1,
+      "updated_count": 0,
+      "detail_fetched": 3,
+      "detail_planned": 3,
+      "unchanged_count": 47,
+      "last_progress_at": "2026-09-11T07:09:35.363934+00:00"
+    },
+    "started_at": "2026-09-11T07:09:21.531970Z",
+    "finished_at": "2026-09-11T07:09:35.369888Z"
+  },
+  "live_snap_count": 15,
+  "live_samples": [
+    {
+      "t": 1789110568.8925068,
+      "snap": {
+        "liveCounts": "Проверено SERP 50 · Уже в базе 47 · Новых 3 · Карточек HH загружено 0 из 3",
+        "liveProgress": "Страница HH: 1 из 1 · из ~2 824 на HH",
+        "liveElapsed": "7 сек",
+        "suitableStatus": "Проверяем подходящие вакансии…",
+        "suitableLiveHidden": false,
+        "loadMoreHidden": true,
+        "lastBody": "Последняя проверка: 11 сент. 2026 г., 10:05 — завершилась с ошибкой: во время проверки профиль браузера был занят"
+      },
+      "run_id": "9d6642bf-b792-4d9c-bd17-e74dbaac4af3"
+    },
+    {
+      "t": 1789110569.9020493,
+      "snap": {
+        "liveCounts": "Проверено SERP 50 · Уже в базе 47 · Новых 3 · Карточек HH загружено 1 из 3",
+        "liveProgress": "Страница HH: 1 из 1 · из ~2 824 на HH",
+        "liveElapsed": "8 сек",
+        "suitableStatus": "Проверяем подходящие вакансии…",
+        "suitableLiveHidden": false,
+        "loadMoreHidden": true,
+        "lastBody": "Последняя проверка: 11 сент. 2026 г., 10:05 — завершилась с ошибкой: во время проверки профиль браузера был занят"
+      },
+      "run_id": "9d6642bf-b792-4d9c-bd17-e74dbaac4af3"
+    },
+    {
+      "t": 1789110570.9112175,
+      "snap": {
+        "liveCounts": "Проверено SERP 50 · Уже в базе 47 · Новых 3 · Карточек HH загружено 1 из 3",
+        "liveProgress": "Страница HH: 1 из 1 · из ~2 824 на HH",
+        "liveElapsed": "9 сек",
+        "suitableStatus": "Проверяем подходящие вакансии…",
+        "suitableLiveHidden": false,
+        "loadMoreHidden": true,
+        "lastBody": "Последняя проверка: 11 сент. 2026 г., 10:05 — завершилась с ошибкой: во время проверки профиль браузера был занят"
+      },
+      "run_id": "9d6642bf-b792-4d9c-bd17-e74dbaac4af3"
+    },
+    {
+      "t": 1789110571.9200366,
+      "snap": {
+        "liveCounts": "Проверено SERP 50 · Уже в базе 47 · Новых 3 · Карточек HH загружено 1 из 3",
+        "liveProgress": "Страница HH: 1 из 1 · из ~2 824 на HH",
+        "liveElapsed": "10 сек",
+        "suitableStatus": "Проверяем подходящие вакансии…",
+        "suitableLiveHidden": false,
+        "loadMoreHidden": true,
+        "lastBody": "Последняя проверка: 11 сент. 2026 г., 10:05 — завершилась с ошибкой: во время проверки профиль браузера был занят"
+      },
+      "run_id": "9d6642bf-b792-4d9c-bd17-e74dbaac4af3"
+    },
+    {
+      "t": 1789110572.929412,
+      "snap": {
+        "liveCounts": "Проверено SERP 50 · Уже в базе 47 · Новых 3 · Карточек HH загружено 1 из 3",
+        "liveProgress": "Страница HH: 1 из 1 · из ~2 824 на HH",
+        "liveElapsed": "11 сек",
+        "suitableStatus": "Проверяем подходящие вакансии…",
+        "suitableLiveHidden": false,
+        "loadMoreHidden": true,
+        "lastBody": "Последняя проверка: 11 сент. 2026 г., 10:05 — завершилась с ошибкой: во время проверки профиль браузера был занят"
+      },
+      "run_id": "9d6642bf-b792-4d9c-bd17-e74dbaac4af3"
+    },
+    {
+      "t": 1789110573.9372206,
+      "snap": {
+        "liveCounts": "Проверено SERP 50 · Уже в базе 47 · Новых 3 · Карточек HH загружено 2 из 3",
+        "liveProgress": "Страница HH: 1 из 1 · из ~2 824 на HH",
+        "liveElapsed": "12 сек",
+        "suitableStatus": "Проверяем подходящие вакансии…",
+        "suitableLiveHidden": false,
+        "loadMoreHidden": true,
+        "lastBody": "Последняя проверка: 11 сент. 2026 г., 10:05 — завершилась с ошибкой: во время проверки профиль браузера был занят"
+      },
+      "run_id": "9d6642bf-b792-4d9c-bd17-e74dbaac4af3"
+    },
+    {
+      "t": 1789110574.9455109,
+      "snap": {
+        "liveCounts": "Проверено SERP 50 · Уже в базе 47 · Новых 3 · Карточек HH загружено 2 из 3",
+        "liveProgress": "Страница HH: 1 из 1 · из ~2 824 на HH",
+        "liveElapsed": "13 сек",
+        "suitableStatus": "Проверяем подходящие вакансии…",
+        "suitableLiveHidden": false,
+        "loadMoreHidden": true,
+        "lastBody": "Последняя проверка: 11 сент. 2026 г., 10:05 — завершилась с ошибкой: во время проверки профиль браузера был занят"
+      },
+      "run_id": "9d6642bf-b792-4d9c-bd17-e74dbaac4af3"
+    },
+    {
+      "t": 1789110575.9542737,
+      "snap": {
+        "liveCounts": "Новых: 3 · Обновлено: 0 · Уже в базе: 47",
+        "liveProgress": "Проверено: 50 · Страницы HH: 0–0",
+        "liveElapsed": "13 сек",
+        "suitableStatus": "Проверка завершена · проверено 50 из 2 824 · можно загрузить ещё",
+        "suitableLiveHidden": false,
+        "loadMoreHidden": false,
+        "lastBody": ""
+      },
+      "run_id": "9d6642bf-b792-4d9c-bd17-e74dbaac4af3"
+    }
+  ],
+  "terminal_ui": {
+    "suitableStatus": "Проверка завершена · проверено 50 из 2 824 · можно загрузить ещё",
+    "suitableLiveHidden": false,
+    "liveCounts": "Новых: 3 · Обновлено: 0 · Уже в базе: 47",
+    "liveElapsed": "13 сек",
+    "loadMoreHidden": false,
+    "lastBody": "",
+    "lastHidden": true,
+    "totalLine": "HH предлагает: 2 824"
+  },
+  "page0_only": true,
+  "details_only_new": true,
+  "console_new": []
+}

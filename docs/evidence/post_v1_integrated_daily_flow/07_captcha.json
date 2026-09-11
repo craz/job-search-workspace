@@ -1,0 +1,10 @@
+{
+  "api_challenge": {
+    "active": false,
+    "challenge": null
+  },
+  "ui_captcha_hidden": true,
+  "challenge_files": {},
+  "did_not_trigger": true,
+  "challenge_active_false": true
+}

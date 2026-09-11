@@ -1,0 +1,160 @@
+{
+  "boot_ok": true,
+  "idle": {
+    "ok": true,
+    "hh_ok": true,
+    "resume_ok": true,
+    "lock": "FREE",
+    "hhLabel": "Подключено",
+    "resume": "Рабочее резюме: Project Manager / Руководитель IT-проектов",
+    "runDisabled": false
+  },
+  "snap": {
+    "hhLabel": "Подключено",
+    "hhStatus": "connected",
+    "suitableHint": "По рабочему резюме HeadHunter. «Проверить подходящие» — свежие сначала: 1 страница HH (~50 новейших), затем только новые карточки. «Загрузить ещё» продолжает со следующей страницы глубже в выдачу, а не с начала.",
+    "suitableStatus": "",
+    "suitableLiveHidden": false,
+    "captchaHidden": true,
+    "captchaOpenHidden": true,
+    "captchaConfirmHidden": true,
+    "liveProgress": "Проверено: 0 · Страницы HH: 0–0",
+    "liveCounts": "Новых: 0 · Обновлено: 0 · Уже в базе: 0",
+    "liveElapsed": "0 сек",
+    "liveStarted": "Запущена: 10:05:38 · Завершена: 10:05:38 · Длительность: 0 сек",
+    "loadMoreHidden": true,
+    "loadMoreText": "Загрузить ещё",
+    "lastBody": "Последняя проверка: 11 сент. 2026 г., 10:05 — завершилась с ошибкой: во время проверки профиль браузера был занят",
+    "lastHidden": false,
+    "totalLine": "HH предлагает: —",
+    "progressLine": "страница HH 0 · дальше по HH не осталось",
+    "resumeLine": "Рабочее резюме: Project Manager / Руководитель IT-проектов",
+    "runDisabled": false,
+    "runText": "Проверить подходящие",
+    "vacancyCount": 50,
+    "firstRows": [
+      {
+        "id": "9cad0ea5-716b-4845-bf0f-6bb3343798fb",
+        "hasOpublikovana": true,
+        "hasNajdena": false,
+        "scoreBtn": "Оценить",
+        "refreshBtn": "",
+        "title": "Руководитель направления фронт-офисных бизнес-процессов",
+        "scoringState": "unscored",
+        "verdict": ""
+      },
+      {
+        "id": "e7cdd893-5ccb-4849-afff-28138b855fbc",
+        "hasOpublikovana": true,
+        "hasNajdena": false,
+        "scoreBtn": "Оценить",
+        "refreshBtn": "",
+        "title": "Руководитель направления / менеджер по работе с корпоративными it клиентами",
+        "scoringState": "unscored",
+        "verdict": ""
+      },
+      {
+        "id": "fd76b148-4c58-40b2-8c75-bf421059f66e",
+        "hasOpublikovana": true,
+        "hasNajdena": false,
+        "scoreBtn": "Оценить",
+        "refreshBtn": "",
+        "title": "Руководитель проектного офиса",
+        "scoringState": "unscored",
+        "verdict": ""
+      },
+      {
+        "id": "6b63d0dd-faf1-41c5-aec0-693363533e58",
+        "hasOpublikovana": true,
+        "hasNajdena": false,
+        "scoreBtn": "Оценить",
+        "refreshBtn": "",
+        "title": "Руководитель цифрового продукта",
+        "scoringState": "unscored",
+        "verdict": ""
+      },
+      {
+        "id": "5b2b66a7-6eb9-4f48-bc12-552f96ac48e0",
+        "hasOpublikovana": true,
+        "hasNajdena": false,
+        "scoreBtn": "Оценить",
+        "refreshBtn": "",
+        "title": "Fullstack-разработчик",
+        "scoringState": "unscored",
+        "verdict": ""
+      },
+      {
+        "id": "d8c002f9-9f83-417b-9be0-3213430a6961",
+        "hasOpublikovana": true,
+        "hasNajdena": false,
+        "scoreBtn": "Оценить",
+        "refreshBtn": "",
+        "title": "Руководитель разработки",
+        "scoringState": "unscored",
+        "verdict": ""
+      },
+      {
+        "id": "50d28a3c-e124-4041-891b-2a2c4a4e824e",
+        "hasOpublikovana": true,
+        "hasNajdena": false,
+        "scoreBtn": "Оценить",
+        "refreshBtn": "",
+        "title": "Руководитель группы бизнес-анализа (MES)",
+        "scoringState": "unscored",
+        "verdict": ""
+      },
+      {
+        "id": "281a704f-8589-4ba6-b1f9-8b58fc61478a",
+        "hasOpublikovana": true,
+        "hasNajdena": false,
+        "scoreBtn": "Оценить",
+        "refreshBtn": "",
+        "title": "Руководитель продукта (направление упаковка)",
+        "scoringState": "unscored",
+        "verdict": ""
+      }
+    ],
+    "scrollY": 0
+  },
+  "core_live": {
+    "status": "ok",
+    "component": "job-search-core",
+    "version": "0.1.0"
+  },
+  "hh_connection": {
+    "action": {
+      "code": "none"
+    },
+    "authenticated": true,
+    "checked_at": "2026-09-11T07:09:15Z",
+    "code": "ready",
+    "expired": false,
+    "expires_at": "2026-09-23T18:34:00Z",
+    "login_ready": true,
+    "recovery": {
+      "kind": "none",
+      "operator_action": "none"
+    },
+    "status": "connected"
+  },
+  "hh_challenge": {
+    "active": false,
+    "challenge": null
+  },
+  "console_errors_so_far": [],
+  "queue": {
+    "count": 25,
+    "total": 1042,
+    "first3_source_published_at": [
+      "2026-09-11T06:49:31.336000Z",
+      "2026-09-11T06:15:33.565000Z",
+      "2026-09-11T05:40:42.569000Z"
+    ],
+    "newest_ordering_api": false
+  },
+  "pass_captcha_controls_hidden": true,
+  "pass_hh_connected": true,
+  "pass_core": true,
+  "pass_queue_loaded": true,
+  "russian_hint": "По рабочему резюме HeadHunter. «Проверить подходящие» — свежие сначала: 1 страница HH (~50 новейших), затем только новые карточки. «Загрузить ещё» продолжает со следующей страницы глубже в выдачу, а не с начала."
+}

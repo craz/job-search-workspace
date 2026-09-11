@@ -1,0 +1,48 @@
+{
+  "status": {
+    "enabled": false,
+    "running": false,
+    "last_started_at": "2026-09-09T17:14:33Z",
+    "last_finished_at": "2026-09-09T17:14:33Z",
+    "last_status": "error",
+    "last_error": "browser_proxy_unavailable:Local HH browser egress is unavailable; restart the workspace with make up.",
+    "next_run_at": null,
+    "interval_seconds": 3600,
+    "max_enqueue_per_cycle": 5,
+    "last_cycle": {
+      "created": 0,
+      "cycle_id": "c8c1037f-4a64-4d52-b6e5-f2468ad8ebcd",
+      "errors": 0,
+      "job_ids": [],
+      "processed": 0,
+      "scoring_candidates": 0,
+      "scoring_deferred": 0,
+      "scoring_enqueued": 0,
+      "scoring_pending_next_cycle": 0,
+      "scoring_skipped": 0,
+      "search_run_id": null,
+      "source_total": null,
+      "trigger": "run_now",
+      "unchanged": 0,
+      "updated": 0
+    },
+    "observed_at": "2026-09-11T07:11:55Z",
+    "startup_catchup_rule": "enabled AND next_run_at <= now → exactly one catch-up on process start; then next_run_at = now + interval (missed slots are not replayed)"
+  },
+  "enabled": false,
+  "did_not_enable_recurring": true,
+  "create_only_path_from_last_run": {
+    "execution_snapshot": {
+      "order": "publication_time",
+      "discovery": "resume_suitable",
+      "max_pages": 1,
+      "transport": "browser",
+      "start_page": 0
+    },
+    "created": 3,
+    "unchanged": 47,
+    "detail_planned": 3,
+    "detail_fetched": 3,
+    "serp_checked": 50
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "elapsed_at_terminal": "13 сек",
+  "elapsed_2s_later_live_hidden": false,
+  "no_stale_проверяем_at_terminal": true,
+  "reload_ok": true,
+  "after_reload": {
+    "status": "",
+    "liveHidden": false,
+    "loadMoreHidden": false,
+    "lastBody": "Последняя проверка: 11 сент. 2026 г., 10:09 — завершена · Проверено: 50. Новых: 0. Обновлено: 0. Уже в базе: 50. Страница HH: 1.",
+    "runText": "Проверить подходящие"
+  },
+  "no_resurrect_running": true,
+  "load_more_same_session": {
+    "click": {
+      "ok": true,
+      "text": "Загрузить ещё"
+    },
+    "page1_run": {
+      "id": "4c33bfc6-9301-416f-ba2f-7d5864f859af",
+      "status": "success",
+      "execution_snapshot": {
+        "order": "publication_time",
+        "discovery": "resume_suitable",
+        "max_pages": 1,
+        "transport": "browser",
+        "start_page": 1
+      },
+      "found_count": 50,
+      "created_count": 0,
+      "unchanged_count": 50,
+      "progress": {
+        "phase": "ingest",
+        "page_from": 1,
+        "page_current": 1,
+        "source_total": 2823,
+        "checked_count": 50,
+        "created_count": 0,
+        "pages_fetched": 1,
+        "pages_planned": 1,
+        "updated_count": 0,
+        "detail_fetched": 0,
+        "detail_planned": 0,
+        "unchanged_count": 50,
+        "last_progress_at": "2026-09-11T07:09:47.639622+00:00"
+      },
+      "error_code": null
+    },
+    "ui_after": {
+      "suitableStatus": "Проверка завершена · проверено 100 из 2 823 · можно загрузить ещё",
+      "loadMoreHidden": false,
+      "lastBody": "",
+      "liveCounts": "Новых: 0 · Обновлено: 0 · Уже в базе: 50"
+    }
+  },
+  "note": "Загрузить ещё is same-session continuation; after hard reload it may be hidden until a new terminal suitable."
+}

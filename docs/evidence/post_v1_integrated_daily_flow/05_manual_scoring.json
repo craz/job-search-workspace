@@ -1,0 +1,147 @@
+{
+  "target": {
+    "id": "6fe54464-9f72-4a2c-9f52-e5e61db1141f",
+    "btn": "Оценить",
+    "title": "Менеджер по развитию решений",
+    "scrollY": 0
+  },
+  "before": {
+    "assessment_id": null,
+    "status": "new"
+  },
+  "click": {
+    "ok": true,
+    "text": "Ставим в очередь…"
+  },
+  "states": [
+    {
+      "btn": "Оценивается…",
+      "pending": true,
+      "scoringState": "unscored",
+      "verdict": "",
+      "scrollY": 0
+    },
+    {
+      "btn": "Оценивается…",
+      "pending": true,
+      "scoringState": "unscored",
+      "verdict": "",
+      "scrollY": 0
+    },
+    {
+      "btn": "Оценивается…",
+      "pending": true,
+      "scoringState": "unscored",
+      "verdict": "",
+      "scrollY": 0
+    },
+    {
+      "btn": "Оценивается…",
+      "pending": true,
+      "scoringState": "unscored",
+      "verdict": "",
+      "scrollY": 0
+    },
+    {
+      "btn": "Оценивается…",
+      "pending": true,
+      "scoringState": "unscored",
+      "verdict": "",
+      "scrollY": 0
+    },
+    {
+      "btn": "Оценивается…",
+      "pending": true,
+      "scoringState": "unscored",
+      "verdict": "",
+      "scrollY": 0
+    },
+    {
+      "btn": "Оценивается…",
+      "pending": true,
+      "scoringState": "unscored",
+      "verdict": "",
+      "scrollY": 0
+    },
+    {
+      "btn": "Оценивается…",
+      "pending": true,
+      "scoringState": "unscored",
+      "verdict": "",
+      "scrollY": 0
+    },
+    {
+      "btn": "Оценивается…",
+      "pending": true,
+      "scoringState": "unscored",
+      "verdict": "",
+      "scrollY": 0
+    },
+    {
+      "btn": "",
+      "pending": null,
+      "scoringState": "current",
+      "verdict": "skip",
+      "scrollY": 0
+    }
+  ],
+  "after_vac_assessment_related": {
+    "assessment_id": null,
+    "status": "new",
+    "keys": [
+      "id",
+      "source",
+      "external_id",
+      "title",
+      "url",
+      "description",
+      "salary_text",
+      "area_text",
+      "employment_text",
+      "schedule_text",
+      "work_format_text",
+      "experience_text",
+      "published_text",
+      "archived",
+      "source_status",
+      "source_status_checked_at",
+      "archived_at",
+      "source_status_reason",
+      "source_published_at",
+      "first_seen_at",
+      "last_seen_at",
+      "content_hash",
+      "status",
+      "owner_decision",
+      "owner_decision_at",
+      "action_channel",
+      "action_channel_at",
+      "next_action",
+      "next_action_at",
+      "next_action_done",
+      "created_at",
+      "updated_at",
+      "company",
+      "acquisition_provenance",
+      "current_assessment"
+    ]
+  },
+  "scoring_state": {
+    "vacancy_id": "6fe54464-9f72-4a2c-9f52-e5e61db1141f",
+    "state": "never_scored",
+    "scoring_mode": "fast",
+    "current_scoring_identity_hash": "7feb1270932e6a18f583d63631406f3912bc50689f18b2fb35bb64f5ace2490f",
+    "reusable_assessment_id": null,
+    "latest_assessment_id": null,
+    "stale_reason_codes": [],
+    "failure_error_code": null,
+    "failure_last_failed_at": null,
+    "failure_source_batch_run_id": null
+  },
+  "after_reload_ui": {
+    "scoringState": "current",
+    "verdict": "skip",
+    "btn": ""
+  },
+  "scroll_stable": true
+}

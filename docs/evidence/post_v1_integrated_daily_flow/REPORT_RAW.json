@@ -1,0 +1,722 @@
+{
+  "started_at_utc": "2026-09-11T07:09:05Z",
+  "steps": {
+    "1_clean_web_load": {
+      "boot_ok": true,
+      "idle": {
+        "ok": true,
+        "hh_ok": true,
+        "resume_ok": true,
+        "lock": "FREE",
+        "hhLabel": "Подключено",
+        "resume": "Рабочее резюме: Project Manager / Руководитель IT-проектов",
+        "runDisabled": false
+      },
+      "snap": {
+        "hhLabel": "Подключено",
+        "hhStatus": "connected",
+        "suitableHint": "По рабочему резюме HeadHunter. «Проверить подходящие» — свежие сначала: 1 страница HH (~50 новейших), затем только новые карточки. «Загрузить ещё» продолжает со следующей страницы глубже в выдачу, а не с начала.",
+        "suitableStatus": "",
+        "suitableLiveHidden": false,
+        "captchaHidden": true,
+        "captchaOpenHidden": true,
+        "captchaConfirmHidden": true,
+        "liveProgress": "Проверено: 0 · Страницы HH: 0–0",
+        "liveCounts": "Новых: 0 · Обновлено: 0 · Уже в базе: 0",
+        "liveElapsed": "0 сек",
+        "liveStarted": "Запущена: 10:05:38 · Завершена: 10:05:38 · Длительность: 0 сек",
+        "loadMoreHidden": true,
+        "loadMoreText": "Загрузить ещё",
+        "lastBody": "Последняя проверка: 11 сент. 2026 г., 10:05 — завершилась с ошибкой: во время проверки профиль браузера был занят",
+        "lastHidden": false,
+        "totalLine": "HH предлагает: —",
+        "progressLine": "страница HH 0 · дальше по HH не осталось",
+        "resumeLine": "Рабочее резюме: Project Manager / Руководитель IT-проектов",
+        "runDisabled": false,
+        "runText": "Проверить подходящие",
+        "vacancyCount": 50,
+        "firstRows": [
+          {
+            "id": "9cad0ea5-716b-4845-bf0f-6bb3343798fb",
+            "hasOpublikovana": true,
+            "hasNajdena": false,
+            "scoreBtn": "Оценить",
+            "refreshBtn": "",
+            "title": "Руководитель направления фронт-офисных бизнес-процессов",
+            "scoringState": "unscored",
+            "verdict": ""
+          },
+          {
+            "id": "e7cdd893-5ccb-4849-afff-28138b855fbc",
+            "hasOpublikovana": true,
+            "hasNajdena": false,
+            "scoreBtn": "Оценить",
+            "refreshBtn": "",
+            "title": "Руководитель направления / менеджер по работе с корпоративными it клиентами",
+            "scoringState": "unscored",
+            "verdict": ""
+          },
+          {
+            "id": "fd76b148-4c58-40b2-8c75-bf421059f66e",
+            "hasOpublikovana": true,
+            "hasNajdena": false,
+            "scoreBtn": "Оценить",
+            "refreshBtn": "",
+            "title": "Руководитель проектного офиса",
+            "scoringState": "unscored",
+            "verdict": ""
+          },
+          {
+            "id": "6b63d0dd-faf1-41c5-aec0-693363533e58",
+            "hasOpublikovana": true,
+            "hasNajdena": false,
+            "scoreBtn": "Оценить",
+            "refreshBtn": "",
+            "title": "Руководитель цифрового продукта",
+            "scoringState": "unscored",
+            "verdict": ""
+          },
+          {
+            "id": "5b2b66a7-6eb9-4f48-bc12-552f96ac48e0",
+            "hasOpublikovana": true,
+            "hasNajdena": false,
+            "scoreBtn": "Оценить",
+            "refreshBtn": "",
+            "title": "Fullstack-разработчик",
+            "scoringState": "unscored",
+            "verdict": ""
+          },
+          {
+            "id": "d8c002f9-9f83-417b-9be0-3213430a6961",
+            "hasOpublikovana": true,
+            "hasNajdena": false,
+            "scoreBtn": "Оценить",
+            "refreshBtn": "",
+            "title": "Руководитель разработки",
+            "scoringState": "unscored",
+            "verdict": ""
+          },
+          {
+            "id": "50d28a3c-e124-4041-891b-2a2c4a4e824e",
+            "hasOpublikovana": true,
+            "hasNajdena": false,
+            "scoreBtn": "Оценить",
+            "refreshBtn": "",
+            "title": "Руководитель группы бизнес-анализа (MES)",
+            "scoringState": "unscored",
+            "verdict": ""
+          },
+          {
+            "id": "281a704f-8589-4ba6-b1f9-8b58fc61478a",
+            "hasOpublikovana": true,
+            "hasNajdena": false,
+            "scoreBtn": "Оценить",
+            "refreshBtn": "",
+            "title": "Руководитель продукта (направление упаковка)",
+            "scoringState": "unscored",
+            "verdict": ""
+          }
+        ],
+        "scrollY": 0
+      },
+      "core_live": {
+        "status": "ok",
+        "component": "job-search-core",
+        "version": "0.1.0"
+      },
+      "hh_connection": {
+        "action": {
+          "code": "none"
+        },
+        "authenticated": true,
+        "checked_at": "2026-09-11T07:09:15Z",
+        "code": "ready",
+        "expired": false,
+        "expires_at": "2026-09-23T18:34:00Z",
+        "login_ready": true,
+        "recovery": {
+          "kind": "none",
+          "operator_action": "none"
+        },
+        "status": "connected"
+      },
+      "hh_challenge": {
+        "active": false,
+        "challenge": null
+      },
+      "console_errors_so_far": [],
+      "queue": {
+        "count": 25,
+        "total": 1042,
+        "first3_source_published_at": [
+          "2026-09-11T06:49:31.336000Z",
+          "2026-09-11T06:15:33.565000Z",
+          "2026-09-11T05:40:42.569000Z"
+        ],
+        "newest_ordering_api": false
+      },
+      "pass_captcha_controls_hidden": true,
+      "pass_hh_connected": true,
+      "pass_core": true,
+      "pass_queue_loaded": true,
+      "russian_hint": "По рабочему резюме HeadHunter. «Проверить подходящие» — свежие сначала: 1 страница HH (~50 новейших), затем только новые карточки. «Загрузить ещё» продолжает со следующей страницы глубже в выдачу, а не с начала."
+    },
+    "2_suitable_check": {
+      "clicked": {
+        "ok": true,
+        "text": "Проверить подходящие"
+      },
+      "attempts_blockers": [],
+      "run_id": "9d6642bf-b792-4d9c-bd17-e74dbaac4af3",
+      "run_detail_summary": {
+        "status": "success",
+        "found_count": 50,
+        "created_count": 3,
+        "unchanged_count": 47,
+        "updated_count": 0,
+        "error_count": 0,
+        "source_total": 2824,
+        "error_code": null,
+        "execution_snapshot": {
+          "order": "publication_time",
+          "discovery": "resume_suitable",
+          "max_pages": 1,
+          "transport": "browser",
+          "start_page": 0
+        },
+        "progress": {
+          "phase": "ingest",
+          "page_from": 0,
+          "page_current": 0,
+          "source_total": 2824,
+          "checked_count": 50,
+          "created_count": 3,
+          "pages_fetched": 1,
+          "pages_planned": 1,
+          "updated_count": 0,
+          "detail_fetched": 3,
+          "detail_planned": 3,
+          "unchanged_count": 47,
+          "last_progress_at": "2026-09-11T07:09:35.363934+00:00"
+        },
+        "started_at": "2026-09-11T07:09:21.531970Z",
+        "finished_at": "2026-09-11T07:09:35.369888Z"
+      },
+      "live_snap_count": 15,
+      "live_samples": [
+        {
+          "t": 1789110568.8925068,
+          "snap": {
+            "liveCounts": "Проверено SERP 50 · Уже в базе 47 · Новых 3 · Карточек HH загружено 0 из 3",
+            "liveProgress": "Страница HH: 1 из 1 · из ~2 824 на HH",
+            "liveElapsed": "7 сек",
+            "suitableStatus": "Проверяем подходящие вакансии…",
+            "suitableLiveHidden": false,
+            "loadMoreHidden": true,
+            "lastBody": "Последняя проверка: 11 сент. 2026 г., 10:05 — завершилась с ошибкой: во время проверки профиль браузера был занят"
+          },
+          "run_id": "9d6642bf-b792-4d9c-bd17-e74dbaac4af3"
+        },
+        {
+          "t": 1789110569.9020493,
+          "snap": {
+            "liveCounts": "Проверено SERP 50 · Уже в базе 47 · Новых 3 · Карточек HH загружено 1 из 3",
+            "liveProgress": "Страница HH: 1 из 1 · из ~2 824 на HH",
+            "liveElapsed": "8 сек",
+            "suitableStatus": "Проверяем подходящие вакансии…",
+            "suitableLiveHidden": false,
+            "loadMoreHidden": true,
+            "lastBody": "Последняя проверка: 11 сент. 2026 г., 10:05 — завершилась с ошибкой: во время проверки профиль браузера был занят"
+          },
+          "run_id": "9d6642bf-b792-4d9c-bd17-e74dbaac4af3"
+        },
+        {
+          "t": 1789110570.9112175,
+          "snap": {
+            "liveCounts": "Проверено SERP 50 · Уже в базе 47 · Новых 3 · Карточек HH загружено 1 из 3",
+            "liveProgress": "Страница HH: 1 из 1 · из ~2 824 на HH",
+            "liveElapsed": "9 сек",
+            "suitableStatus": "Проверяем подходящие вакансии…",
+            "suitableLiveHidden": false,
+            "loadMoreHidden": true,
+            "lastBody": "Последняя проверка: 11 сент. 2026 г., 10:05 — завершилась с ошибкой: во время проверки профиль браузера был занят"
+          },
+          "run_id": "9d6642bf-b792-4d9c-bd17-e74dbaac4af3"
+        },
+        {
+          "t": 1789110571.9200366,
+          "snap": {
+            "liveCounts": "Проверено SERP 50 · Уже в базе 47 · Новых 3 · Карточек HH загружено 1 из 3",
+            "liveProgress": "Страница HH: 1 из 1 · из ~2 824 на HH",
+            "liveElapsed": "10 сек",
+            "suitableStatus": "Проверяем подходящие вакансии…",
+            "suitableLiveHidden": false,
+            "loadMoreHidden": true,
+            "lastBody": "Последняя проверка: 11 сент. 2026 г., 10:05 — завершилась с ошибкой: во время проверки профиль браузера был занят"
+          },
+          "run_id": "9d6642bf-b792-4d9c-bd17-e74dbaac4af3"
+        },
+        {
+          "t": 1789110572.929412,
+          "snap": {
+            "liveCounts": "Проверено SERP 50 · Уже в базе 47 · Новых 3 · Карточек HH загружено 1 из 3",
+            "liveProgress": "Страница HH: 1 из 1 · из ~2 824 на HH",
+            "liveElapsed": "11 сек",
+            "suitableStatus": "Проверяем подходящие вакансии…",
+            "suitableLiveHidden": false,
+            "loadMoreHidden": true,
+            "lastBody": "Последняя проверка: 11 сент. 2026 г., 10:05 — завершилась с ошибкой: во время проверки профиль браузера был занят"
+          },
+          "run_id": "9d6642bf-b792-4d9c-bd17-e74dbaac4af3"
+        },
+        {
+          "t": 1789110573.9372206,
+          "snap": {
+            "liveCounts": "Проверено SERP 50 · Уже в базе 47 · Новых 3 · Карточек HH загружено 2 из 3",
+            "liveProgress": "Страница HH: 1 из 1 · из ~2 824 на HH",
+            "liveElapsed": "12 сек",
+            "suitableStatus": "Проверяем подходящие вакансии…",
+            "suitableLiveHidden": false,
+            "loadMoreHidden": true,
+            "lastBody": "Последняя проверка: 11 сент. 2026 г., 10:05 — завершилась с ошибкой: во время проверки профиль браузера был занят"
+          },
+          "run_id": "9d6642bf-b792-4d9c-bd17-e74dbaac4af3"
+        },
+        {
+          "t": 1789110574.9455109,
+          "snap": {
+            "liveCounts": "Проверено SERP 50 · Уже в базе 47 · Новых 3 · Карточек HH загружено 2 из 3",
+            "liveProgress": "Страница HH: 1 из 1 · из ~2 824 на HH",
+            "liveElapsed": "13 сек",
+            "suitableStatus": "Проверяем подходящие вакансии…",
+            "suitableLiveHidden": false,
+            "loadMoreHidden": true,
+            "lastBody": "Последняя проверка: 11 сент. 2026 г., 10:05 — завершилась с ошибкой: во время проверки профиль браузера был занят"
+          },
+          "run_id": "9d6642bf-b792-4d9c-bd17-e74dbaac4af3"
+        },
+        {
+          "t": 1789110575.9542737,
+          "snap": {
+            "liveCounts": "Новых: 3 · Обновлено: 0 · Уже в базе: 47",
+            "liveProgress": "Проверено: 50 · Страницы HH: 0–0",
+            "liveElapsed": "13 сек",
+            "suitableStatus": "Проверка завершена · проверено 50 из 2 824 · можно загрузить ещё",
+            "suitableLiveHidden": false,
+            "loadMoreHidden": false,
+            "lastBody": ""
+          },
+          "run_id": "9d6642bf-b792-4d9c-bd17-e74dbaac4af3"
+        }
+      ],
+      "terminal_ui": {
+        "suitableStatus": "Проверка завершена · проверено 50 из 2 824 · можно загрузить ещё",
+        "suitableLiveHidden": false,
+        "liveCounts": "Новых: 3 · Обновлено: 0 · Уже в базе: 47",
+        "liveElapsed": "13 сек",
+        "loadMoreHidden": false,
+        "lastBody": "",
+        "lastHidden": true,
+        "totalLine": "HH предлагает: 2 824"
+      },
+      "page0_only": true,
+      "details_only_new": true,
+      "console_new": []
+    },
+    "3_terminal_reload": {
+      "elapsed_at_terminal": "13 сек",
+      "elapsed_2s_later_live_hidden": false,
+      "no_stale_проверяем_at_terminal": true,
+      "reload_ok": true,
+      "after_reload": {
+        "status": "",
+        "liveHidden": false,
+        "loadMoreHidden": false,
+        "lastBody": "Последняя проверка: 11 сент. 2026 г., 10:09 — завершена · Проверено: 50. Новых: 0. Обновлено: 0. Уже в базе: 50. Страница HH: 1.",
+        "runText": "Проверить подходящие"
+      },
+      "no_resurrect_running": true,
+      "load_more_same_session": {
+        "click": {
+          "ok": true,
+          "text": "Загрузить ещё"
+        },
+        "page1_run": {
+          "id": "4c33bfc6-9301-416f-ba2f-7d5864f859af",
+          "status": "success",
+          "execution_snapshot": {
+            "order": "publication_time",
+            "discovery": "resume_suitable",
+            "max_pages": 1,
+            "transport": "browser",
+            "start_page": 1
+          },
+          "found_count": 50,
+          "created_count": 0,
+          "unchanged_count": 50,
+          "progress": {
+            "phase": "ingest",
+            "page_from": 1,
+            "page_current": 1,
+            "source_total": 2823,
+            "checked_count": 50,
+            "created_count": 0,
+            "pages_fetched": 1,
+            "pages_planned": 1,
+            "updated_count": 0,
+            "detail_fetched": 0,
+            "detail_planned": 0,
+            "unchanged_count": 50,
+            "last_progress_at": "2026-09-11T07:09:47.639622+00:00"
+          },
+          "error_code": null
+        },
+        "ui_after": {
+          "suitableStatus": "Проверка завершена · проверено 100 из 2 823 · можно загрузить ещё",
+          "loadMoreHidden": false,
+          "lastBody": "",
+          "liveCounts": "Новых: 0 · Обновлено: 0 · Уже в базе: 50"
+        }
+      },
+      "note": "Загрузить ещё is same-session continuation; after hard reload it may be hidden until a new terminal suitable."
+    },
+    "4_new_vacancies": {
+      "ui_rows_sample": [
+        {
+          "id": "6fe54464-9f72-4a2c-9f52-e5e61db1141f",
+          "hasOpublikovana": true,
+          "hasNajdena": false,
+          "scoreBtn": "Оценить",
+          "refreshBtn": "",
+          "title": "Менеджер по развитию решений",
+          "scoringState": "unscored",
+          "verdict": ""
+        },
+        {
+          "id": "ccea3a13-6bf0-4167-8f37-6f54137f60a4",
+          "hasOpublikovana": true,
+          "hasNajdena": false,
+          "scoreBtn": "Оценить",
+          "refreshBtn": "",
+          "title": "Тим-лид отдела продаж / Team Lead (B2B, Enterprise)",
+          "scoringState": "unscored",
+          "verdict": ""
+        },
+        {
+          "id": "5a741741-2aa5-4bfa-b127-ea89f7bdc650",
+          "hasOpublikovana": true,
+          "hasNajdena": false,
+          "scoreBtn": "Оценить",
+          "refreshBtn": "",
+          "title": "Project Manager",
+          "scoringState": "unscored",
+          "verdict": ""
+        },
+        {
+          "id": "9cad0ea5-716b-4845-bf0f-6bb3343798fb",
+          "hasOpublikovana": true,
+          "hasNajdena": false,
+          "scoreBtn": "Оценить",
+          "refreshBtn": "",
+          "title": "Руководитель направления фронт-офисных бизнес-процессов",
+          "scoringState": "unscored",
+          "verdict": ""
+        },
+        {
+          "id": "e7cdd893-5ccb-4849-afff-28138b855fbc",
+          "hasOpublikovana": true,
+          "hasNajdena": false,
+          "scoreBtn": "Оценить",
+          "refreshBtn": "",
+          "title": "Руководитель направления / менеджер по работе с корпоративными it клиентами",
+          "scoringState": "unscored",
+          "verdict": ""
+        },
+        {
+          "id": "fd76b148-4c58-40b2-8c75-bf421059f66e",
+          "hasOpublikovana": true,
+          "hasNajdena": false,
+          "scoreBtn": "Оценить",
+          "refreshBtn": "",
+          "title": "Руководитель проектного офиса",
+          "scoringState": "unscored",
+          "verdict": ""
+        },
+        {
+          "id": "6b63d0dd-faf1-41c5-aec0-693363533e58",
+          "hasOpublikovana": true,
+          "hasNajdena": false,
+          "scoreBtn": "Оценить",
+          "refreshBtn": "",
+          "title": "Руководитель цифрового продукта",
+          "scoringState": "unscored",
+          "verdict": ""
+        },
+        {
+          "id": "5b2b66a7-6eb9-4f48-bc12-552f96ac48e0",
+          "hasOpublikovana": true,
+          "hasNajdena": false,
+          "scoreBtn": "Оценить",
+          "refreshBtn": "",
+          "title": "Fullstack-разработчик",
+          "scoringState": "unscored",
+          "verdict": ""
+        }
+      ],
+      "api_first5": [
+        {
+          "id": "5a741741-2aa5-4bfa-b127-ea89f7bdc650",
+          "title": "Project Manager",
+          "source_published_at": "2026-09-11T06:55:57.562000Z",
+          "first_seen_at": "2026-09-11T07:09:35.017579Z",
+          "has_source_published_at": true
+        },
+        {
+          "id": "ccea3a13-6bf0-4167-8f37-6f54137f60a4",
+          "title": "Тим-лид отдела продаж / Team Lead (B2B, Enterprise)",
+          "source_published_at": "2026-09-11T07:03:45.561000Z",
+          "first_seen_at": "2026-09-11T07:09:35.004004Z",
+          "has_source_published_at": true
+        },
+        {
+          "id": "6fe54464-9f72-4a2c-9f52-e5e61db1141f",
+          "title": "Менеджер по развитию решений",
+          "source_published_at": "2026-09-11T07:06:47.726000Z",
+          "first_seen_at": "2026-09-11T07:09:34.987692Z",
+          "has_source_published_at": true
+        },
+        {
+          "id": "9cad0ea5-716b-4845-bf0f-6bb3343798fb",
+          "title": "Руководитель направления фронт-офисных бизнес-процессов",
+          "source_published_at": "2026-09-11T06:49:31.336000Z",
+          "first_seen_at": "2026-09-11T06:53:12.646260Z",
+          "has_source_published_at": true
+        },
+        {
+          "id": "d8c002f9-9f83-417b-9be0-3213430a6961",
+          "title": "Руководитель разработки",
+          "source_published_at": "2026-09-11T06:15:33.565000Z",
+          "first_seen_at": "2026-09-11T06:48:43.130809Z",
+          "has_source_published_at": true
+        }
+      ],
+      "newest_ordering": false,
+      "ui_has_opublikovana": true,
+      "ui_has_najdena": false
+    },
+    "5_manual_scoring": {
+      "target": {
+        "id": "6fe54464-9f72-4a2c-9f52-e5e61db1141f",
+        "btn": "Оценить",
+        "title": "Менеджер по развитию решений",
+        "scrollY": 0
+      },
+      "before": {
+        "assessment_id": null,
+        "status": "new"
+      },
+      "click": {
+        "ok": true,
+        "text": "Ставим в очередь…"
+      },
+      "states": [
+        {
+          "btn": "Оценивается…",
+          "pending": true,
+          "scoringState": "unscored",
+          "verdict": "",
+          "scrollY": 0
+        },
+        {
+          "btn": "Оценивается…",
+          "pending": true,
+          "scoringState": "unscored",
+          "verdict": "",
+          "scrollY": 0
+        },
+        {
+          "btn": "Оценивается…",
+          "pending": true,
+          "scoringState": "unscored",
+          "verdict": "",
+          "scrollY": 0
+        },
+        {
+          "btn": "Оценивается…",
+          "pending": true,
+          "scoringState": "unscored",
+          "verdict": "",
+          "scrollY": 0
+        },
+        {
+          "btn": "Оценивается…",
+          "pending": true,
+          "scoringState": "unscored",
+          "verdict": "",
+          "scrollY": 0
+        },
+        {
+          "btn": "Оценивается…",
+          "pending": true,
+          "scoringState": "unscored",
+          "verdict": "",
+          "scrollY": 0
+        },
+        {
+          "btn": "Оценивается…",
+          "pending": true,
+          "scoringState": "unscored",
+          "verdict": "",
+          "scrollY": 0
+        },
+        {
+          "btn": "Оценивается…",
+          "pending": true,
+          "scoringState": "unscored",
+          "verdict": "",
+          "scrollY": 0
+        },
+        {
+          "btn": "Оценивается…",
+          "pending": true,
+          "scoringState": "unscored",
+          "verdict": "",
+          "scrollY": 0
+        },
+        {
+          "btn": "",
+          "pending": null,
+          "scoringState": "current",
+          "verdict": "skip",
+          "scrollY": 0
+        }
+      ],
+      "after_vac_assessment_related": {
+        "assessment_id": null,
+        "status": "new",
+        "keys": [
+          "id",
+          "source",
+          "external_id",
+          "title",
+          "url",
+          "description",
+          "salary_text",
+          "area_text",
+          "employment_text",
+          "schedule_text",
+          "work_format_text",
+          "experience_text",
+          "published_text",
+          "archived",
+          "source_status",
+          "source_status_checked_at",
+          "archived_at",
+          "source_status_reason",
+          "source_published_at",
+          "first_seen_at",
+          "last_seen_at",
+          "content_hash",
+          "status",
+          "owner_decision",
+          "owner_decision_at",
+          "action_channel",
+          "action_channel_at",
+          "next_action",
+          "next_action_at",
+          "next_action_done",
+          "created_at",
+          "updated_at",
+          "company",
+          "acquisition_provenance",
+          "current_assessment"
+        ]
+      },
+      "scoring_state": {
+        "vacancy_id": "6fe54464-9f72-4a2c-9f52-e5e61db1141f",
+        "state": "never_scored",
+        "scoring_mode": "fast",
+        "current_scoring_identity_hash": "7feb1270932e6a18f583d63631406f3912bc50689f18b2fb35bb64f5ace2490f",
+        "reusable_assessment_id": null,
+        "latest_assessment_id": null,
+        "stale_reason_codes": [],
+        "failure_error_code": null,
+        "failure_last_failed_at": null,
+        "failure_source_batch_run_id": null
+      },
+      "after_reload_ui": {
+        "scoringState": "current",
+        "verdict": "skip",
+        "btn": ""
+      },
+      "scroll_stable": true
+    },
+    "6_manual_refresh": {
+      "target": null,
+      "error": "no_refresh_button"
+    },
+    "7_captcha": {
+      "api_challenge": {
+        "active": false,
+        "challenge": null
+      },
+      "ui_captcha_hidden": true,
+      "challenge_files": {},
+      "did_not_trigger": true,
+      "challenge_active_false": true
+    },
+    "8_automation": {
+      "status": {
+        "enabled": false,
+        "running": false,
+        "last_started_at": "2026-09-09T17:14:33Z",
+        "last_finished_at": "2026-09-09T17:14:33Z",
+        "last_status": "error",
+        "last_error": "browser_proxy_unavailable:Local HH browser egress is unavailable; restart the workspace with make up.",
+        "next_run_at": null,
+        "interval_seconds": 3600,
+        "max_enqueue_per_cycle": 5,
+        "last_cycle": {
+          "created": 0,
+          "cycle_id": "c8c1037f-4a64-4d52-b6e5-f2468ad8ebcd",
+          "errors": 0,
+          "job_ids": [],
+          "processed": 0,
+          "scoring_candidates": 0,
+          "scoring_deferred": 0,
+          "scoring_enqueued": 0,
+          "scoring_pending_next_cycle": 0,
+          "scoring_skipped": 0,
+          "search_run_id": null,
+          "source_total": null,
+          "trigger": "run_now",
+          "unchanged": 0,
+          "updated": 0
+        },
+        "observed_at": "2026-09-11T07:11:55Z",
+        "startup_catchup_rule": "enabled AND next_run_at <= now → exactly one catch-up on process start; then next_run_at = now + interval (missed slots are not replayed)"
+      },
+      "enabled": false,
+      "did_not_enable_recurring": true,
+      "create_only_path_from_last_run": {
+        "execution_snapshot": {
+          "order": "publication_time",
+          "discovery": "resume_suitable",
+          "max_pages": 1,
+          "transport": "browser",
+          "start_page": 0
+        },
+        "created": 3,
+        "unchanged": 47,
+        "detail_planned": 3,
+        "detail_fetched": 3,
+        "serp_checked": 50
+      }
+    }
+  },
+  "console_errors": [],
+  "blockers": [],
+  "run_id": "9d6642bf-b792-4d9c-bd17-e74dbaac4af3",
+  "finished_at_utc": "2026-09-11T07:11:55Z",
+  "console_errors_final": []
+}
