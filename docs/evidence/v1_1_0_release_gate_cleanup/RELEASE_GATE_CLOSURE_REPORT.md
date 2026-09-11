@@ -81,7 +81,7 @@ Web change this turn: **test-only** assert strings for cache-bust query already 
 
 | Component | HEAD |
 |---|---|
-| workspace | `72ffd0c5e4a8d6019968bcb4d32a63da23044338` |
+| workspace | `f41d5d6d7cfe6e489cc18192d4b828dc571c0d89` |
 | core | `424a635d16cede1f62abc094b228a02e217a4c52` |
 | hh | `4e63ab4d9a833d4413a58de494a918fcfba9f0a6` |
 | web | `b1125964b88205e7d51a58b56b256a2b1651303b` |
