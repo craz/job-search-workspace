@@ -1,0 +1,839 @@
+[
+  [
+    "progress",
+    {
+      "id": "8bb20c3d-527f-4497-be5d-978ff5a31b53",
+      "t": "2026-09-11T06:42:07.649361+00:00",
+      "checked": null,
+      "unchanged": null,
+      "detail_planned": null,
+      "detail_fetched": null,
+      "phase": null,
+      "pages_fetched": null,
+      "pages_planned": null
+    }
+  ],
+  [
+    "progress",
+    {
+      "id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+      "t": "2026-09-11T06:42:10.661402+00:00",
+      "checked": 0,
+      "unchanged": null,
+      "detail_planned": null,
+      "detail_fetched": null,
+      "phase": "started",
+      "pages_fetched": 0,
+      "pages_planned": 1
+    }
+  ],
+  [
+    "progress",
+    {
+      "id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+      "t": "2026-09-11T06:42:15.183634+00:00",
+      "checked": 50,
+      "unchanged": 40,
+      "detail_planned": 10,
+      "detail_fetched": 0,
+      "phase": "details",
+      "pages_fetched": 1,
+      "pages_planned": 1
+    }
+  ],
+  [
+    "progress",
+    {
+      "id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+      "t": "2026-09-11T06:42:19.703648+00:00",
+      "checked": 50,
+      "unchanged": 40,
+      "detail_planned": 10,
+      "detail_fetched": 1,
+      "phase": "details",
+      "pages_fetched": 1,
+      "pages_planned": 1
+    }
+  ],
+  [
+    "progress",
+    {
+      "id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+      "t": "2026-09-11T06:42:22.724549+00:00",
+      "checked": 50,
+      "unchanged": 40,
+      "detail_planned": 10,
+      "detail_fetched": 2,
+      "phase": "details",
+      "pages_fetched": 1,
+      "pages_planned": 1
+    }
+  ],
+  [
+    "progress",
+    {
+      "id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+      "t": "2026-09-11T06:42:25.736389+00:00",
+      "checked": 50,
+      "unchanged": 40,
+      "detail_planned": 10,
+      "detail_fetched": 3,
+      "phase": "details",
+      "pages_fetched": 1,
+      "pages_planned": 1
+    }
+  ],
+  [
+    "progress",
+    {
+      "id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+      "t": "2026-09-11T06:42:28.749419+00:00",
+      "checked": 50,
+      "unchanged": 40,
+      "detail_planned": 10,
+      "detail_fetched": 4,
+      "phase": "details",
+      "pages_fetched": 1,
+      "pages_planned": 1
+    }
+  ],
+  [
+    "progress",
+    {
+      "id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+      "t": "2026-09-11T06:42:31.762558+00:00",
+      "checked": 50,
+      "unchanged": 40,
+      "detail_planned": 10,
+      "detail_fetched": 5,
+      "phase": "details",
+      "pages_fetched": 1,
+      "pages_planned": 1
+    }
+  ],
+  [
+    "progress",
+    {
+      "id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+      "t": "2026-09-11T06:42:34.774013+00:00",
+      "checked": 50,
+      "unchanged": 40,
+      "detail_planned": 10,
+      "detail_fetched": 6,
+      "phase": "details",
+      "pages_fetched": 1,
+      "pages_planned": 1
+    }
+  ],
+  [
+    "progress",
+    {
+      "id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+      "t": "2026-09-11T06:42:37.784221+00:00",
+      "checked": 50,
+      "unchanged": 40,
+      "detail_planned": 10,
+      "detail_fetched": 7,
+      "phase": "details",
+      "pages_fetched": 1,
+      "pages_planned": 1
+    }
+  ],
+  [
+    "progress",
+    {
+      "id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+      "t": "2026-09-11T06:42:40.797352+00:00",
+      "checked": 50,
+      "unchanged": 40,
+      "detail_planned": 10,
+      "detail_fetched": 8,
+      "phase": "details",
+      "pages_fetched": 1,
+      "pages_planned": 1
+    }
+  ],
+  [
+    "progress",
+    {
+      "id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+      "t": "2026-09-11T06:42:43.807635+00:00",
+      "checked": 50,
+      "unchanged": 40,
+      "detail_planned": 10,
+      "detail_fetched": 9,
+      "phase": "details",
+      "pages_fetched": 1,
+      "pages_planned": 1
+    }
+  ],
+  [
+    "final",
+    200,
+    {
+      "acquisition": {
+        "challenge": null,
+        "code": "ready",
+        "pagination": {
+          "detail_failures": 0,
+          "exhausted": false,
+          "failed_pages": 0,
+          "found": 2826,
+          "found_text": "Найдено 2 826 подходящих вакансий для резюме",
+          "max_pages": 1,
+          "max_pages_reached": true,
+          "more_remaining": true,
+          "next_page": 1,
+          "observed_page_size": 50,
+          "page_from": 0,
+          "page_to": 0,
+          "pages": 57,
+          "pages_fetched": 1,
+          "partial": false,
+          "per_page": 50,
+          "source_total": 2826,
+          "start_page": 0
+        },
+        "recovery": {
+          "kind": "none",
+          "operator_action": "none"
+        },
+        "screenshot_available": null,
+        "serp_guard": {
+          "ok": true,
+          "source_total": 2826
+        },
+        "status": "available"
+      },
+      "acquisition_counts": {
+        "already_in_db": 40,
+        "created": 10,
+        "detail_errors": 0,
+        "hh_cards_fetched": 10,
+        "new_ids": 10,
+        "serp_checked": 50,
+        "updated": 0
+      },
+      "acquisition_kind": "resume_suitable",
+      "action": {
+        "code": "none"
+      },
+      "candidate_context": {
+        "hh_resume_external_id": "f3e5e5f7ff0f50d3e50039ed1f4436664d7338",
+        "hh_resume_title": "Project Manager / Руководитель IT-проектов"
+      },
+      "challenge": null,
+      "checked_at": "2026-09-11T06:42:06Z",
+      "code": "ready",
+      "hh_writes": false,
+      "items": [
+        {
+          "discovered_at": "2026-09-11T06:42:47.113760Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "e9f76309-7e53-4adf-b8e1-f9711e0581e3",
+          "outcome": "created",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "136476339",
+          "vacancy_id": "e7cdd893-5ccb-4849-afff-28138b855fbc"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.134235Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "e6be330a-7388-481e-abf6-95925416d120",
+          "outcome": "created",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137232685",
+          "vacancy_id": "fd76b148-4c58-40b2-8c75-bf421059f66e"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.152786Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "a6da29e5-601b-4a71-910e-74c17c8f673b",
+          "outcome": "created",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137232242",
+          "vacancy_id": "6b63d0dd-faf1-41c5-aec0-693363533e58"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.170803Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "3c5f832a-4459-4613-b08c-fb271bc80efa",
+          "outcome": "created",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137232226",
+          "vacancy_id": "5b2b66a7-6eb9-4f48-bc12-552f96ac48e0"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.189003Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "274b5a89-5109-4e63-878c-11e720f20611",
+          "outcome": "created",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137232187",
+          "vacancy_id": "50d28a3c-e124-4041-891b-2a2c4a4e824e"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.206702Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "d735d181-9fb3-4516-8bc6-6b0ef0a1a26a",
+          "outcome": "created",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "136222279",
+          "vacancy_id": "281a704f-8589-4ba6-b1f9-8b58fc61478a"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.225586Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "4a9175df-897e-40a0-b3cd-498359c5370d",
+          "outcome": "created",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137230387",
+          "vacancy_id": "0c40fb17-6054-4a58-8468-9d0a47a06dbd"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.243952Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "9e104938-d9ec-4915-8996-61120928072f",
+          "outcome": "created",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "136529126",
+          "vacancy_id": "3d3cb137-616d-4660-bef1-bf417dfb18e3"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.262394Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "f66972e1-6a06-4877-90e5-a39ab9be9c01",
+          "outcome": "created",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "136473746",
+          "vacancy_id": "8554bb5c-ee33-4fd8-a252-f6ef5bb02b32"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.282569Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "dfa1bed7-37c0-4a61-97a7-389461402d31",
+          "outcome": "created",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "136337556",
+          "vacancy_id": "5d7dd269-db96-41a6-a1e9-e56472112fff"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.290040Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "b2ad693d-c286-4a45-ba4f-5cbe22a6770c",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137228531",
+          "vacancy_id": "9f68680d-f6dc-46c4-b83b-5c85f0a0be65"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.299470Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "731c9c4d-118b-4ac4-857c-00dc2dc25c11",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "136335401",
+          "vacancy_id": "43969c9b-ed1d-46dc-bb87-86121bbd7f95"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.307858Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "c12309d3-df1a-4c7a-a7a3-7317b3f59e59",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "136526156",
+          "vacancy_id": "f80fed53-2723-4ee9-8f0e-b16c9bc5fcd1"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.316533Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "9ac50c38-11fa-4ab6-9c5b-9062d02fbc14",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "136468572",
+          "vacancy_id": "8631727d-7dd0-4086-a131-71d0a94a34e9"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.325956Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "e50adee2-1167-4e02-80a7-9ef428770353",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137224360",
+          "vacancy_id": "0f4f5bdc-c060-4315-ad17-15e96d76fec0"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.334585Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "8f1f96be-0b40-4f6a-a0dc-f2f2a44cc44f",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137224131",
+          "vacancy_id": "36014c0b-5a82-41aa-8164-c6ceb25f7aaf"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.344045Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "20c76146-be35-4337-a1a6-aab017760c53",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137224093",
+          "vacancy_id": "fd890106-bb19-454a-a581-055f0cda0baa"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.352705Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "0c47c5cc-acc7-42aa-9fb9-064267ea1588",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137224039",
+          "vacancy_id": "8e1000e8-4def-4006-b589-99cea367d663"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.361751Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "0c49d0dc-92ca-4014-af98-d5f4995d2069",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137224040",
+          "vacancy_id": "9a8f9b13-beed-4eef-a7da-245bcb5e65a4"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.371293Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "ef7af592-f7c7-42aa-b545-274ccade70a2",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137224005",
+          "vacancy_id": "6091be88-1dea-4d15-9f5b-f30d8d49a676"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.379588Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "73f76301-574e-458c-a62c-ff343905105d",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137223955",
+          "vacancy_id": "8db4d54b-4545-4d05-81df-57c2ddefed15"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.388943Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "2d00768e-8b6e-4cc8-b822-ab3a0ffe226a",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137223918",
+          "vacancy_id": "41869844-562e-4772-981d-552ede1051c7"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.397422Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "236062e5-c90e-47f9-888d-c555ad4fb864",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137223633",
+          "vacancy_id": "d2b8bd93-3bb5-449d-b46d-9df80c920eb5"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.405662Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "da606836-5c5d-46a6-853c-f6b812aacf1a",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "136863179",
+          "vacancy_id": "fb90312a-2e3a-46f6-ba25-0da7c48807f9"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.414644Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "6812a630-8be4-4c79-8246-97bb0baa7d99",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "136330050",
+          "vacancy_id": "f138fa81-ac4b-46c7-a983-87e85544bb34"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.423726Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "84e9a391-ab5c-4b02-9d78-c7c4fc9934ef",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137010526",
+          "vacancy_id": "8b103c2b-7eb4-420d-b5bf-c369ceadd247"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.432783Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "f34619bc-d5a1-4fd6-8c61-9835990f7050",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137221568",
+          "vacancy_id": "a05a29f6-9810-493f-a6bd-5e805d8993dc"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.442492Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "05a73e9a-5ac6-4099-9824-a067c92f3b35",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137221551",
+          "vacancy_id": "bf9bc5b6-b170-4355-ae7b-6b7259710dd8"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.451955Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "04ffb5d7-3122-4e31-85be-cdada89fd7d9",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "136657854",
+          "vacancy_id": "05accd73-05d3-47a9-b905-5f25adf1f84a"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.460861Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "ec38808f-3b8c-42cf-9882-4feef5c947d8",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "136657853",
+          "vacancy_id": "211a328b-9543-4fe9-bdb4-79785860d53a"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.469730Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "21aac3f3-1682-444e-be09-b842f867e325",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "136801908",
+          "vacancy_id": "f3f64841-878a-465e-8552-f8f179098f48"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.478621Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "27d83f62-54d8-4ea1-89e8-078143803073",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "135144820",
+          "vacancy_id": "5af79f92-15b3-4b5a-a910-74ee4d7935da"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.487475Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "9dd32cbc-02eb-4b4f-ae35-7566c160b76c",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137221233",
+          "vacancy_id": "ab963fbf-4811-4884-86d5-97762f451877"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.496645Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "9edda6ef-495d-496b-b63f-dd5d6f3a6ef9",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137221100",
+          "vacancy_id": "02a7b52e-647e-4540-a1ed-930741879161"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.505203Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "2a1f6038-35ad-42e6-abf1-bf78da90e9f5",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137221090",
+          "vacancy_id": "793fd4d8-dfe9-41f5-ae58-65b60e7b2b8b"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.513625Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "45763a52-65e2-43a4-85d6-345c076b19dd",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "134107011",
+          "vacancy_id": "5d460e5a-f1f5-41f5-97a6-4c99164e97da"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.522419Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "8027c605-d6f6-476b-8c87-739304f0bac9",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "136861277",
+          "vacancy_id": "41a34440-aa3b-491e-9c68-8137774593d2"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.531574Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "58651bc4-506b-44a0-945a-132ed30fafb3",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137219926",
+          "vacancy_id": "62f78ce8-69fa-4552-9cb2-e6b008bcdc0d"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.540064Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "e175af9f-1410-4be3-ae1c-985b60d46d5c",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137220681",
+          "vacancy_id": "ed2eddd5-565c-4890-93e0-dd6f87974065"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.548775Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "8f952379-80b8-47c2-b14c-94811d72dbfe",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137076232",
+          "vacancy_id": "b54e5b69-0f55-4b76-b3b4-87de92f274c0"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.557157Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "83848fa1-57d7-4d83-ad20-f23acc000a65",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137220465",
+          "vacancy_id": "a31f5a50-b09f-45e9-b96c-12fef6505111"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.565272Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "06b415ef-1f87-4f7d-b028-79e6f5594dea",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137220307",
+          "vacancy_id": "05f1b133-b967-4c21-8152-332e6cc97d55"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.574021Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "37138947-8417-4059-8961-4b828a47ea5a",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137075900",
+          "vacancy_id": "bf53a24f-ea6f-4dce-9c68-b17c282da502"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.582720Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "aa4c0617-90a1-43c5-860f-2b19e0daebcc",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137220282",
+          "vacancy_id": "f2dbbf95-3bdb-4a65-89bc-4275d667138a"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.591623Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "0a4517be-6c38-41ff-bd79-58c65ac51950",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137220262",
+          "vacancy_id": "af21e9c0-7b91-448a-96e7-3a406ad10167"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.600831Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "4fd9a433-0f1d-4652-a3d1-476eeb8d094e",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "136265442",
+          "vacancy_id": "259d0997-101e-425a-87fd-587f1915ce6c"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.609910Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "c9af8832-d09f-4b3c-abf2-94eed35f41be",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "136860617",
+          "vacancy_id": "6241cc4c-7bf4-431b-9e57-d851038996fd"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.619076Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "e3ff4016-c82c-4661-ad5d-f7b77a2795d5",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137220109",
+          "vacancy_id": "d89ae8b9-e380-4ccd-98e5-3585fc06bf23"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.627663Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "d02072cf-4513-4b74-bc0d-31ee71d22e78",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137219984",
+          "vacancy_id": "245451c1-d985-46da-9177-951bdbcddfe1"
+        },
+        {
+          "discovered_at": "2026-09-11T06:42:47.637066Z",
+          "error_code": null,
+          "error_detail": null,
+          "id": "608ad25e-0f72-4333-8ade-920fdaf4323d",
+          "outcome": "unchanged",
+          "page": 0,
+          "search_run_id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+          "source_external_id": "137219811",
+          "vacancy_id": "cc14e5ab-743f-4e15-a4d7-f84bd4031906"
+        }
+      ],
+      "ok": true,
+      "operation": "resume_suitable_search_run",
+      "recovery": {
+        "kind": "none",
+        "operator_action": "none"
+      },
+      "screenshot_available": null,
+      "search_profile_id": null,
+      "search_run": {
+        "acquisition_kind": "resume_suitable",
+        "candidate_context_snapshot": {
+          "hh_resume_external_id": "f3e5e5f7ff0f50d3e50039ed1f4436664d7338",
+          "hh_resume_title": "Project Manager / Руководитель IT-проектов",
+          "profile_version_id": "4fa80565-0d36-4290-827d-f482546aa3f7",
+          "resume_version_id": "4c19a495-e7ad-468d-ba5b-53e4743320d5"
+        },
+        "created_count": 10,
+        "criteria_snapshot": {},
+        "error_code": null,
+        "error_count": 0,
+        "execution_snapshot": {
+          "discovery": "resume_suitable",
+          "max_pages": 1,
+          "order": "publication_time",
+          "start_page": 0,
+          "transport": "browser"
+        },
+        "finished_at": "2026-09-11T06:42:47.655120Z",
+        "found_count": 50,
+        "id": "49d9344c-9879-4fdd-b511-bc255a9692ad",
+        "progress": {
+          "checked_count": 50,
+          "created_count": 10,
+          "detail_fetched": 10,
+          "detail_planned": 10,
+          "last_progress_at": "2026-09-11T06:42:47.644413+00:00",
+          "page_current": 0,
+          "page_from": 0,
+          "pages_fetched": 1,
+          "pages_planned": 1,
+          "phase": "ingest",
+          "source_total": 2826,
+          "unchanged_count": 40,
+          "updated_count": 0
+        },
+        "recovery_hint": "none",
+        "search_profile_id": null,
+        "source": "hh",
+        "source_total": 2826,
+        "started_at": "2026-09-11T06:42:09.824832Z",
+        "status": "success",
+        "unchanged_count": 40,
+        "updated_count": 0
+      },
+      "source_total": 2826,
+      "status": "success"
+    }
+  ]
+]
