@@ -1,99 +1,128 @@
 # v1.1.0 RELEASE GATE CLOSURE REPORT
 
-**When:** 2026-09-11 ~10:45 MSK  
-**Machine:** MonsterHomeUbuntu (`0a4dc4e2-d17a-4907-9687-8763cf2eb97f`)  
+**When:** 2026-09-11 ~15:35 MSK  
 **Path:** `/data/Projects/job_search_ref`  
-**push=0**
+**push=0** (no push / tag / publish)
 
-## 1. STATUS
-**TECHNICAL PASS** — formal release gates green without product behavior change.
+## Verdict
 
-## 2. FORMAT CHECK
-Ran actual `make format-check` then formatting-only/`ruff check --fix` where safe.
+**RELEASE GATES GREEN? YES**  
+**READY TO PUBLISH v1.1.0? YES** (owner publish decision; this slice does not push)
 
-| Repo | Before | Exact causes | After |
-|---|---|---|---|
-| Core | RED | unformatted `decision_card_i18n.py`, `test_decision_card.py` | GREEN |
-| HH | RED | unformatted challenge/recovery/browser + unit tests | GREEN |
-| Web | RED | unformatted `test_manual_score_click_dom.py` quote style | GREEN |
-| Scoring | RED | 21 files would be reformatted (calibration + tests + helpers) | GREEN |
-| Workspace | N/A | no `format-check` target; `make test` OK | GREEN |
+**Functional product source behavior changed this cleanup? NO**  
+(only format/lint/mypy mechanical edits already in prior cleanup commits; this re-verify added a Web **test assert** sync to existing cache-bust query.)
 
-Lint remaining after format was fixed with lint-only safe edits / targeted per-file E501 ignores (embedded JS regexes, HTML fixture).
+---
 
-## 3. HH BDD BASENAME CLASH
-**Cause:** pytest default import mode collided on shared basenames  
-`tests/bdd/test_apply_dry_run.py` ↔ `tests/unit/test_apply_dry_run.py`  
-(and `test_apply_limited.py`).
+## 1. Exact previous red gates
 
-**Smallest fix:** `pyproject.toml` addopts `+ --import-mode=importlib`.
+| Gate | Was |
+|---|---|
+| Core `make format-check` / `make test` | RED (format + sqlite progress JSON) |
+| HH `make format-check` / collect / `make test` | RED (format + BDD basename clash) |
+| Web `make format-check` / `make test` | RED (format; later stale asset assert vs `r63`) |
+| Scoring `make format-check` / `make test` | RED (format + product mypy) |
+| Workspace `make test` / doctor | RED when web gitlink ≠ HEAD |
 
-**Proof:** `uv run pytest --collect-only -q` → **245 tests collected**; full joint `uv run pytest -q` → **245 passed**; `make test` unit+contract+bdd green.
+At start of this re-verify (post viewport ACCEPT, web at `165e233`): **only Web integration** failed — stale `?v=20260911-r61-refresh-btn` / `styles.css?v=…-r58` vs shipped `…-r63-score-viewport`. Format/lint already green on Core/HH/Web/Scoring.
 
-## 4. PROFILELOCK
-No mandatory release gate failed due to ProfileLock.  
-**Known debt (documented, not redesigned):** page-load `resumes-list` can race suitable click (`profile_locked`) — mitigated in smoke by idle wait; product UX can still race. Out of this cleanup scope.
+## 2. Root causes
 
-## 5. CORE RELEASE GATES
-`make test` **PASS**: format-check, lint, mypy, unit 126, integration 38, contract 9, bdd 18.
+1. **Format:** uncommitted / unformatted Python across Core/HH/Web/Scoring after product commits.
+2. **HH BDD clash:** pytest default import mode collided on shared basenames  
+   `tests/bdd/test_apply_dry_run.py` ↔ `tests/unit/test_apply_dry_run.py` (and `test_apply_limited.py`).
+3. **Web gate lag:** integration assert not updated when cache-bust moved to `r63-score-viewport`.
+4. **Workspace doctor:** gitlink pin lag behind web HEAD after commits.
 
-Also fixed pre-existing sqlite migration gate: `20260910_27` now uses `JSON().with_variant(JSONB, postgresql)` (same pattern as prior migrations). PostgreSQL semantics unchanged.
+## 3. Formatting / lint fixes
 
-## 6. HH RELEASE GATES
-`make test` **PASS**: format-check, lint, mypy, unit 215, contract 17, bdd 13.  
-Joint suite 245 passed after basename fix.
+Already landed in prior cleanup commits (mechanical only):
 
-## 7. WEB RELEASE GATES
-`make test` **PASS** with **js-syntax** + **js-smoke** (requires nvm node on PATH):  
-`check-static-js` OK (app.js, calibration.js); `bootstrap-smoke` OK; unit 35; integration 55; contract 52; bdd 12.  
-Integration asset assert aligned to shipped `app.js?v=20260911-r61-refresh-btn`.
+| Repo | Commit | Notes |
+|---|---|---|
+| Core | `424a635` | format + sqlite-safe progress JSON (portability) |
+| HH | `4e63ab4` | format/lint + importlib |
+| Web | `0874480` | format/lint (+ earlier asset assert) |
+| Scoring | `67e13d6` | format/lint + product mypy greens |
 
-## 8. SCORING RELEASE GATES
-`make test` **PASS**: format-check, lint, mypy, unit 593 (+1 skip), integration 8, contract 2, bdd 4.  
-No calibration rerun. Product-path mypy fixed; calibration typing debt isolated via mypy override (documented).
+This turn: **no further format/lint edits** (already green).
 
-## 9. WORKSPACE RELEASE GATES
-`make test` **PASS**: unit + bdd (49+8 OK).
+## 4. BDD clash fix
 
-## 10. REGRESSION SAFETY
-No scoring/policy semantic changes; no ProfileLock redesign; no HH acquisition rerun.  
-Diffs are mechanical format/lint/typing/portability/test-assert/config only.  
-i18n string *values* unchanged (wrapping only). `looks_like_hh_challenge` return logic equivalent. Ollama liveness timeout check equivalent.
+**Smallest fix:** `services/hh/pyproject.toml` addopts `+ --import-mode=importlib`.
 
-## 11. FILES CHANGED (by repo)
-- **Core:** migration progress JSON portability; format `decision_card_i18n`/`app`/tests; mypy rename in `decision_card.py`
-- **HH:** `pyproject.toml` importlib + E501 ignore for extractors; format/lint/typing in browser/challenge/orchestration/tests
-- **Web:** pyproject E501 ignore; format contract test; integration asset pin
-- **Scoring:** ruff format/lint across listed files; typing in clients/jobs/enqueue/single_flight/evidence_refs/ollama_backend; mypy calibration override
-- **Workspace:** submodule pins + this evidence
+**Proof (this turn):**
 
-## 12. COMMITS (local, push=0)
+- Joint collect/run: `uv run pytest -q tests/unit tests/contract tests/bdd` → **245 passed**
+- `make test`: format/lint/mypy + unit **215** + contract **17** + bdd **13**
+
+## 5. ProfileLock status
+
+**No mandatory release gate fails because of ProfileLock** (HH `-k 'profile_lock or ProfileLock'` → 5 passed, 240 deselected).
+
+**Keep as known debt:** suitable/`resumes-list` race (`profile_locked`); integrated flow passed with wait. **Not redesigned.**
+
+## 6. Full gate results per repo (re-run 2026-09-11)
+
+| Repo | Command | Result |
+|---|---|---|
+| Core | `make test` | GREEN — format, lint, mypy; unit 126; integration 38; contract 9; bdd 18 |
+| HH | `make test` + joint 245 | GREEN — format, lint, mypy; unit 215; contract 17; bdd 13 |
+| Web | `make test` (incl. **js-syntax**, **js-smoke**) | GREEN — format, lint, mypy; js OK; unit 35; integration 55; contract 58; bdd 12; bootstrap-smoke OK |
+| Scoring | `make test` (no calibration) | GREEN — format, lint, mypy; unit 593 (+1 skip); integration 8; contract 2; bdd 4 |
+| Workspace | `make test` after pin | GREEN — unit + bdd (see post-pin run) |
+
+## 7. Functional changes introduced?
+
+**NO** (product scoring/policy/UI semantics unchanged in this cleanup).  
+Web change this turn: **test-only** assert strings for cache-bust query already present in `index.html`.
+
+## 8. Final HEAD manifest
+
+| Component | HEAD |
+|---|---|
+| workspace | *(commit after pin + this report)* |
+| core | `424a635d16cede1f62abc094b228a02e217a4c52` |
+| hh | `4e63ab4d9a833d4413a58de494a918fcfba9f0a6` |
+| web | `b1125964b88205e7d51a58b56b256a2b1651303b` |
+| scoring | `67e13d6456e578046ca495fa67103ef105be9960` |
+| osint | `123c00cd04e2c35084fe784b70c783ea13466f4f` (unchanged) |
+| content | `05e9d7c637dfc37c4f848e1faa396a50b38f6b9e` (unchanged) |
+
+## 9. Clean / dirty status
+
+After workspace pin commit: all listed trees **clean**; no unrelated work staged.
+
+## 10. Workspace pin consistency
+
+`make doctor` expects web HEAD == gitlink. Pin updated to `b112596`. Doctor ERROR for web HEAD/gitlink mismatch resolved.
+
+## 11. Commits (local, push=0)
+
 | Repo | SHA | Subject |
 |---|---|---|
 | core | `424a635` | chore(core): release-gate format/lint + sqlite-safe progress JSON |
 | hh | `4e63ab4` | chore(hh): release-gate format/lint + BDD basename collect fix |
-| web | `0874480` | chore(web): release-gate format/lint + asset cache-bust assert |
+| web | `165e233` | fix(web): keep viewport stable on manual «Оценить» (OWNER ACCEPTED product) |
+| web | `b112596` | test(web): sync cache-bust asserts to r63-score-viewport |
 | scoring | `67e13d6` | chore(scoring): release-gate format/lint + product mypy greens |
-| workspace | (this commit) | chore: pin v1.1.0 release-gate cleanup HEADs |
+| workspace | *(this)* | chore: pin web b112596 + v1.1.0 release-gate closure report |
 
-## 13. RELEASE MANIFEST
-| Component | HEAD |
+## 12. push=0
+
+Confirmed: no `git push`, no tag, no publish.
+
+## 13. Remaining known debt
+
+- ProfileLock suitable race (observe-only; wait mitigates smoke).
+- Scoring calibration package typing under mypy override (no expensive rewrite).
+- Web js-syntax/js-smoke need Node on PATH (nvm on this machine).
+
+## 14–15. Closure
+
+| Question | Answer |
 |---|---|
-| workspace | see commit after pin |
-| core | `424a635` |
-| hh | `4e63ab4` |
-| web | `0874480` |
-| scoring | `67e13d6` |
-| osint | `123c00c` (unchanged) |
-| content | `05e9d7c` (unchanged) |
+| RELEASE GATES GREEN? | **YES** |
+| READY TO PUBLISH v1.1.0? | **YES** (owner must explicitly authorize push/tag) |
 
-Trees clean after commits; pins consistent with submodule HEADs; no unrelated work; **push=0**.
-
-## 14. LIMITATIONS / KNOWN DEBT
-- ProfileLock suitable race remains (observe-only).
-- Scoring calibration package typing ignored under mypy override (no expensive rewrite this slice).
-- Web `make js-syntax`/`js-smoke` need Node on PATH (nvm v22 on this machine).
-
-## 15. READY FOR OWNER ACCEPTANCE?
-**YES** for release-gate closure (TECHNICAL PASS). Owner may accept publish separately.  
-**push=0. STOP.**
+**STOP.**
