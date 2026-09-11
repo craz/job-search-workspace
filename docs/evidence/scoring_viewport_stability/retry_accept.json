@@ -1,0 +1,65 @@
+{
+  "filtered": "select",
+  "vacancyId": "36014c0b-5a82-41aa-8164-c6ceb25f7aaf",
+  "pass": true,
+  "issues": [],
+  "before": {
+    "label": "BEFORE",
+    "scrollY": 331,
+    "cardTop": 840.328125,
+    "cardAbs": 1171.328125,
+    "btnText": "Повторить оценку",
+    "expanded": true,
+    "noticePosition": null,
+    "loadingPanel": false,
+    "listCount": 25
+  },
+  "A": {
+    "label": "A_immediate",
+    "scrollY": 331,
+    "cardTop": 840.328125,
+    "cardAbs": 1171.328125,
+    "btnText": "Ставим в очередь…",
+    "expanded": true,
+    "noticePosition": "fixed",
+    "loadingPanel": false,
+    "listCount": 25
+  },
+  "B": {
+    "label": "B_after_post",
+    "scrollY": 331,
+    "cardTop": 840.328125,
+    "cardAbs": 1171.328125,
+    "btnText": "В очереди",
+    "expanded": true,
+    "noticePosition": "fixed",
+    "loadingPanel": false,
+    "listCount": 25
+  },
+  "C": {
+    "label": "C_queued",
+    "scrollY": 331,
+    "cardTop": 840.328125,
+    "cardAbs": 1171.328125,
+    "btnText": "В очереди",
+    "expanded": true,
+    "noticePosition": "fixed",
+    "loadingPanel": false,
+    "listCount": 25
+  },
+  "deltas": {
+    "A": {
+      "scrollY": 0,
+      "cardTop": 0
+    },
+    "B": {
+      "scrollY": 0,
+      "cardTop": 0
+    },
+    "C": {
+      "scrollY": 0,
+      "cardTop": 0
+    }
+  },
+  "expandedFinal": true
+}

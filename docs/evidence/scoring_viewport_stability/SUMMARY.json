@@ -1,0 +1,50 @@
+{
+  "web_sha": "165e233faf6f4dbe89b6d64ca702e2c2dffda291",
+  "workspace_sha": "8d2c132",
+  "web_port": 18080,
+  "score_pass": true,
+  "score_deltas": {
+    "A": {
+      "scrollY": 0,
+      "cardTop": 0,
+      "cardAbs": 0
+    },
+    "B": {
+      "scrollY": 0,
+      "cardTop": 0,
+      "cardAbs": 0
+    },
+    "C": {
+      "scrollY": 0,
+      "cardTop": 0,
+      "cardAbs": 0
+    },
+    "D": {
+      "scrollY": 0,
+      "cardTop": 0,
+      "cardAbs": 0
+    }
+  },
+  "score_vacancy": "6b63d0dd-faf1-41c5-aec0-693363533e58",
+  "retry_pass": true,
+  "retry_deltas": {
+    "A": {
+      "scrollY": 0,
+      "cardTop": 0
+    },
+    "B": {
+      "scrollY": 0,
+      "cardTop": 0
+    },
+    "C": {
+      "scrollY": 0,
+      "cardTop": 0
+    }
+  },
+  "retry_vacancy": "36014c0b-5a82-41aa-8164-c6ceb25f7aaf",
+  "fullListReplace": false,
+  "orderChanged": false,
+  "expandedFinal": true,
+  "noticePosition": "fixed",
+  "asset": "http://127.0.0.1:18080/assets/app.js?v=20260911-r63-score-viewport"
+}
