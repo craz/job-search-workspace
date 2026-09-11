@@ -12,9 +12,9 @@
 ## 2. HEADs (at smoke + after fix)
 | Repo | SHA | Subject |
 |---|---|---|
-| workspace | `1dd3e23` → bump after commit | (submodule bump) |
-| web (smoke) | `e24a859` | suitable freshness-first |
-| web (fix) | `db4eb21` | fix(web): render missing «Проверить обновления» on HH detail |
+| workspace | `b5b52c8` | chore: POST-v1 integrated daily flow smoke evidence + web submodule |
+| web (during smoke) | `e24a859` | suitable freshness-first |
+| web (blocker fix) | `db4eb21` | fix(web): render missing «Проверить обновления» on HH detail |
 | core | `44cf0be` | — |
 | hh | `b8a2c1e` | — |
 | scoring | `653f2e0` | — |
