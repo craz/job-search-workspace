@@ -1,7 +1,8 @@
 # Job Search Deep Review
 
-status: TEST
-phase: github-event-trigger
+status: DONE
+phase: trigger-smoke-test
 marker: JOB_SEARCH_REVIEW_READY
+test_id: 001
 
-This file exists only to test the GitHub event trigger before the deep review workflow is enabled.
+This commit exists only to test the GitHub event trigger before the deep review workflow is enabled.
